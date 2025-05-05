@@ -35,10 +35,7 @@ export const Navigation = () => {
           </Link>
         </div>
 
-        <div
-          className="collapse navbar-collapse"
-          id="bs-example-navbar-collapse-1"
-        >
+        <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul className="nav navbar-nav navbar-right">
             {[
               { to: "features", label: "Features" },
@@ -62,8 +59,10 @@ export const Navigation = () => {
               </li>
             ))}
             <li>
-              <button href="/login" className="btn-custom">
-                Ingresar
+              <button className="btn btn-custom">
+                <a href="/login" style={{ color: "inherit", textDecoration: "none" }}>
+                  Ingresar
+                </a>
               </button>
             </li>
           </ul>

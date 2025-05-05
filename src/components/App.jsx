@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from '../pages/Landing/Home'
+import AuthForm from '../pages/Auth/AuthForm'
 
 function App() {
 
@@ -7,6 +8,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthForm />} />
       </Routes>
     </>
   )
