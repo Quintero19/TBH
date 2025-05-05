@@ -23,6 +23,8 @@ export const Navigation = () => {
             smooth={true}
             duration={500}
             offset={-70}
+            spy={true}
+            activeClass="active"
             className="navbar-brand page-scroll flex items-center cursor-pointer"
           >
             <img
@@ -52,6 +54,8 @@ export const Navigation = () => {
                   smooth={true}
                   duration={500}
                   offset={-70}
+                  spy={true}
+                  activeClass="active"
                   className="page-scroll cursor-pointer"
                 >
                   {item.label}

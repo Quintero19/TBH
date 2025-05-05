@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/css/AuthForm.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,19 +15,25 @@ const AuthForm = () => {
 
             <div className={styles['input-box']}>
               <input type="text" placeholder="Username" required />
-              <i className="bx bxs-user"></i>
+              <i className={styles.icon}>
+                <FontAwesomeIcon icon={faUser} />
+              </i>
             </div>
 
             {!isLogin && (
               <div className={styles['input-box']}>
                 <input type="email" placeholder="Email" required />
-                <i className="bx bxs-envelope"></i>
+                <i className={styles.icon}>
+                  <FontAwesomeIcon icon={faEnvelope} />
+                </i>
               </div>
             )}
 
             <div className={styles['input-box']}>
               <input type="password" placeholder="Password" required />
-              <i className="bx bxs-lock-alt"></i>
+              <i className={styles.icon}>
+                <FontAwesomeIcon icon={faLock} />
+              </i>
             </div>
 
             {isLogin && (
@@ -37,7 +45,6 @@ const AuthForm = () => {
             <button type="submit" className={styles.btn}>
               {isLogin ? 'Login' : 'Register'}
             </button>
-
           </form>
         </div>
 
@@ -47,8 +54,8 @@ const AuthForm = () => {
             <p>Don't have an account?</p>
             <button className={styles.btn} onClick={() => setIsLogin(false)}>Register</button>
             <br />
-            <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
-                Regresar
+            <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Regresar
             </a>
           </div>
           <div className={`${styles['toggle-panel']} ${styles['toggle-right']}`}>
@@ -56,8 +63,8 @@ const AuthForm = () => {
             <p>Already have an account?</p>
             <button className={styles.btn} onClick={() => setIsLogin(true)}>Login</button>
             <br />
-            <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
-                Regresar
+            <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Regresar
             </a>
           </div>
         </div>

@@ -133,14 +133,14 @@ hr {
   }
 }
 
-.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus {
+.navbar-default .navbar-nav > li > a.active,
+.navbar-default .navbar-nav > li > a.active:hover,
+.navbar-default .navbar-nav > li > a.active:focus {
   background-color: transparent;
 }
-.navbar-default .navbar-nav > .active > a:after,
-.navbar-default .navbar-nav > .active > a:hover:after,
-.navbar-default .navbar-nav > .active > a:focus:after {
+.navbar-default .navbar-nav > li > a.active:after,
+.navbar-default .navbar-nav > li > a.active:hover:after,
+.navbar-default .navbar-nav > li > a.active:focus:after {
   display: block !important;
   position: absolute !important;
   left: 0 !important;
