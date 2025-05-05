@@ -104,6 +104,7 @@ hr {
   border-radius: 0;
   margin: 9px 20px 0;
   position: relative;
+  cursor: pointer;
 }
 #menu.navbar-default .navbar-nav > li > a:after {
   display: block;

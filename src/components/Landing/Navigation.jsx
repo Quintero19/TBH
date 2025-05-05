@@ -18,15 +18,21 @@ export const Navigation = () => {
             <span className="icon-bar"></span>
             <span className="icon-bar"></span>
           </button>
-          <a className="navbar-brand page-scroll flex items-center" href="#page-top">
-            <img 
-              src={Logo} 
-              alt="The Barber House Logo" 
+          <Link
+            to="page-top"
+            smooth={true}
+            duration={500}
+            offset={-70}
+            className="navbar-brand page-scroll flex items-center cursor-pointer"
+          >
+            <img
+              src={Logo}
+              alt="The Barber House Logo"
               className="h-8 mr-3 object-contain"
-              style={{ maxWidth: '80px' }}
+              style={{ maxWidth: "80px" }}
             />
             <span className="brand-text">THE BARBER HOUSE</span>
-          </a>
+          </Link>
         </div>
 
         <div
@@ -49,7 +55,7 @@ export const Navigation = () => {
                   smooth={true}
                   duration={500}
                   offset={-70}
-                  className="page-scroll"
+                  className="page-scroll cursor-pointer"
                 >
                   {item.label}
                 </Link>
