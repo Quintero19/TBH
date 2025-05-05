@@ -1,20 +1,37 @@
-// import Navbar from "../components/Navbar";
+import React, { useState, useEffect } from "react";
+import { Navigation } from "../../components/Landing/Navigation";
+import { Header } from "../../components/Landing/Header";
+import { Features } from "../../components/Landing/Features";
+import { About } from "../../components/Landing/About";
+import { Services } from "../../components/Landing/Services";
+import { Gallery } from "../../components/Landing/Gallery";
+import { Testimonials } from "../../components/Landing/testimonials";
+import { Team } from "../../components/Landing/Team";
+import { Contact } from "../../components/Landing/Contact";
+import JsonData from "../../data/data.json";
+import "../../styles/css/App.css";
 
-export default function Home() {
+
+
+const Home = () => {
+  const [landingPageData, setLandingPageData] = useState({});
+  useEffect(() => {
+    setLandingPageData(JsonData);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* <Navbar /> */}
-      {/* Sección principal */}
-      <div
-        className="flex flex-col items-center justify-center text-center bg-cover bg-center text-white h-screen"
-        style={{
-          backgroundImage:
-            "url('https://www.peluker.com/blog/wp-content/uploads/2024/11/Image04Inspiracion-en-mobiliario-de-barberia-vintage-para-un-look-clasico.jpg')",
-        }}
-      >
-        <h1 className="text-5xl font-bold">The Barber House</h1>
-        <p className="text-2xl">Slogan o presentación breve</p>
-      </div>
+    <div>
+      <Navigation />
+      <Header data={landingPageData.Header} />
+      <Features data={landingPageData.Features} />
+      <About data={landingPageData.About} />
+      <Services data={landingPageData.Services} />
+      <Gallery data={landingPageData.Gallery} />
+      <Testimonials data={landingPageData.Testimonials} />
+      <Team data={landingPageData.Team} />
+      <Contact data={landingPageData.Contact} />
     </div>
   );
-}
+};
+
+export default Home;
