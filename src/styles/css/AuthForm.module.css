@@ -126,6 +126,7 @@ form{ width: 100%; }
         width: 300%;
         height: 100%;
         background: #7494ec;
+        /* background-image: url(img/logos/tbh1.png); */
         /* border: 2px solid red; */
         border-radius: 150px;
         z-index: 2;
@@ -225,4 +226,136 @@ form{ width: 100%; }
     .form-box { padding: 20px; }
 
     .toggle-panel h1{font-size: 30px; }
+}
+
+/*Recuperar contraseña*/
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+    padding: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    position: relative;
+}
+
+.input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.input:focus {
+    border-color: #7494ec;
+}
+
+.icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.button {
+    background: #7494ec;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.button:hover {
+    background: #5c7ee3;
+}
+
+.links {
+    margin-top: 15px;
+}
+
+.backLink {
+    font-size: 14px;
+    color: #7494ec;
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+.socialIcons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.socialIcons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    color: #333;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.socialIcons a:hover {
+    border-color: #7494ec;
+    color: #7494ec;
 }

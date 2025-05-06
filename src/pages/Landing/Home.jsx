@@ -5,7 +5,7 @@ import { Features } from "../../components/Landing/Features";
 import { About } from "../../components/Landing/About";
 import { Services } from "../../components/Landing/Services";
 import { Gallery } from "../../components/Landing/Gallery";
-import { Testimonials } from "../../components/Landing/testimonials";
+import { Testimonials } from "../../components/Landing/Testimonials";
 import { Team } from "../../components/Landing/Team";
 import { Contact } from "../../components/Landing/Contact";
 import JsonData from "../../data/data.json";
