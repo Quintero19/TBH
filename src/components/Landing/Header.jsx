@@ -3,7 +3,7 @@ import React from "react";
 export const Header = (props) => {
   return (
     <header id="page-top">
-      <div className="intro">
+      <div className="intro" data-aos="zoom-in" data-aos-delay="100">
         <div className="overlay">
           <div className="container">
             <div className="row">

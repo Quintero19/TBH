@@ -14,7 +14,7 @@ export const Team = (props) => {
         <div id="row">
           {props.data
             ? props.data.map((d, i) => (
-                <div key={`${d.name}-${i}`} className="col-md-3 col-sm-6 team">
+                <div key={`${d.name}-${i}`} className="col-md-3 col-sm-6 team" data-aos={i % 2 === 0 ? "fade-right" : "fade-left"} data-aos-delay={i * 100}>
                   <div className="thumbnail">
                     {" "}
                     <img src={d.img} alt="..." className="team-img" />

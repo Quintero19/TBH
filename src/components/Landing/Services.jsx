@@ -14,7 +14,7 @@ export const Services = (props) => {
         <div className="row">
           {props.data
             ? props.data.map((d, i) => (
-                <div key={`${d.name}-${i}`} className="col-md-4">
+                <div key={`${d.name}-${i}`} className="col-md-4" data-aos={i % 2 === 0 ? "flip-left" : "flip-right"} data-aos-delay={i * 100}>
                   {" "}
                   <i className={d.icon}></i>
                   <div className="service-desc">

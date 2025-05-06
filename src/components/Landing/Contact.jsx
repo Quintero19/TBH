@@ -39,7 +39,7 @@ export const Contact = (props) => {
     <div>
       <div id="contact">
         <div className="container">
-          <div className="col-md-8">
+          <div className="col-md-8" data-aos="fade-up" data-aos-delay="100">
             <div className="row">
               <div className="section-title">
                 <h2>Get In Touch</h2>
@@ -98,7 +98,7 @@ export const Contact = (props) => {
               </form>
             </div>
           </div>
-          <div className="col-md-3 col-md-offset-1 contact-info">
+          <div className="col-md-3 col-md-offset-1 contact-info" data-aos="fade-down" data-aos-delay="200">
             <div className="contact-item">
               <h3>Contact Info</h3>
               <p>

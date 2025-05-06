@@ -10,7 +10,7 @@ export const Features = (props) => {
         <div className="row">
           {props.data
             ? props.data.map((d, i) => (
-                <div key={`${d.title}-${i}`} className="col-xs-6 col-md-3">
+                <div key={`${d.title}-${i}`} className="col-xs-6 col-md-3" data-aos={i % 2 === 0 ? "fade-up" : "fade-down"} data-aos-delay={i * 100}>
                   {" "}
                   <i className={d.icon}></i>
                   <h3>{d.title}</h3>

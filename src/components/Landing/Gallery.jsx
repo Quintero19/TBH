@@ -19,6 +19,8 @@ export const Gallery = (props) => {
                   <div
                     key={`${d.title}-${i}`}
                     className="col-sm-6 col-md-4 col-lg-4"
+                    data-aos={i % 2 === 0 ? "zoom-in" : "zoom-out"}
+                    data-aos-delay={i * 100}
                   >
                     <Image
                       title={d.title}
