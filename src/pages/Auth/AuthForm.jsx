@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faIdCard, faEnvelope, faLock,faArrowLeft,faArrowRight  } from '@fortawesome/free-solid-svg-icons';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,8 +17,8 @@ const AuthForm = () => {
     setMessage('');
 
     const endpoint = isLogin 
-      ? 'https://tbh-api-production-0d82.up.railway.app/api/auth/login' 
-      : 'https://tu-api.com/api/auth/register';
+      ? 'https://tbh-api-production-c79a.up.railway.app/api/auth/login' 
+      : 'https://tbh-api-production-c79a.up.railway.app/api/auth/register';
 
     const payload = isLogin 
       ? { email, password }
@@ -49,7 +49,6 @@ const AuthForm = () => {
   };
 
   return (
-    <div className={styles.pageContainer}>
       <div className={`${styles.container} ${isLogin ? '' : styles.active}`}>
         <div className={`${styles['form-box']} ${isLogin ? styles.login : styles.register}`}>
           <form onSubmit={handleSubmit}>
@@ -59,13 +58,13 @@ const AuthForm = () => {
               <div className={styles['input-box']}>
                 <input
                   type="text"
-                  placeholder="Nombre completo"
+                  placeholder="Documento"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
                 <i className={styles.icon}>
-                  <FontAwesomeIcon icon={faUser} />
+                  <FontAwesomeIcon icon={faIdCard} />
                 </i>
               </div>
             )}
@@ -112,26 +111,19 @@ const AuthForm = () => {
 
         <div className={styles['toggle-box']}>
           <div className={`${styles['toggle-panel']} ${styles['toggle-left']}`}>
-            <h1>Hola, Bienvenido!</h1>
-            <p>¿No tienes una cuenta?</p>
-            <button className={styles.btn} onClick={() => setIsLogin(false)}>Registro</button>
-            <br />
-            <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
-              Regresar
-            </a>
+          <a href="/" style={{ color: 'inherit' }}>
+              <div><FontAwesomeIcon icon={faArrowLeft} style={{color: "#Ffff",}}/></div>
+           </a>
+          <button className={styles.btn} onClick={() => setIsLogin(false)}>Registro</button>
           </div>
           <div className={`${styles['toggle-panel']} ${styles['toggle-right']}`}>
-            <h1>Bienvenido de vuelta!</h1>
-            <p>¿Ya creaste una cuenta?</p>
-            <button className={styles.btn} onClick={() => setIsLogin(true)}>Ingreso</button>
-            <br />
-            <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
-              Regresar
-            </a>
+          <a href="/">
+              <div><FontAwesomeIcon icon={faArrowRight} style={{color: "#Ffff",}} /></div>
+           </a>
+          <button className={styles.btn} onClick={() => setIsLogin(true)}>Ingreso</button>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

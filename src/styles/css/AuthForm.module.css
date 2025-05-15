@@ -1,18 +1,8 @@
-.pageContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
-}
-
 .container{
     position: relative;
-    width: 850px;
-    height: 550px;
+    width: 100%;
+    height: 100vh;
     background: #fff;
-    margin: 20px;
-    border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
     overflow: hidden;
 }
@@ -41,7 +31,7 @@ form{ width: 100%; }
     text-align: center;
     padding: 40px;
     z-index: 1;
-    transition: .6s ease-in-out 1.2s, visibility 0s 1s;
+    transition: .1s ease-in-out 1.2s, visibility 0s 1s;
 }
 
     .container.active .form-box{ right: 50%; }
@@ -88,7 +78,7 @@ form{ width: 100%; }
 .btn{
     width: 100%;
     height: 48px;
-    background: #7494ec;
+    background: #000000;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .1);
     border: none;
@@ -125,10 +115,9 @@ form{ width: 100%; }
         left: -250%;
         width: 300%;
         height: 100%;
-        background: #7494ec;
+        background: #000000;
         /* background-image: url(img/logos/tbh1.png); */
         /* border: 2px solid red; */
-        border-radius: 150px;
         z-index: 2;
         transition: 1.8s ease-in-out;
     }
@@ -137,7 +126,7 @@ form{ width: 100%; }
 
 .toggle-panel{
     position: absolute;
-    width: 50%;
+    width: 48%;
     height: 100%;
     /* background: seagreen; */
     color: #fff;
@@ -146,26 +135,62 @@ form{ width: 100%; }
     justify-content: center;
     align-items: center;
     z-index: 2;
-    transition: .6s ease-in-out;
+    transition: .1s ease-in-out;
 }
 
     .toggle-panel.toggle-left{ 
         left: 0;
-        transition-delay: 1.2s; 
+        width: 48%;
+        transition-delay: 1.2s;
+        background: url('../../../public/img/logos/Login.jpeg') no-repeat center center;
+        background-size: cover;
+        color: rgb(0, 0, 0);
     }
+
+    .toggle-panel.toggle-left button{ 
+        position: relative;
+        top: 42vh;
+        width: 50%;
+    }
+
+    .toggle-panel.toggle-left a{ 
+        position: relative;
+        top: -42vh;
+        left: -42vh;
+        font-size: 25px;
+    }
+
         .container.active .toggle-panel.toggle-left{
             left: -50%;
-            transition-delay: .6s;
+            transition-delay: .1s;
         }
 
-    .toggle-panel.toggle-right{ 
-        right: -50%;
-        transition-delay: .6s;
-    }
-        .container.active .toggle-panel.toggle-right{
+        .toggle-panel.toggle-right {
+            right: -50%;
+            width: 48%;
+            transition-delay: 0.6s;
+            background: url('../../../public/img/logos/Login.jpeg') no-repeat center center;
+            background-size: cover;
+            color: white;
+          }
+
+        .toggle-panel.toggle-right button{
+            position: relative;
+            top: 42vh;
+            width: 50%;
+          }
+        
+        .toggle-panel.toggle-right a{ 
+            position: relative;
+            top: -42vh;
+            left: 42vh;
+            font-size: 25px;
+        }
+          
+          .container.active .toggle-panel.toggle-right {
             right: 0;
             transition-delay: 1.2s;
-        }
+          }
 
     .toggle-panel p{ margin-bottom: 20px; }
 
@@ -227,6 +252,9 @@ form{ width: 100%; }
 
     .toggle-panel h1{font-size: 30px; }
 }
+
+
+
 
 /*Recuperar contraseña*/
 .pageContainer {
