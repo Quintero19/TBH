@@ -17,8 +17,8 @@ const AuthForm = () => {
     setMessage('');
 
     const endpoint = isLogin 
-      ? 'https://tbh-api-production-0d82.up.railway.app/api/auth/login' 
-      : 'https://tu-api.com/api/auth/register';
+      ? 'https://tbh-api-production-c79a.up.railway.app/api/auth/login' 
+      : 'https://tbh-api-production-c79a.up.railway.app/api/auth/register';
 
     const payload = isLogin 
       ? { email, password }
