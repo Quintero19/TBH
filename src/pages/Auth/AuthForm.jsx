@@ -19,7 +19,7 @@ const AuthForm = () => {
     setMessage('');
 
     const endpoint = isLogin 
-      ? "http://localhost:3000/api/auth/login": `${URL}api/auth/register`;
+      ? `${URL}api/auth/login`: `${URL}api/auth/register`;
 
     const payload = isLogin 
       ? { Correo: correo, Password: password }
@@ -40,12 +40,10 @@ const AuthForm = () => {
 
           if (isLogin) {
             const token = data.data.token;
-            const cedula = data.data.usuario.Documento;
             const rolId = data.data.usuario.Rol_Id;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('rol', rolId);
-            localStorage.setItem('documento', cedula);
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('rol', rolId);
 
             setMessage('¡Login exitoso!');
 
