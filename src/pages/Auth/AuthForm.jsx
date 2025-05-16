@@ -19,7 +19,7 @@ const AuthForm = () => {
     setMessage('');
 
     const endpoint = isLogin 
-      ? `${URL}api/auth/login`: `${URL}api/auth/register`;
+      ? "http://localhost:3000/api/auth/login": `${URL}api/auth/register`;
 
     const payload = isLogin 
       ? { Correo: correo, Password: password }
@@ -35,13 +35,34 @@ const AuthForm = () => {
       
 
       if (response.ok) {
-        const data = await response.json();
-        setMessage(isLogin ? '¡Login exitoso!' : '¡Registro exitoso!');
-        console.log('Respuesta API:', data);
-        // token en localStorage, redirigir, etc.
+          const data = await response.json();
+          console.log('Respuesta API:', data);
+
+          if (isLogin) {
+            const token = data.data.token;
+            const cedula = data.data.usuario.Documento;
+            const rolId = data.data.usuario.Rol_Id;
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('rol', rolId);
+            localStorage.setItem('documento', cedula);
+
+            setMessage('¡Login exitoso!');
+
+            const rolRoutes = {
+              1: '/admin/dashboard',
+              2: '/cliente/home',
+            };
+            window.location.href = rolRoutes[rolId] || '/';
+          } else {
+            setMessage('¡Registro exitoso!');
+          }
+
       } else {
-        const errorText = await response.text(); // <-- importante para respuestas no-JSON
-        setMessage(errorText || 'Error en la operación.');
+          const errorData = await response.json();
+          const errorMessage = errorData.error || 'Error en la operación.';
+          alert(errorMessage);
+        setMessage(errorMessage);
       }
     } catch (error) {
       console.error('Error:', error);
