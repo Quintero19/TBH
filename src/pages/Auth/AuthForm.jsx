@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faIdCard, faEnvelope, faLock,faArrowLeft,faArrowRight  } from '@fortawesome/free-solid-svg-icons';
+import { faIdCard, faEnvelope, faLock, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+
+const URL= 'https://tbh-api-production-c79a.up.railway.app/'
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [documento, setDocumento] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -17,12 +19,11 @@ const AuthForm = () => {
     setMessage('');
 
     const endpoint = isLogin 
-      ? 'https://tbh-api-production-c79a.up.railway.app/api/auth/login' 
-      : 'https://tbh-api-production-c79a.up.railway.app/api/auth/register';
+      ? `${URL}api/auth/login`: `${URL}api/auth/register`;
 
     const payload = isLogin 
-      ? { email, password }
-      : { name, email, password };
+      ? { Correo: correo, Password: password }
+      : { Documento: documento, Correo: correo, Password: password };
 
     try {
       const response = await fetch(endpoint, {
@@ -31,14 +32,16 @@ const AuthForm = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      
 
       if (response.ok) {
+        const data = await response.json();
         setMessage(isLogin ? '¡Login exitoso!' : '¡Registro exitoso!');
         console.log('Respuesta API:', data);
         // token en localStorage, redirigir, etc.
       } else {
-        setMessage(data.message || 'Error en la operación.');
+        const errorText = await response.text(); // <-- importante para respuestas no-JSON
+        setMessage(errorText || 'Error en la operación.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -49,81 +52,81 @@ const AuthForm = () => {
   };
 
   return (
-      <div className={`${styles.container} ${isLogin ? '' : styles.active}`}>
-        <div className={`${styles['form-box']} ${isLogin ? styles.login : styles.register}`}>
-          <form onSubmit={handleSubmit}>
-            <h1>{isLogin ? 'Ingresar' : 'Registro'}</h1>
+    <div className={`${styles.container} ${isLogin ? '' : styles.active}`}>
+      <div className={`${styles['form-box']} ${isLogin ? styles.login : styles.register}`}>
+        <form onSubmit={handleSubmit}>
+          <h1>{isLogin ? 'Ingresar' : 'Registro De Cliente'}</h1>
 
-            {!isLogin && (
-              <div className={styles['input-box']}>
-                <input
-                  type="text"
-                  placeholder="Documento"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <i className={styles.icon}>
-                  <FontAwesomeIcon icon={faIdCard} />
-                </i>
-              </div>
-            )}
-
+          {!isLogin && (
             <div className={styles['input-box']}>
               <input
-                type="email"
-                placeholder="Correo electrónico"
+                type="text"
+                placeholder="Documento"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={documento}
+                onChange={(e) => setDocumento(e.target.value)}
               />
               <i className={styles.icon}>
-                <FontAwesomeIcon icon={faEnvelope} />
+                <FontAwesomeIcon icon={faIdCard} />
               </i>
             </div>
+          )}
 
-            <div className={styles['input-box']}>
-              <input
-                type="password"
-                placeholder="Contraseña"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <i className={styles.icon}>
-                <FontAwesomeIcon icon={faLock} />
-              </i>
+          <div className={styles['input-box']}>
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              required
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+            />
+            <i className={styles.icon}>
+              <FontAwesomeIcon icon={faEnvelope} />
+            </i>
+          </div>
+
+          <div className={styles['input-box']}>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <i className={styles.icon}>
+              <FontAwesomeIcon icon={faLock} />
+            </i>
+          </div>
+
+          {isLogin && (
+            <div className={styles['forgot-link']}>
+              <a href="/rcp">¿Has olvidado tu contraseña?</a>
             </div>
+          )}
 
-            {isLogin && (
-              <div className={styles['forgot-link']}>
-                <a href="/rcp">¿Has olvidado tu contraseña?</a>
-              </div>
-            )}
+          <button type="submit" className={styles.btn} disabled={loading}>
+            {loading ? 'Procesando...' : isLogin ? 'Entrar' : 'Registrarse'}
+          </button>
 
-            <button type="submit" className={styles.btn} disabled={loading}>
-              {loading ? 'Procesando...' : isLogin ? 'Entrar' : 'Registrarse'}
-            </button>
+          {message && <p className={styles.message}>{message}</p>}
+        </form>
+      </div>
 
-            {message && <p className={styles.message}>{message}</p>}
-          </form>
-        </div>
-
-        <div className={styles['toggle-box']}>
-          <div className={`${styles['toggle-panel']} ${styles['toggle-left']}`}>
+      <div className={styles['toggle-box']}>
+        <div className={`${styles['toggle-panel']} ${styles['toggle-left']}`}>
           <a href="/" style={{ color: 'inherit' }}>
-              <div><FontAwesomeIcon icon={faArrowLeft} style={{color: "#Ffff",}}/></div>
-           </a>
+            <div><FontAwesomeIcon icon={faArrowLeft} style={{ color: "#Ffff" }} /></div>
+          </a>
           <button className={styles.btn} onClick={() => setIsLogin(false)}>Registro</button>
-          </div>
-          <div className={`${styles['toggle-panel']} ${styles['toggle-right']}`}>
+        </div>
+        <div className={`${styles['toggle-panel']} ${styles['toggle-right']}`}>
           <a href="/">
-              <div><FontAwesomeIcon icon={faArrowRight} style={{color: "#Ffff",}} /></div>
-           </a>
+            <div><FontAwesomeIcon icon={faArrowRight} style={{ color: "#Ffff" }} /></div>
+          </a>
           <button className={styles.btn} onClick={() => setIsLogin(true)}>Ingreso</button>
-          </div>
         </div>
       </div>
+    </div>
   );
 };
 
