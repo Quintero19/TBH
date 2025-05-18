@@ -4,9 +4,16 @@ import { useNavigate } from 'react-router-dom';
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    sessionStorage.clear();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/api/logout/', {
+        method: 'POST',
+        credentials: 'include' 
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   };
 
   return (
