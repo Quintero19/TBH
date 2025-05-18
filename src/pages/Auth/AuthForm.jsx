@@ -3,7 +3,9 @@ import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faIdCard, faEnvelope, faLock, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const URL= 'https://tbh-api-production-c79a.up.railway.app/'
+
+
+const URL = 'http://localhost:3000/api/auth/login';/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,56 +20,56 @@ const AuthForm = () => {
     setLoading(true);
     setMessage('');
 
-    const endpoint = isLogin 
-      ? `${URL}api/auth/login`: `${URL}api/auth/register`;
+    const endpoint = isLogin ? `${URL}`: `${URL}api/auth/register`;
 
-    const payload = isLogin 
-      ? { Correo: correo, Password: password }
-      : { Documento: documento, Correo: correo, Password: password };
+    const payload = isLogin
+  ? { Correo: correo, Password: password }
+  : { Documento: documento, Correo: correo, Password: password };
 
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+try {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (response.ok) {
+    if (isLogin) {
+      setMessage('¡Login exitoso!');
+
+      const meResponse = await fetch('http://localhost:3000/api/me/', {/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+        credentials: 'include',
       });
 
-      
+      if (meResponse.ok) {
+        const { user } = await meResponse.json();
+        console.log('Usuario decodificado:', user);
 
-      if (response.ok) {
-          const data = await response.json();
-          console.log('Respuesta API:', data);
-
-          if (isLogin) {
-            const token = data.data.token;
-            const rolId = data.data.usuario.Rol_Id;
-
-            sessionStorage.setItem('token', token);
-            sessionStorage.setItem('rol', rolId);
-
-            setMessage('¡Login exitoso!');
-
-            const rolRoutes = {
-              1: '/admin/dashboard',
-              2: '/cliente/home',
-            };
-            window.location.href = rolRoutes[rolId] || '/';
-          } else {
-            setMessage('¡Registro exitoso!');
-          }
-
+        const rolRoutes = {
+          1: '/admin/dashboard',
+          2: '/cliente/home',
+        };
+        window.location.href = rolRoutes[user.rol_id] || '/';
       } else {
-          const errorData = await response.json();
-          const errorMessage = errorData.error || 'Error en la operación.';
-          alert(errorMessage);
-        setMessage(errorMessage);
+        setMessage('No se pudo obtener información del usuario.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setMessage('Error al conectar con el servidor.');
-    } finally {
-      setLoading(false);
+    } else {
+      setMessage('¡Registro exitoso!');
     }
+  } else {
+    const errorData = await response.json();
+    const errorMessage = errorData.error || 'Error en la operación.';
+    alert(errorMessage);
+    setMessage(errorMessage);
+  }
+} catch (error) {
+  console.error('Error:', error);
+  setMessage('Error al conectar con el servidor.');
+} finally {
+  setLoading(false);
+}
+
   };
 
   return (
