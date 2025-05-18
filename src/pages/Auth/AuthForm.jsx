@@ -5,7 +5,7 @@ import { faIdCard, faEnvelope, faLock, faArrowLeft, faArrowRight } from '@fortaw
 
 
 
-const URL = 'http://localhost:3000/api/auth/login';
+const URL = 'http://localhost:3000/api/auth/login';/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -38,7 +38,7 @@ try {
     if (isLogin) {
       setMessage('¡Login exitoso!');
 
-      const meResponse = await fetch('http://localhost:3000/api/me/', {
+      const meResponse = await fetch('http://localhost:3000/api/me/', {/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         credentials: 'include',
       });
 
