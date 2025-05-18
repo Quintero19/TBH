@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import SidebarLayout from '../../components/sideBar';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
+  
   const handleLogout = async () => {
     try {
       await fetch('http://localhost:3000/api/logout/', {/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
@@ -20,6 +21,9 @@ export default function Dashboard() {
     <div>
       <h1>Bienvenido al Dashboard</h1>
       <button onClick={handleLogout}>Cerrar Sesión</button>
+  <div>
+    <SidebarLayout />
+  </div>
     </div>
   );
 }
