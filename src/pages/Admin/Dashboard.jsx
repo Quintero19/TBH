@@ -1,8 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import SidebarLayout from '../../components/sideBar';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  <div>
+    <SidebarLayout />
+  </div>
 
   const handleLogout = () => {
     sessionStorage.clear();
