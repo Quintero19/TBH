@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import SidebarLayout from '../../components/sideBar';
+import Sidebar from '../../components/sideBar';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <SidebarLayout />
+      <Sidebar />
       <h1>Bienvenido al Dashboard</h1>
       <button onClick={handleLogout}>Cerrar Sesión</button>
     </div>
