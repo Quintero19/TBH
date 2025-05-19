@@ -17,10 +17,12 @@ export default function Dashboard() {
   };
 
   return (
-    <div>
+    <>
       <Sidebar />
-      <h1>Bienvenido al Dashboard</h1>
-      <button onClick={handleLogout}>Cerrar Sesión</button>
-    </div>
+      <div className="flex-1 md:ml-64 p-4 md:p-8">
+          <h1>Bienvenido al Dashboard</h1>
+          <button onClick={handleLogout}>Cerrar Sesión</button>
+      </div>
+    </> 
   );
 }
