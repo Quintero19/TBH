@@ -3,9 +3,12 @@ import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faIdCard, faEnvelope, faLock, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-
-
-const URL = 'http://localhost:3000/api/auth/login';/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+const BASE_URL = 'http://localhost:3000/api';
+const ENDPOINTS = {
+  login: `${BASE_URL}/auth/login`,
+  register: `${BASE_URL}/auth/register`,
+  me: `${BASE_URL}/me`,
+};
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,56 +23,54 @@ const AuthForm = () => {
     setLoading(true);
     setMessage('');
 
-    const endpoint = isLogin ? `${URL}`: `${URL}api/auth/register`;
-
+    const endpoint = isLogin ? ENDPOINTS.login : ENDPOINTS.register;
     const payload = isLogin
-  ? { Correo: correo, Password: password }
-  : { Documento: documento, Correo: correo, Password: password };
+      ? { Correo: correo, Password: password }
+      : { Documento: documento, Correo: correo, Password: password };
 
-try {
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (response.ok) {
-    if (isLogin) {
-      setMessage('¡Login exitoso!');
-
-      const meResponse = await fetch('http://localhost:3000/api/me/', {/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
-      if (meResponse.ok) {
-        const { user } = await meResponse.json();
-        console.log('Usuario decodificado:', user);
+      if (response.ok) {
+        if (isLogin) {
+          setMessage('¡Login exitoso!');
 
-        const rolRoutes = {
-          1: '/admin/dashboard',
-          2: '/cliente/home',
-        };
-        window.location.href = rolRoutes[user.rol_id] || '/';
+          const meResponse = await fetch(ENDPOINTS.me, {
+            credentials: 'include',
+          });
+
+          if (meResponse.ok) {
+            const { user } = await meResponse.json();
+            console.log('Usuario decodificado:', user);
+
+            const rolRoutes = {
+              1: '/admin/dashboard',
+              2: '/cliente/home',
+            };
+            window.location.href = rolRoutes[user.rol_id] || '/';
+          } else {
+            setMessage('No se pudo obtener información del usuario.');
+          }
+        } else {
+          setMessage('¡Registro exitoso!');
+        }
       } else {
-        setMessage('No se pudo obtener información del usuario.');
+        const errorData = await response.json();
+        const errorMessage = errorData.error || 'Error en la operación.';
+        alert(errorMessage);
+        setMessage(errorMessage);
       }
-    } else {
-      setMessage('¡Registro exitoso!');
+    } catch (error) {
+      console.error('Error:', error);
+      setMessage('Error al conectar con el servidor.');
+    } finally {
+      setLoading(false);
     }
-  } else {
-    const errorData = await response.json();
-    const errorMessage = errorData.error || 'Error en la operación.';
-    alert(errorMessage);
-    setMessage(errorMessage);
-  }
-} catch (error) {
-  console.error('Error:', error);
-  setMessage('Error al conectar con el servidor.');
-} finally {
-  setLoading(false);
-}
-
   };
 
   return (
@@ -136,13 +137,13 @@ try {
       <div className={styles['toggle-box']}>
         <div className={`${styles['toggle-panel']} ${styles['toggle-left']}`}>
           <a href="/" style={{ color: 'inherit' }}>
-            <div><FontAwesomeIcon icon={faArrowLeft} style={{ color: "#Ffff" }} /></div>
+            <div><FontAwesomeIcon icon={faArrowLeft} style={{ color: "#fff" }} /></div>
           </a>
           <button className={styles.btn} onClick={() => setIsLogin(false)}>Registro</button>
         </div>
         <div className={`${styles['toggle-panel']} ${styles['toggle-right']}`}>
           <a href="/">
-            <div><FontAwesomeIcon icon={faArrowRight} style={{ color: "#Ffff" }} /></div>
+            <div><FontAwesomeIcon icon={faArrowRight} style={{ color: "#fff" }} /></div>
           </a>
           <button className={styles.btn} onClick={() => setIsLogin(true)}>Ingreso</button>
         </div>
