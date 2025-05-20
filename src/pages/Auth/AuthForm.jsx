@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faIdCard, faEnvelope, faLock, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faIdCard, faEnvelope, faEye, faEyeSlash, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 const BASE_URL = 'http://localhost:3000/api';
 const ENDPOINTS = {
   login: `${BASE_URL}/auth/login`,
   register: `${BASE_URL}/auth/register`,
-  me: `${BASE_URL}/me`,
+  me: `${BASE_URL}/me/`,
 };
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); 
+  const [showPassword, setShowPassword] = useState(false);     
   const [documento, setDocumento] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -22,6 +24,12 @@ const AuthForm = () => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+
+    if (!isLogin && password !== confirmPassword) {
+      setMessage('Las contraseñas no coinciden.');
+      setLoading(false);
+      return;
+    }
 
     const endpoint = isLogin ? ENDPOINTS.login : ENDPOINTS.register;
     const payload = isLogin
@@ -50,7 +58,7 @@ const AuthForm = () => {
 
             const rolRoutes = {
               1: '/admin/dashboard',
-              2: '/cliente/home',
+              2: '/usuario/index',
             };
             window.location.href = rolRoutes[user.rol_id] || '/';
           } else {
@@ -109,16 +117,31 @@ const AuthForm = () => {
 
           <div className={styles['input-box']}>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <i className={styles.icon}>
-              <FontAwesomeIcon icon={faLock} />
+            <i className={styles.icon} onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
             </i>
           </div>
+
+          {!isLogin && (
+            <div className={styles['input-box']}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Confirmar contraseña"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <i className={styles.icon} onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </i>
+            </div>
+          )}
 
           {isLogin && (
             <div className={styles['forgot-link']}>

@@ -20,7 +20,7 @@ export default function Dashboard() {
     <>
       <Sidebar />
       <div className="flex-1 md:ml-64 p-4 md:p-8">
-          <h1>Bienvenido al Dashboard</h1>
+          <h1>Bienvenido al Usuario</h1>
           <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
     </> 
