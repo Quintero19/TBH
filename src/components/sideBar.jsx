@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
@@ -11,6 +12,20 @@ const Sidebar = () => {
   });
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/api/logout/', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
 
   const toggleMenu = (menu) => {
     setOpenMenus((prev) => ({
@@ -127,7 +142,7 @@ const Sidebar = () => {
                 </button>
                 {openMenus.configuracion && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <li className="hover:text-white cursor-pointer">Roles</li>
+                    <Link to='/admin/roles'><li className="hover:text-white cursor-pointer">Roles</li></Link>
                   </ul>
                 )}
               </li>
@@ -302,7 +317,7 @@ const Sidebar = () => {
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0V7a3 3 0 016 0v1"
               ></path>
             </svg>
-            <span className="text-lg font-semibold">Cerrar sesión</span>
+            <span className="text-lg font-semibold" onClick={handleLogout}>Cerrar sesión</span>
           </div>
         </div>
       </div>

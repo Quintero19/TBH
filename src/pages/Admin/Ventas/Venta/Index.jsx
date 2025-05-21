@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../../components/sideBar';
+import Sidebar from '../../../../components/sideBar';
 
 export default function Usuario() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function Usuario() {
     <>
       <Sidebar />
       <div className="flex-1 md:ml-64 p-4 md:p-8">
-          <h1>Bienvenido al Usuario</h1>
+          <h1>Bienvenido al Venta</h1>
           <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
     </> 
