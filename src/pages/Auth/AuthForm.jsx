@@ -21,28 +21,43 @@ const AuthForm = () => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+  e.preventDefault();
+  setLoading(true);
+  setMessage('');
 
-    if (!isLogin && password !== confirmPassword) {
-      setMessage('Las contraseñas no coinciden.');
-      setLoading(false);
-      return;
-    }
+  if (!isLogin && password !== confirmPassword) {
+    setMessage('Las contraseñas no coinciden.');
+    setLoading(false);
+    return;
+  }
 
-    const endpoint = isLogin ? ENDPOINTS.login : ENDPOINTS.register;
-    const payload = isLogin
-      ? { Correo: correo, Password: password }
-      : { Documento: documento, Correo: correo, Password: password };
+  if (!isLogin && (documento.length < 7 || documento.length > 15)) {
+    setMessage('El documento debe tener entre 7 y 15 números.');
+    setLoading(false);
+    return;
+  }
 
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+  if (password.length < 6) {
+    setMessage('La contraseña debe tener al menos 6 caracteres.');
+    setLoading(false);
+    return;
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 3000)); 
+
+  const endpoint = isLogin ? ENDPOINTS.login : ENDPOINTS.register;
+  const payload = isLogin
+    ? { Correo: correo, Password: password }
+    : { Documento: documento, Correo: correo, Password: password };
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
 
       if (response.ok) {
         if (isLogin) {
@@ -91,11 +106,20 @@ const AuthForm = () => {
             <div className={styles['input-box']}>
               <input
                 type="text"
+                inputMode="numeric"
+                pattern="\d{7,15}"
                 placeholder="Documento"
                 required
                 value={documento}
-                onChange={(e) => setDocumento(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,15}$/.test(value)) {
+                    setDocumento(value);
+                  }
+                }}
+                title="Solo números, mínimo 7 y máximo 15 dígitos"
               />
+
               <i className={styles.icon}>
                 <FontAwesomeIcon icon={faIdCard} />
               </i>
@@ -120,6 +144,7 @@ const AuthForm = () => {
               type={showPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               required
+              minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -134,9 +159,11 @@ const AuthForm = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Confirmar contraseña"
                 required
+                minLength={6}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
+
               <i className={styles.icon} onClick={() => setShowPassword(!showPassword)} style={{ cursor: 'pointer' }}>
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </i>
@@ -150,8 +177,9 @@ const AuthForm = () => {
           )}
 
           <button type="submit" className={styles.btn} disabled={loading}>
-            {loading ? 'Procesando...' : isLogin ? 'Entrar' : 'Registrarse'}
+            {loading ? <span className="loader"></span> : isLogin ? 'Entrar' : 'Registrarse'}
           </button>
+
 
           {message && <p className={styles.message}>{message}</p>}
         </form>
