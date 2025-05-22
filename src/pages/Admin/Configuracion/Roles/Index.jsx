@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../components/sideBar';
+import Sidebar from '../../../../components/sideBar';
 
-export default function Dashboard() {
+export default function Usuario() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,7 +20,7 @@ export default function Dashboard() {
     <>
       <Sidebar />
       <div className="flex-1 md:ml-64 p-4 md:p-8">
-          <h1>Bienvenido al Dashboard</h1>
+          <h1>Bienvenido al Roles</h1>
           <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
     </> 
