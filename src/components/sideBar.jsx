@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { FiHome, FiSettings, FiUser, FiShoppingCart, FiBox, FiLogOut } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 
@@ -67,8 +68,7 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`
-          fixed top-0 left-0 h-full w-70 bg-[black] text-white shadow-2xl flex flex-col justify-between
+        className={`fixed top-0 left-0 h-full w-70 bg-[black] text-white shadow-2xl flex flex-col justify-between
           transform transition-transform duration-300
           md:translate-x-0
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
@@ -76,7 +76,7 @@ const Sidebar = () => {
         `}
       >
         {/* Encabezado */}
-        <div className="p-3">
+        <div className="p-5">
           <div className="flex items-center mb-12 space-x-4">
             <img
               src="../../public/img/logos/tbh1.png"
@@ -95,20 +95,8 @@ const Sidebar = () => {
               {/* Dashboard */}
               <li>
                 <div className="flex items-center space-x-5 p-4 rounded-xl hover:bg-[#161b22] cursor-pointer">
-                  <svg
-                    className="w-7 h-7 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"
-                    ></path>
-                  </svg>
-                  <Link to='/admin/dashboard'><span>Dashboard</span></Link>
+                  <FiHome className="w-7 h-7 text-blue-400" />
+                  <span>Dashboard</span>
                 </div>
               </li>
 
@@ -119,15 +107,7 @@ const Sidebar = () => {
                   className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
                 >
                   <div className="flex items-center space-x-5">
-                    <svg
-                      className="w-7 h-7 text-yellow-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 2.34a8.003 8.003 0 00-1.42-2.36l1.36-1.36a1 1 0 10-1.41-1.42l-1.36 1.36a8.003 8.003 0 00-2.36-1.42V2h-2v2.14a8.003 8.003 0 00-2.36 1.42L7.64 4.22a1 1 0 10-1.41 1.42l1.36 1.36a8.003 8.003 0 00-1.42 2.36H2v2h2.14a8.003 8.003 0 001.42 2.36l-1.36 1.36a1 1 0 101.41 1.42l1.36-1.36a8.003 8.003 0 002.36 1.42V22h2v-2.14a8.003 8.003 0 002.36-1.42l1.36 1.36a1 1 0 001.41-1.42l-1.36-1.36a8.003 8.003 0 001.42-2.36H22v-2h-2.14z" />
-                    </svg>
+                    <FiSettings className="w-7 h-7 text-yellow-400" />
                     <span>Configuración</span>
                   </div>
                   <svg
@@ -154,15 +134,7 @@ const Sidebar = () => {
                   className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
                 >
                   <div className="flex items-center space-x-5">
-                    <svg
-                      className="w-7 h-7 text-green-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20h6M4 20h5v-2a4 4 0 00-3-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+                    <FiUser className="w-7 h-7 text-green-400" />
                     <span>Usuarios</span>
                   </div>
                   <svg
@@ -190,15 +162,7 @@ const Sidebar = () => {
                   className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
                 >
                   <div className="flex items-center space-x-5">
-                    <svg
-                      className="w-7 h-7 text-indigo-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L7 21h10l-2.75-4m1.5-13a3.25 3.25 0 11-6.5 0 3.25 3.25 0 016.5 0zM4 10h16M4 14h16" />
-                    </svg>
+                    <FiBox className="w-7 h-7 text-indigo-400" />
                     <span>Servicios</span>
                   </div>
                   <svg
@@ -227,15 +191,7 @@ const Sidebar = () => {
                   className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
                 >
                   <div className="flex items-center space-x-5">
-                    <svg
-                      className="w-7 h-7 text-purple-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2 5h14M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
-                    </svg>
+                    <FiShoppingCart className="w-7 h-7 text-purple-400" />
                     <span>Compras</span>
                   </div>
                   <svg
@@ -267,15 +223,7 @@ const Sidebar = () => {
                   className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
                 >
                   <div className="flex items-center space-x-5">
-                    <svg
-                      className="w-7 h-7 text-red-400"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2 5h14M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
-                    </svg>
+                    <FiShoppingCart className="w-7 h-7 text-red-400" />
                     <span>Ventas</span>
                   </div>
                   <svg
@@ -304,20 +252,8 @@ const Sidebar = () => {
         <div className="p-8 border-t border-[#2d333b]">
           <div className="uppercase text-base text-gray-400 mb-4">Account</div>
           <div className="flex items-center space-x-5 hover:bg-[#161b22] p-4 rounded-xl cursor-pointer">
-            <svg
-              className="w-7 h-7 text-gray-300"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-6 0V7a3 3 0 016 0v1"
-              ></path>
-            </svg>
-            <span className="text-lg font-semibold" onClick={handleLogout}>Cerrar sesión</span>
+            <FiLogOut className="w-7 h-7 text-gray-300" />
+            <span className="text-lg font-semibold">Cerrar sesión</span>
           </div>
         </div>
       </div>
