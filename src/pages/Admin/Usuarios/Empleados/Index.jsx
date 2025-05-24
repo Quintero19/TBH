@@ -17,6 +17,7 @@ export default function Usuario() {
       console.error('Error al cerrar sesión:', error);
     }
   };
+  const title = 'Empleados';
 
   const columns = [
     { header: 'Documento', accessor: 'documento' },
@@ -33,6 +34,7 @@ export default function Usuario() {
       <Sidebar />
       <div className="flex-1 md:ml-64 p-4 md:p-8">
         <GeneralTable
+          title = {title}
           columns={columns}
           data={data}
           onAdd={() => console.log('Agregar')}
