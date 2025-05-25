@@ -1,8 +1,6 @@
-import {BASE_URL} from '../utils/api'
-
 export async function getUser() {
   try {
-    const res = await fetch(`${BASE_URL}/me/`, {
+    const res = await fetch('http://localhost:3000/api/me/', {
       method: 'GET',
       credentials: 'include' 
     });

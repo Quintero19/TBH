@@ -2,7 +2,6 @@ import { Fragment, useState } from "react";
 import { FiHome, FiSettings, FiUser, FiShoppingCart, FiBox, FiLogOut } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import {BASE_URL} from '../utils/api'
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState({
@@ -19,7 +18,7 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${BASE_URL}/logout/`, {
+      await fetch('http://localhost:3000/api/logout/', {
         method: 'POST',
         credentials: 'include'
       });
@@ -80,7 +79,7 @@ const Sidebar = () => {
         <div className="p-5">
           <div className="flex items-center mb-12 space-x-4">
             <img
-              src="img/logos/tbh1.png"
+              src="../../public/img/logos/tbh1.png"
               alt="Logo"
               className="w-10 h-10 object-cover rounded-full"
             />
