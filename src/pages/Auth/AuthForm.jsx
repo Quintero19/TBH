@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import styles from '../../styles/css/AuthForm.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faIdCard, faEnvelope, faEye, faEyeSlash, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import {BASE_URL} from '../../utils/api'
 
+const BASE_URL = 'http://localhost:3000/api';
 const ENDPOINTS = {
   login: `${BASE_URL}/auth/login`,
   register: `${BASE_URL}/auth/register`,
