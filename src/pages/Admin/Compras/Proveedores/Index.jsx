@@ -1,105 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../../../../components/sideBar';
 
-import Sidebar from "../../../../components/sideBar";
-import GeneralTable from "../../../../components/GeneralTable";
-import api from "../../../../utils/api";
-
-const columns = [
-  { header: "ID", accessor: "Id_Proveedores" },
-  { header: "Tipo Proveedor", accessor: "Tipo_Proveedor" },
-  { header: "Documento / NIT", accessor: "doc" },
-  { header: "Nombre / Empresa", accessor: "nombre" },
-  { header: "Celular / Celular Empresa", accessor: "celular" },
-  { header: "Estado", accessor: "Estado" },
-];
-
-const transformData = (data) => {
-  return data.map(item => {
-    const isEmpresa = item.Tipo_Proveedor === "Empresa";
-    return {
-      ...item,
-      doc: isEmpresa ? item.NIT : item.Documento,
-      nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
-      celular: isEmpresa ? item.Celular_Empresa : item.Celular,
-    };
-  });
-};
-
-const Proveedores = () => {
-  const [data, setData] = useState([]);
-
-  const fetchData = async () => {
-    try {
-      const response = await api.get("/proveedores");
-      console.log(response.data);
-      setData(transformData(response.data.data));
-    } catch (error) {
-      console.error("Error al obtener proveedores:", error.response?.data || error);
-      if (error.response?.status === 401) {
-        handleLogout();
-      }
-    }
-  };
-
-const handleToggleEstado = async (id) => {
-  try {
-    await api.put(`/proveedores/estado/${id}`);
-    await fetchData(); // <-- Recarga la tabla después del cambio
-  } catch (error) {
-    console.error('Error cambiando estado:', error);
-    alert('Error cambiando estado');
-  }
-};
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleAdd = () => {
-    console.log("Agregar proveedor");
-  };
-
-  const handleView = (row) => {
-    console.log("Ver proveedor:", row);
-  };
-
-  const handleEdit = (row) => {
-    console.log("Editar proveedor:", row);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Eliminar proveedor:", row);
-  };
+export default function Usuario() {
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await api.post("/logout");
-      window.location.href = "/login";
+      await fetch('http://localhost:3000/api/logout/', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      navigate('/login');
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error('Error al cerrar sesión:', error);
     }
   };
 
   return (
-    <div className="flex">
-      <Sidebar onLogout={handleLogout} />
+    <>
+      <Sidebar />
       <div className="flex-1 md:ml-64 p-4 md:p-8">
-        <GeneralTable
-          title="Proveedores"
-          columns={columns}
-          data={data}
-          onAdd={handleAdd}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleEstado={handleToggleEstado}
-          idAccessor="Id_Proveedores"
-          stateAccessor="Estado"
-        />
+          <h1>Bienvenido al Proveedores</h1>
+          <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
-    </div>
+    </> 
   );
-};
-
-export default Proveedores;
+}
