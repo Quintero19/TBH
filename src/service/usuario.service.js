@@ -1,45 +1,30 @@
-import {BASE_URL} from '../utils/api'
+import api from '../utils/api';
 
-const USER_URL = `${BASE_URL}/usuarios`
+const USER_URL = '/usuarios';
 
 export const userService = {
     crearUsuario: async (data) => {
-        const res = await fetch(USER_URL,{
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-            credentials: 'include'
-        });
-        return res.json();
+        const res = await api.post(USER_URL, data);
+        return res.data;
     },
 
     listarUsuarios: async () => {
-        const res = await fetch(USER_URL,{
-            credentials: 'include'
-        });
-        return res.json();
+        const res = await api.get(USER_URL);
+        return res.data;
     },
 
     listarUsuarioPorDocumento: async (documento) => {
-    const res = await fetch(`${USER_URL}/${documento}`,{
-        credentials: 'include'
-    });
-    return res.json();
-  },
+        const res = await api.get(`${USER_URL}/${documento}`);
+        return res.data;
+    },
 
-  eliminarUsuario: async (documento) => {
-    const res = await fetch(`${USER_URL}/${documento}`, {
-        method: 'DELETE',
-        credentials: 'include'
-    });
-    return res.json();
-  },
+    eliminarUsuario: async (documento) => {
+        const res = await api.delete(`${USER_URL}/${documento}`);
+        return res.data;
+    },
 
-  buscarUsuarioPorEmail: async (email) => {
-    const res = await fetch(`${USER_URL}/email/${email}`,{
-        credentials: 'include'
-    });
-    return res.json();
-  }
-
-}
+    buscarUsuarioPorEmail: async (email) => {
+        const res = await api.get(`${USER_URL}/email/${email}`);
+        return res.data;
+    },
+};

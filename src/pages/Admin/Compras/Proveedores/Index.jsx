@@ -45,7 +45,7 @@ const Proveedores = () => {
 const handleToggleEstado = async (id) => {
   try {
     await api.put(`/proveedores/estado/${id}`);
-    await fetchData(); // <-- Recarga la tabla después del cambio
+    await fetchData();
   } catch (error) {
     console.error('Error cambiando estado:', error);
     alert('Error cambiando estado');
@@ -72,18 +72,9 @@ const handleToggleEstado = async (id) => {
     console.log("Eliminar proveedor:", row);
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/logout");
-      window.location.href = "/login";
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
-
   return (
     <div className="flex">
-      <Sidebar onLogout={handleLogout} />
+      <Sidebar/>
       <div className="flex-1 md:ml-64 p-4 md:p-8">
         <GeneralTable
           title="Proveedores"

@@ -1,16 +1,10 @@
-import {BASE_URL} from '../utils/api'
+import api from './api';
 
 export async function getUser() {
   try {
-    const res = await fetch(`${BASE_URL}/me/`, {
-      method: 'GET',
-      credentials: 'include' 
-    });
+    const res = await api.get('/me/');
 
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    return data.user;
+    return res.data.user;
   } catch (err) {
     console.error('Error al verificar usuario:', err);
     return null;

@@ -1,6 +1,5 @@
 // const URL= 'https://tbh-api-production-c79a.up.railway.app/'
 
-// src/api/api.js
 import axios from "axios";
 
 const api = axios.create({
@@ -9,3 +8,4 @@ const api = axios.create({
 });
 
 export default api;
+
