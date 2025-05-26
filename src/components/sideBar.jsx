@@ -2,7 +2,6 @@ import { Fragment, useState } from "react";
 import { FiHome, FiSettings, FiUser, FiShoppingCart, FiBox, FiLogOut } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import api from '../utils/api';
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState({
@@ -15,11 +14,14 @@ const Sidebar = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navigate = useNavigate(); // ✅ Declarado una sola vez aquí
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await api.post('/logout/');
+      await fetch('http://localhost:3000/api/logout/', {
+        method: 'POST',
+        credentials: 'include'
+      });
       navigate('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -251,7 +253,7 @@ const Sidebar = () => {
           <div className="uppercase text-base text-gray-400 mb-4">Account</div>
           <div className="flex items-center space-x-5 hover:bg-[#161b22] p-4 rounded-xl cursor-pointer">
             <FiLogOut className="w-7 h-7 text-gray-300" />
-            <button onClick={handleLogout} className="text-lg font-semibold">Cerrar sesión</button>
+            <span className="text-lg font-semibold">Cerrar sesión</span>
           </div>
         </div>
       </div>
