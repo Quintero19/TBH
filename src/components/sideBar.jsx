@@ -2,7 +2,6 @@ import { Fragment, useState } from "react";
 import { FiHome, FiSettings, FiUser, FiShoppingCart, FiBox, FiLogOut } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import api from '../utils/api';
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState({
@@ -19,7 +18,10 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post('/logout/');
+      await fetch('http://localhost:3000/api/logout/', {
+        method: 'POST',
+        credentials: 'include'
+      });
       navigate('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
