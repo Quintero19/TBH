@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../../../../components/sideBar';
 import Sidebar from "../../../../components/sideBar";
 import GeneralTable from "../../../../components/GeneralTable";
 import api from "../../../../utils/api";
@@ -76,21 +75,9 @@ const handleToggleEstado = async (id) => {
     <div className="flex">
       <Sidebar/>
       <div className="flex-1 md:ml-64 p-4 md:p-8">
-        <GeneralTable
-          title="Proveedores"
-          columns={columns}
-          data={data}
-          onAdd={handleAdd}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleEstado={handleToggleEstado}
-          idAccessor="Id_Proveedores"
-          stateAccessor="Estado"
-        />
+          <h1>Bienvenido al Proveedores</h1>
+          <button onClick={handleLogout}>Cerrar Sesión</button>
       </div>
-    </div>
+    </> 
   );
-};
-
-export default Proveedores;
+}

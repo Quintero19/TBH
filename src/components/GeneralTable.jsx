@@ -2,23 +2,10 @@ import React from "react";
 import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
 
-const GeneralTable = ({ 
-  title, 
-  columns, 
-  data, 
-  onAdd, 
-  onView, 
-  onEdit, 
-  onDelete,
-  onToggleEstado,
-  idAccessor = "id",
-  stateAccessor = "Estado" 
-}) => {
-
-
+const GeneralTable = ({ columns, data, onAdd, onView, onEdit, onDelete }) => {
   return (
     <div className="p-9">
-      <h1 className="text-3xl font-bold mb-4">{title}</h1>
+      <h1 className="text-3xl font-bold mb-4">Gestión de Datos</h1>
 
       <div className="p-4 bg-white rounded-lg mb-4 shadow-md">
         <div className="flex items-center w-full gap-2">
@@ -53,22 +40,22 @@ const GeneralTable = ({
                 data.map((row, index) => (
                   <tr key={index}>
                     {columns.map((col) => (
-                    <td key={col.accessor} className="p-2 border border-gray-300">
-                      {col.accessor === stateAccessor ? (
-                        <div className="flex justify-center gap-2">
-                          <label className="switch">
-                            <input
-                              type="checkbox"
-                              checked={row[stateAccessor]} 
-                              onChange={() => onToggleEstado(row[idAccessor])}
-                            />
-                            <span className="slider round"></span>
-                          </label>
-                        </div>
-                      ) : (
-                        row[col.accessor]
-                      )}
-                    </td>
+                      <td key={col.accessor} className="p-2 border border-gray-300">
+                        {col.accessor === "estado" ? (
+                          <div className="flex justify-center gap-2">
+                            <label className="switch">
+                              <input
+                                type="checkbox"
+                                checked={row[col.accessor]}
+                                onChange={() => {}}
+                              />
+                              <span className="slider round"></span>
+                            </label>
+                          </div>
+                        ) : (
+                          row[col.accessor]
+                        )}
+                      </td>
                     ))}
                     <td className="p-2 border border-gray-300 text-center">
                       <div className="flex justify-center gap-2">

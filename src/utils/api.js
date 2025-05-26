@@ -1,12 +1,1 @@
-// const URL= 'https://tbh-api-production-c79a.up.railway.app/'
-
-// src/api/api.js
-import axios from "axios";
-
-const api = axios.create({
-    baseURL: "http://localhost:3000/api",
-    withCredentials: true,
-});
-
-export default api;
-
+const URL= 'https://tbh-api-production-c79a.up.railway.app/'
