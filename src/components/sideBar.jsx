@@ -15,14 +15,11 @@ const Sidebar = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:3000/api/logout/', {
-        method: 'POST',
-        credentials: 'include'
-      });
+      await api.post('/logout/');
       navigate('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -89,23 +86,15 @@ const Sidebar = () => {
 
           {/* Menú principal */}
           <div className="uppercase text-base text-gray-400 mb-6 tracking-wide">
-            Menú
+            Menu
           </div>
-          <div
-            className="max-h-[calc(100vh-220px)] overflow-y-auto pr-1"
-            style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#4B5563 transparent'
-            }}
-          >
+          <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             <ul className="space-y-4 font-semibold">
               {/* Dashboard */}
               <li>
                 <div className="flex items-center space-x-5 p-4 rounded-xl hover:bg-[#161b22] cursor-pointer">
                   <FiHome className="w-7 h-7 text-blue-400" />
-                  <span>
-                  <Link to='/admin/dashboard'><span className="hover:text-white">Dashboard</span></Link>
-                  </span>
+                  <span>Dashboard</span>
                 </div>
               </li>
 
@@ -131,7 +120,7 @@ const Sidebar = () => {
                 </button>
                 {openMenus.configuracion && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <Link to='/admin/roles'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Roles</li></Link>
+                    <Link to='/admin/roles'><li className="hover:text-white cursor-pointer">Roles</li></Link>
                   </ul>
                 )}
               </li>
@@ -158,8 +147,8 @@ const Sidebar = () => {
                 </button>
                 {openMenus.usuarios && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <Link to='/admin/usuario'> <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Usuarios</li></Link>
-                    <Link to='/admin/empleado'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Empleados</li></Link>
+                    <Link to='/admin/usuario'> <li className="hover:text-white cursor-pointer">Usuarios</li></Link>
+                    <Link to='/admin/empleado'><li className="hover:text-white cursor-pointer">Empleados</li></Link>
                   </ul>
                 )}
               </li>
@@ -186,9 +175,9 @@ const Sidebar = () => {
                 </button>
                 {openMenus.servicios && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <Link to='/admin/servicios'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Servicios</li></Link>
-                    <Link to='/admin/agendamiento'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Agendamiento</li></Link>
-                    <Link to='/admin/horarios'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Horarios</li></Link>
+                    <Link to='/admin/servicios'><li className="hover:text-white cursor-pointer">Servicios</li></Link>
+                    <Link to='/admin/agendamiento'><li className="hover:text-white cursor-pointer">Agendamiento</li></Link>
+                    <Link to='/admin/horarios'><li className="hover:text-white cursor-pointer">Horarios</li></Link>
                   </ul>
                 )}
               </li>
@@ -215,12 +204,12 @@ const Sidebar = () => {
                 </button>
                 {openMenus.compras && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <Link to='/admin/compras'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Compras</li></Link>
-                    <Link to='/admin/proveedores'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Proveedores</li></Link>
-                    <Link to='/admin/categoriaproducto'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Categoría productos</li></Link>
-                    <Link to='/admin/producto'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Productos</li></Link>
-                    <Link to='/admin/categoriainsumo'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Categoría insumos</li></Link>
-                    <Link to='/admin/insumo'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Insumos</li></Link>
+                    <Link to='/admin/compras'><li className="hover:text-white cursor-pointer">Compras</li></Link>
+                    <Link to='/admin/proveedores'><li className="hover:text-white cursor-pointer">Proveedores</li></Link>
+                    <Link to='/admin/categoriaproducto'><li className="hover:text-white cursor-pointer">Categoría productos</li></Link>
+                    <Link to='/admin/producto'><li className="hover:text-white cursor-pointer">Productos</li></Link>
+                    <Link to='/admin/categoriainsumo'><li className="hover:text-white cursor-pointer">Categoría insumos</li></Link>
+                    <Link to='/admin/insumo'><li className="hover:text-white cursor-pointer">Insumos</li></Link>
                   </ul>
                 )}
               </li>
@@ -247,9 +236,9 @@ const Sidebar = () => {
                 </button>
                 {openMenus.ventas && (
                   <ul className="ml-8 mt-2 space-y-2 text-gray-300">
-                    <Link to='/admin/ventas'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Ventas</li></Link>
-                    <Link to='/admin/clientes'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Clientes</li></Link>
-                    <Link to='/admin/devoluciones'><li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">Devoluciones</li></Link>
+                    <Link to='/admin/ventas'><li className="hover:text-white cursor-pointer">Ventas</li></Link>
+                    <Link to='/admin/clientes'><li className="hover:text-white cursor-pointer">Clientes</li></Link>
+                    <Link to='/admin/devoluciones'><li className="hover:text-white cursor-pointer">Devoluciones</li></Link>
                   </ul>
                 )}
               </li>
@@ -259,10 +248,10 @@ const Sidebar = () => {
 
         {/* Pie de página - Cerrar sesión */}
         <div className="p-8 border-t border-[#2d333b]">
-          <div className="uppercase text-base text-gray-400 mb-4">Cerrar Sesión</div>
+          <div className="uppercase text-base text-gray-400 mb-4">Account</div>
           <div className="flex items-center space-x-5 hover:bg-[#161b22] p-4 rounded-xl cursor-pointer">
             <FiLogOut className="w-7 h-7 text-gray-300" />
-            <button onClick={handleLogout}>Cerrar Sesión</button>
+            <button onClick={handleLogout} className="text-lg font-semibold">Cerrar sesión</button>
           </div>
         </div>
       </div>
