@@ -1,22 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../../../components/sideBar';
 import React from 'react';
+import Sidebar from '../../../../components/sideBar';
 import GeneralTable from '../../../../components/GeneralTable';
 
 export default function Usuario() {
-  const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await fetch('http://localhost:3000/api/logout/', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      navigate('/login');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
   const title = 'Empleados';
 
   const columns = [
@@ -24,7 +11,7 @@ export default function Usuario() {
     { header: 'Nombre', accessor: 'nombre' },
     { header: 'Apellido', accessor: 'apellido' },
     { header: 'Correo', accessor: 'correo' },
-    { header: 'HOla', accessor: 'estado' },
+    { header: 'Estado', accessor: 'estado' },
   ];
 
   const data = [];

@@ -2,7 +2,7 @@ import React from "react";
 // import Button from "../../../components/Buttons/Button";
 
 const Button = ({ href, type = "button", icon, className = "", children, ...props }) => {
-    const baseClasses = "px-4 py-2 rounded-full font-bold transition duration-300 text-white";
+    const baseClasses = "px-5 py-3 rounded-full font-bold transition duration-300 text-white";
     const colors = {
         blue_a: "bg-blue-500 hover:bg-blue-700 h-[35px] w-[43px] rounded-full flex items-center justify-center",
         blue_b: "bg-blue-500 border-blue-700 hover:bg-blue-700",

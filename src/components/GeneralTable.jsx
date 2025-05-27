@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "./Buttons/Button";
+import { FaSearch, FaPlus, FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
 import BasicPagination from "./Paginacion";
 
 const GeneralTable = ({ 
@@ -18,7 +19,7 @@ const GeneralTable = ({
 
   return (
     <div className="p-9">
-      <h1 className="text-3xl font-bold mb-4">{title}</h1>
+      <h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
 
       <div className="p-4 bg-white rounded-lg mb-4 shadow-md">
         <div className="flex items-center w-full gap-2">
@@ -28,12 +29,10 @@ const GeneralTable = ({
               placeholder="Buscar..."
               className="p-2 border-none focus:ring-0 outline-none flex-1 h-[30px]"
             />
-            <Button className="blue_a" icon="fa-search" />
+            <Button className="blue_a"><FaSearch/></Button>
           </form>
 
-          <Button className="green" icon="fa-plus" onClick={onAdd}>
-            Agregar
-          </Button>
+          <Button className="green" onClick={onAdd}> Agregar </Button>
         </div>
 
         <div className="mt-4 border-t-4 border-black pt-4">
@@ -74,19 +73,22 @@ const GeneralTable = ({
                       <div className="flex justify-center gap-2">
                         <Button
                           className="blue_b"
-                          icon="fa-eye"
                           onClick={() => onView(row)}
-                        />
+                        >
+                          <FaEye/>
+                        </Button>
                         <Button
                           className="orange_b"
-                          icon="fa-pencil"
                           onClick={() => onEdit(row)}
-                        />
+                        >
+                          <FaPencilAlt/>
+                        </Button>
                         <Button
                           className="red"
-                          icon="fa-trash"
                           onClick={() => onDelete(row)}
-                        />
+                        >
+                          <FaTrash/>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -102,9 +104,9 @@ const GeneralTable = ({
           </table>
         </div>
       </div>
-      <div className="pagination mt-4">
+      {/* <div className="pagination mt-4">
         <center><BasicPagination /></center>
-      </div>
+      </div> */}
     </div>
   );
 };
