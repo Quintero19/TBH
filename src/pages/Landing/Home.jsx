@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Navigation } from "../../components/Landing/Navigation";
+import { NewNavigation } from "../../components/Landing/NewNavigation";
 import { Header } from "../../components/Landing/Header";
 import { Features } from "../../components/Landing/Features";
 import { About } from "../../components/Landing/About";
@@ -26,7 +26,7 @@ const Home = () => {
 
   return (
     <div>
-      <Navigation />
+      <NewNavigation />
       <Header data={landingPageData.Header} data-aos="zoom-in" data-aos-delay="100" />
       <Features data={landingPageData.Features} data-aos="zoom-in" data-aos-delay="200" />
       <About data={landingPageData.About} data-aos="zoom-in" data-aos-delay="300" />
