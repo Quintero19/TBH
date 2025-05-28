@@ -1,16 +1,16 @@
 import {userService} from '../../../../service/usuario.service'; 
 import React, { useEffect, useState } from 'react';
+import Swal from "sweetalert2";
 import Sidebar from '../../../../components/sideBar';
 import GeneralTable from '../../../../components/GeneralTable';
-
 
 export default function Usuario() {
   const title = 'Usuarios';
 
   const columns = [
-    { header: 'documento', accessor: 'Documento' },
-    { header: 'correo', accessor: 'Correo' },
-    { header: 'estado', accessor: 'Estado' },
+    { header: 'Documento', accessor: 'Documento' },
+    { header: 'Correo', accessor: 'Correo' },
+    { header: 'Estado', accessor: 'Estado' },
   ];
 
 
@@ -27,6 +27,8 @@ export default function Usuario() {
       Documento: usuario.Documento,
       Correo: usuario.Correo,
       Estado: usuario.Estado,
+      Id_Usuario: usuario.Id_Usuario,
+      Rol_Id: usuario.Rol_Id,
     }));
 
 
@@ -40,7 +42,7 @@ export default function Usuario() {
   const eliminarUsuario = async (usuario) => {
     try {
       await userService.eliminarUsuario(usuario.documento);
-      obtenerUsuarios(); // Refresca la tabla después de eliminar
+      obtenerUsuarios();
     } catch (error) {
       console.error('Error al eliminar el usuario:', error);
     }
@@ -49,6 +51,27 @@ export default function Usuario() {
   useEffect(() => {
     obtenerUsuarios();
   }, []);
+
+  const handleVerDetalles = (usuario)  =>{
+    Swal.fire({
+      title: "Detalles Del Usuario",
+      html: `
+        <div class="text-left">
+              <p><strong>Id:</strong> ${usuario.Id_Usuario}</p>
+              <p><strong>Documento:</strong> ${usuario.Documento}</p>
+              <p><strong>Email:</strong> ${usuario.Correo}</p>
+              <p><strong>Estado:</strong> ${usuario.Estado}</p>
+              <p><strong>Rol:</strong> ${usuario.Rol_Id}</p>
+        </div>
+      `,
+      icon: "info",
+      confirmButtonText: "Cerrar",
+      padding: "1rem",
+      confirmButtonColor: "#3085d6",
+      background: '#000',  
+      color: '#fff'
+    })
+  }
 
   return (
     <>
@@ -59,7 +82,7 @@ export default function Usuario() {
           columns={columns}
           data={usuarios}
           onAdd={() => console.log('Agregar')}
-          onView={(row) => console.log('Ver', row)}
+          onView={handleVerDetalles}
           onEdit={(row) => console.log('Editar', row)}
           onDelete={(row) => eliminarUsuario(row)}
         />

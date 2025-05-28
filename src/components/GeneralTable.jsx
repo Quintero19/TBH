@@ -63,6 +63,9 @@ const GeneralTable = ({
                             />
                             <span className="slider round"></span>
                           </label>
+                          <span className={`font-semibold ${row[stateAccessor] ? 'text-green-600' : 'text-red-600'}`}>
+                              {row[stateAccessor]}
+                          </span>
                         </div>
                       ) : (
                         row[col.accessor]
