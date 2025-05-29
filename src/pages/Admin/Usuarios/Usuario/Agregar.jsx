@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import Sidebar from '../../../../components/sideBar';
+import Button from "../../../../components/Buttons/Button";
+import { userService } from "../../../../service/usuario.service";
+
+export default function AgregarUsuario () {
+  const navigate = useNavigate();
+
+  
+  const [formData, setFormData] = useState({
+    Documento: "",
+    Correo: "",
+    Password: "",
+    confirmPassword: "",
+    Rol_Id: "",
+    Estado: ""
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    let val = value;
+
+     if (name === "Estado") {
+        val = value === "true";
+    }
+    setFormData({
+      ...formData,
+      [name]: val,
+    });
+  };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.Password !== formData.confirmPassword) {
+          Swal.fire({
+            title: "Error",
+            text: "Las contraseñas no coinciden.",
+            icon: "error",
+            background: '#000',
+            color: '#fff'
+          });
+          return;
+        }
+
+        try {
+          const usuarioFinal = {
+            ...formData,
+            Rol_Id: Number(formData.Rol_Id), 
+          };
+          delete usuarioFinal.confirmPassword;
+
+          await userService.crearUsuario(usuarioFinal);
+
+          Swal.fire({
+            title: "¡Éxito!",
+            text: "El usuario ha sido guardado correctamente.",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#000',
+            color: '#fff'
+          }).then(() => {
+            navigate("/admin/usuario");
+          });
+
+        } catch (error) {
+          Swal.fire({
+            title: "Error",
+            text: error.message || "Ocurrió un error al guardar el usuario.",
+            icon: "error",
+            confirmButtonText: "Aceptar",
+            background: '#000',
+            color: '#fff'
+          });
+        }
+      };
+
+
+
+  const handleCancel = () => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Si cancelas, perderás los datos ingresados.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "No, continuar",
+      background: '#000',  
+      color : '#fff'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/admin/usuario");
+      }
+    });
+  };
+
+  return (
+    <div className="flex">
+    {/* <Sidebar /> */}
+    <div className="grow p-6">
+      <h1 className="text-3xl font-bold mb-4 text-black">Agregar Usuario</h1>
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+          <h3 className="font-bold text-lg">Documento *</h3>
+          <input
+            type="number"
+            name="Documento"
+            value={formData.Documento}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+          <h3 className="font-bold text-lg">Correo *</h3>
+          <input
+            type="email"
+            name="Correo"
+            value={formData.Correo}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+          <h3 className="font-bold text-lg">Contraseña *</h3>
+          <input
+            type="password"
+            name="Password"
+            value={formData.Password}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+          <h3 className="font-bold text-lg">Confirmar Contraseña *</h3>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+
+        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+          <h3 className="font-bold text-lg">Rol *</h3>
+          <select
+            name="Rol_Id"
+            value={formData.Rol_Id}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Selecciona un rol</option>
+            <option value="1">Administrador</option>
+            <option value="2">Empleado</option>
+            <option value="3">Cliente</option>
+          </select>
+        </div>
+
+
+      <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
+        <h3 className="font-bold text-lg">Estado *</h3>
+        <select
+          name="Estado"
+          value={formData.Estado}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">Selecciona estado</option>
+          <option value={true}>Activo</option>
+          <option value={false}>Inactivo</option>
+        </select>
+      </div>
+
+
+        <div className="md:col-span-2 flex gap-2">
+          <Button className="green" type="submit"> Guardar</Button>
+          <Button className="red" onClick={handleCancel}> Cancelar</Button>
+        </div>
+      </form>
+    </div>
+    </div>
+  );
+};
+

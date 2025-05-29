@@ -18,6 +18,11 @@ export const userService = {
         return res.data;
     },
 
+    editarUsuario: async (documento,data) => {
+    const res = await api.put(`/usuarios/${documento}`, data);
+    return res.data;
+    },
+
     eliminarUsuario: async (documento) => {
         const res = await api.delete(`${USER_URL}/${documento}`);
         return res.data;

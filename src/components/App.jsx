@@ -6,7 +6,11 @@ import RecoverPassword from '../pages/Auth/RCP'
 import Dashboard from '../pages/Admin/Dashboard'
 
 import RolesAdmin from '../pages/Admin/Configuracion/Roles/Index'
+
 import UsuarioAdmin from '../pages/Admin/Usuarios/Usuario/Index'
+import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
+import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
+
 import EmpleadoAdmin from '../pages/Admin/Usuarios/Empleados/Index'
 import ServicioAdmin from '../pages/Admin/Servicios/Servicio/Index'
 import AgendamientoAdmin from '../pages/Admin/Servicios/Agendamiento/Index'
@@ -34,7 +38,13 @@ function App() {
       //admin
       <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={1}><Dashboard /></ProtectedRoute>}/>
       <Route path="/admin/roles" element={<ProtectedRoute requiredRole={1}><RolesAdmin /></ProtectedRoute>}/>
+
+      //Usuario
       <Route path="/admin/usuario" element={<ProtectedRoute requiredRole={1}><UsuarioAdmin /></ProtectedRoute>}/>
+      <Route path="/admin/usuario/agregar" element={<ProtectedRoute requiredRole={1}><UsuarioAgregar /></ProtectedRoute>}/>
+      <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/>
+
+
       <Route path="/admin/empleado" element={<ProtectedRoute requiredRole={1}><EmpleadoAdmin /></ProtectedRoute>}/>
       <Route path="/admin/servicios" element={<ProtectedRoute requiredRole={1}><ServicioAdmin /></ProtectedRoute>}/>
       <Route path="/admin/agendamiento" element={<ProtectedRoute requiredRole={1}><AgendamientoAdmin /></ProtectedRoute>}/>
