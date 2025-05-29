@@ -9,7 +9,7 @@ import RolesAdmin from '../pages/Admin/Configuracion/Roles/Index'
 
 import UsuarioAdmin from '../pages/Admin/Usuarios/Usuario/Index'
 import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
-import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
+// import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
 
 import EmpleadoAdmin from '../pages/Admin/Usuarios/Empleados/Index'
 import ServicioAdmin from '../pages/Admin/Servicios/Servicio/Index'
@@ -42,7 +42,7 @@ function App() {
       //Usuario
       <Route path="/admin/usuario" element={<ProtectedRoute requiredRole={1}><UsuarioAdmin /></ProtectedRoute>}/>
       <Route path="/admin/usuario/agregar" element={<ProtectedRoute requiredRole={1}><UsuarioAgregar /></ProtectedRoute>}/>
-      <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/>
+      {/* <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/> */}
 
 
       <Route path="/admin/empleado" element={<ProtectedRoute requiredRole={1}><EmpleadoAdmin /></ProtectedRoute>}/>
