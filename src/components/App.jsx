@@ -1,9 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
-import '../styles/css/App.css';
-import Home from '../pages/Landing/Home'
-import AuthForm from '../pages/Auth/AuthForm'
-import RecoverPassword from '../pages/Auth/RCP'
-import Dashboard from '../pages/Admin/Dashboard'
+import { Route, Routes } from "react-router-dom";
+import "../styles/css/App.css";
 
 import RolesAdmin from '../pages/Admin/Configuracion/Roles/Index'
 
@@ -25,15 +21,32 @@ import VentaAdmin from '../pages/Admin/Ventas/Venta/Index'
 import ClienteAdmin from '../pages/Admin/Ventas/Clientes/Index'
 import DevolucionesAdmin from '../pages/Admin/Ventas/Devoluciones/Index'
 
-import UsuarioIndex from '../pages/Usuario/Index'
-import ProtectedRoute from '../components/ProtectedRoute'
+import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
+import CategoriaProductoAdmin from "../pages/Admin/Compras/CategoriaProductos/Index";
+import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
+import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
+import ProductoAdmin from "../pages/Admin/Compras/Productos/Index";
+import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
+import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
+import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
+import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
+import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
+import EmpleadoAdmin from "../pages/Admin/Usuarios/Empleados/Index";
+import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
+import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
+import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
+import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
+
+import ProtectedRoute from "../components/ProtectedRoute";
+import AdminLayout from "../layouts/AdminLayout";
+import UsuarioIndex from "../pages/Usuario/Index";
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<AuthForm />} />
-      <Route path="/rcp" element={<RecoverPassword />} />
+	return (
+		<Routes>
+			<Route path="/" element={<Home />} />
+			<Route path="/login" element={<AuthForm />} />
+			<Route path="/rcp" element={<RecoverPassword />} />
 
       //admin
       <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={1}><Dashboard /></ProtectedRoute>}/>
@@ -59,12 +72,17 @@ function App() {
       <Route path="/admin/clientes" element={<ProtectedRoute requiredRole={1}><ClienteAdmin /></ProtectedRoute>}/>
       <Route path="/admin/devoluciones" element={<ProtectedRoute requiredRole={1}><DevolucionesAdmin /></ProtectedRoute>}/>
 
-      /usuario
-      <Route path="/usuario/index" element={<ProtectedRoute requiredRole={2}> <UsuarioIndex /></ProtectedRoute>}/>
-      
-      
-      </Routes>
-  )
+			{/* Usuario */}
+			<Route
+				path="/usuario/index"
+				element={
+					<ProtectedRoute requiredRole={2}>
+						<UsuarioIndex />
+					</ProtectedRoute>
+				}
+			/>
+		</Routes>
+	);
 }
 
-export default App
+export default App;

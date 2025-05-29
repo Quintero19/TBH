@@ -1,44 +1,62 @@
+
 import {userService} from '../../../../service/usuario.service'; 
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import Swal from "sweetalert2";
-import Sidebar from '../../../../components/sideBar';
-import GeneralTable from '../../../../components/GeneralTable';
+import GeneralTable from "../../../../components/GeneralTable";
+import Sidebar from "../../../../components/sideBar";
+import { userService } from "../../../../service/usuario.service";
 
 export default function Usuario() {
+
   const navigate = useNavigate();
 
   const title = 'Usuarios';
 
-  const columns = [
-    { header: 'Documento', accessor: 'Documento' },
-    { header: 'Correo', accessor: 'Correo' },
-    { header: 'Estado', accessor: 'Estado' },
-  ];
+	const columns = [
+		{ header: "Documento", accessor: "Documento" },
+		{ header: "Correo", accessor: "Correo" },
+		{ header: "Estado", accessor: "Estado" },
+	];
 
+	const [usuarios, setUsuarios] = useState([]);
 
-  const [usuarios, setUsuarios] = useState([]);
+	const obtenerUsuarios = useCallback(async () => {
+		try {
+			const response = await userService.listarUsuarios();
+			console.log("Respuesta cruda del backend:", response);
 
   const obtenerUsuarios = async () => {
   try {
     const response = await userService.listarUsuarios();
 
-    const usuariosBackend = response.data; 
 
-    const normalizado = usuariosBackend.map((usuario) => ({
-      Documento: usuario.Documento,
-      Correo: usuario.Correo,
-      Estado: usuario.Estado,
-      Id_Usuario: usuario.Id_Usuario,
-      Rol_Id: usuario.Rol_Id,
-    }));
+			const normalizado = usuariosBackend.map((usuario) => ({
+				Documento: usuario.Documento,
+				Correo: usuario.Correo,
+				Estado: usuario.Estado,
+				Id_Usuario: usuario.Id_Usuario,
+				Rol_Id: usuario.Rol_Id,
+			}));
 
+			setUsuarios(normalizado);
+		} catch (error) {
+			console.error("Error al obtener los usuarios:", error);
+		}
+	}, []);
 
-    setUsuarios(normalizado);
-  } catch (error) {
-    console.error('Error al obtener los usuarios:', error);
-  }
-};
+	const eliminarUsuario = async (usuario) => {
+		try {
+			await userService.eliminarUsuario(usuario.Documento);
+			await obtenerUsuarios();
+		} catch (error) {
+			console.error("Error al eliminar el usuario:", error);
+		}
+	};
+
+	useEffect(() => {
+		obtenerUsuarios();
+	}, [obtenerUsuarios]);
 
   const refreshUsuarios = () => {
       setUsuarios(obtenerUsuarios());
@@ -102,14 +120,14 @@ export default function Usuario() {
               <p><strong>Rol:</strong> ${usuario.Rol_Id}</p>
         </div>
       `,
-      icon: "info",
-      confirmButtonText: "Cerrar",
-      padding: "1rem",
-      confirmButtonColor: "#3085d6",
-      background: '#000',  
-      color: '#fff'
-    })
-  }
+			icon: "info",
+			confirmButtonText: "Cerrar",
+			padding: "1rem",
+			confirmButtonColor: "#3085d6",
+			background: "#000",
+			color: "#fff",
+		});
+	};
 
   return (
     <>
@@ -127,5 +145,5 @@ export default function Usuario() {
       </div>
     </>
   );
-}
 
+}

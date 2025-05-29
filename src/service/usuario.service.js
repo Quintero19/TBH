@@ -1,22 +1,22 @@
-import api from '../utils/api';
+import api from "../utils/api";
 
-const USER_URL = '/usuarios';
+const USER_URL = "/usuarios";
 
 export const userService = {
-    crearUsuario: async (data) => {
-        const res = await api.post(USER_URL, data);
-        return res.data;
-    },
+	crearUsuario: async (data) => {
+		const res = await api.post(USER_URL, data);
+		return res.data;
+	},
 
-    listarUsuarios: async () => {
-        const res = await api.get(USER_URL);
-        return res.data;
-    },
+	listarUsuarios: async () => {
+		const res = await api.get(USER_URL);
+		return res.data;
+	},
 
-    listarUsuarioPorDocumento: async (documento) => {
-        const res = await api.get(`${USER_URL}/${documento}`);
-        return res.data;
-    },
+	listarUsuarioPorDocumento: async (documento) => {
+		const res = await api.get(`${USER_URL}/${documento}`);
+		return res.data;
+	},
 
     editarUsuario: async (documento,data) => {
     const res = await api.put(`/usuarios/${documento}`, data);
@@ -28,8 +28,8 @@ export const userService = {
         return res.data;
     },
 
-    buscarUsuarioPorEmail: async (email) => {
-        const res = await api.get(`${USER_URL}/email/${email}`);
-        return res.data;
-    },
+	buscarUsuarioPorEmail: async (email) => {
+		const res = await api.get(`${USER_URL}/email/${email}`);
+		return res.data;
+	},
 };
