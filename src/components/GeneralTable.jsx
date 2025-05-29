@@ -29,7 +29,7 @@ const GeneralTable = ({
         <div className="flex items-center w-full gap-2">
           <form 
             className="flex items-center gap-2 bg-white border rounded-[40px] p-2 shadow-md w-[30%] h-[45px]"
-            onSubmit={(e) => e.preventDefault()} // evitar recarga
+            onSubmit={(e) => e.preventDefault()}
           >
             <input
               type="text"
@@ -67,7 +67,7 @@ const GeneralTable = ({
                           <label className="switch">
                             <input
                               type="checkbox"
-                              checked={row[stateAccessor]}  // Estado 1 = activo, 0 = inactivo
+                              checked={row[stateAccessor]}  
                               onChange={() => onToggleEstado(row[idAccessor])}
                             />
                             <span className="slider round"></span>

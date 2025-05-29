@@ -6,9 +6,9 @@ export default function BasicPagination({ count, page, onChange }) {
   return (
     <Stack spacing={2}>
       <Pagination 
-        count={count}          // total páginas dinámico
-        page={page}            // página actual controlada
-        onChange={onChange}    // función para actualizar página
+        count={count}      
+        page={page}          
+        onChange={onChange}   
         color="secondary" 
       />
     </Stack>

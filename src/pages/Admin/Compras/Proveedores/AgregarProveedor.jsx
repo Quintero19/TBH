@@ -27,10 +27,9 @@ const [formData, setFormData] = useState({
 const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-  // Validar solo el campo NIT
     if (name === 'NIT') {
         const regex = /^[0-9-]*$/;
-    if (!regex.test(value)) return; // No actualizar si el valor no es válido
+    if (!regex.test(value)) return; 
     }
 
     setFormData({
