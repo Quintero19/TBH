@@ -12,7 +12,10 @@ import ServicioAdmin from '../pages/Admin/Servicios/Servicio/Index'
 import AgendamientoAdmin from '../pages/Admin/Servicios/Agendamiento/Index'
 import HorarioAdmin from '../pages/Admin/Servicios/Horarios/Index'
 import CompraAdmin from '../pages/Admin/Compras/Compra/Index'
+
 import Proveedores from '../pages/Admin/Compras/Proveedores/Index'
+import AgregarProveedor from '../pages/Admin/Compras/Proveedores/AgregarProveedor'
+
 import CategoriaProductoAdmin from '../pages/Admin/Compras/CategoriaProductos/Index'
 import ProductoAdmin from '../pages/Admin/Compras/Productos/Index'
 import CategoriaInsumoAdmin from '../pages/Admin/Compras/CategoriaInsumos/Index'
@@ -40,7 +43,10 @@ function App() {
       <Route path="/admin/agendamiento" element={<ProtectedRoute requiredRole={1}><AgendamientoAdmin /></ProtectedRoute>}/>
       <Route path="/admin/horarios" element={<ProtectedRoute requiredRole={1}><HorarioAdmin /></ProtectedRoute>}/>
       <Route path="/admin/compras" element={<ProtectedRoute requiredRole={1}><CompraAdmin /></ProtectedRoute>}/>
+
       <Route path="/admin/proveedores" element={<ProtectedRoute requiredRole={1}><Proveedores /></ProtectedRoute>}/>
+      <Route path="/admin/proveedores/agregar" element={<ProtectedRoute requiredRole={1}><AgregarProveedor /></ProtectedRoute>}/>
+
       <Route path="/admin/categoriaproducto" element={<ProtectedRoute requiredRole={1}><CategoriaProductoAdmin /></ProtectedRoute>}/>
       <Route path="/admin/producto" element={<ProtectedRoute requiredRole={1}><ProductoAdmin /></ProtectedRoute>}/>
       <Route path="/admin/categoriainsumo" element={<ProtectedRoute requiredRole={1}><CategoriaInsumoAdmin /></ProtectedRoute>}/>

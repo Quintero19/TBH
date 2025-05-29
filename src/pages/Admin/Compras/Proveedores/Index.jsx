@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import Sidebar from "../../../../components/sideBar";
 import GeneralTable from "../../../../components/GeneralTable";
-import api from "../../../../utils/api";
+import {proveedorService} from '../../../../service/proveedores.service'; 
 
 const columns = [
   { header: "ID", accessor: "Id_Proveedores" },
   { header: "Tipo Proveedor", accessor: "Tipo_Proveedor" },
-  { header: "Documento / NIT", accessor: "doc" },
   { header: "Nombre / Empresa", accessor: "nombre" },
   { header: "Celular / Celular Empresa", accessor: "celular" },
+  { header: "Email", accessor: "Email" },
   { header: "Estado", accessor: "Estado" },
 ];
 
@@ -19,7 +18,6 @@ const transformData = (data) => {
     const isEmpresa = item.Tipo_Proveedor === "Empresa";
     return {
       ...item,
-      doc: isEmpresa ? item.NIT : item.Documento,
       nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
       celular: isEmpresa ? item.Celular_Empresa : item.Celular,
     };
@@ -28,26 +26,25 @@ const transformData = (data) => {
 
 const Proveedores = () => {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
-  const fetchData = async () => {
-    try {
-      const response = await api.get("/proveedores");
-      console.log(response.data);
-      setData(transformData(response.data.data));
-    } catch (error) {
-      console.error("Error al obtener proveedores:", error.response?.data || error);
-      if (error.response?.status === 401) {
-        handleLogout();
-      }
-    }
-  };
+const fetchData = async () => {
+  try {
+    const response = await proveedorService.obtenerProveedores();
+    console.log(response);
+    setData(transformData(response.data));
+  } catch (error) {
+    console.error("Error al obtener proveedores:", error.response?.data || error);
+  }
+};
+
 
 const handleToggleEstado = async (id) => {
   try {
-    await api.put(`/proveedores/estado/${id}`);
+    await proveedorService.actualizarEstadoProveedor(id);
     await fetchData();
   } catch (error) {
-    console.error('Error cambiando estado:', error);
+    console.error('Error cambiando estado:', error.response?.data || error);
     alert('Error cambiando estado');
   }
 };
@@ -58,6 +55,7 @@ const handleToggleEstado = async (id) => {
 
   const handleAdd = () => {
     console.log("Agregar proveedor");
+    navigate('/admin/proveedores/agregar');
   };
 
   const handleView = (row) => {
