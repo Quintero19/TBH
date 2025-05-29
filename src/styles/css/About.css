@@ -1,100 +1,100 @@
 .about-section {
-  position: relative;
-  padding: 100px 0;
-  background-color: #fff;
-  z-index: 2;
+	position: relative;
+	padding: 100px 0;
+	background-color: #fff;
+	z-index: 2;
 }
 
 .about-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	height: auto;
+	border-radius: 8px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .about-text {
-  padding: 30px;
+	padding: 30px;
 }
 
 .about-text h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  position: relative;
-  padding-bottom: 20px;
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #333;
+	margin-bottom: 20px;
+	position: relative;
+	padding-bottom: 20px;
 }
 
 .about-text h2::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 80px;
-  height: 3px;
-  background-color: #ef4444;
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 80px;
+	height: 3px;
+	background-color: #ef4444;
 }
 
 .about-text p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #666;
-  margin-bottom: 30px;
+	font-size: 1.1rem;
+	line-height: 1.8;
+	color: #666;
+	margin-bottom: 30px;
 }
 
 .about-text h3 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
+	font-size: 1.8rem;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 20px;
 }
 
 .list-style {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
 }
 
 .list-style ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .list-style li {
-  position: relative;
-  padding-left: 25px;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-  color: #666;
+	position: relative;
+	padding-left: 25px;
+	margin-bottom: 15px;
+	font-size: 1.1rem;
+	color: #666;
 }
 
 .list-style li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: #ef4444;
-  font-weight: bold;
+	content: "✓";
+	position: absolute;
+	left: 0;
+	color: #ef4444;
+	font-weight: bold;
 }
 
 @media (max-width: 768px) {
-  .about-section {
-    padding: 60px 0;
-  }
+	.about-section {
+		padding: 60px 0;
+	}
 
-  .about-text {
-    padding: 20px 0;
-  }
+	.about-text {
+		padding: 20px 0;
+	}
 
-  .about-text h2 {
-    font-size: 2rem;
-  }
+	.about-text h2 {
+		font-size: 2rem;
+	}
 
-  .about-text h3 {
-    font-size: 1.5rem;
-  }
+	.about-text h3 {
+		font-size: 1.5rem;
+	}
 
-  .list-style li {
-    font-size: 1rem;
-  }
-} 
+	.list-style li {
+		font-size: 1rem;
+	}
+}
