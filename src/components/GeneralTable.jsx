@@ -13,9 +13,13 @@ const GeneralTable = ({
   onDelete,
   onToggleEstado,
   idAccessor = "id",
-  stateAccessor = "Estado" 
+  stateAccessor = "Estado",
+  searchTerm,
+  onSearchChange,
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
-
 
   return (
     <div className="p-9">
@@ -23,11 +27,16 @@ const GeneralTable = ({
 
       <div className="p-4 bg-white rounded-lg mb-4 shadow-md">
         <div className="flex items-center w-full gap-2">
-          <form className="flex items-center gap-2 bg-white border rounded-[40px] p-2 shadow-md w-[30%] h-[45px]">
+          <form 
+            className="flex items-center gap-2 bg-white border rounded-[40px] p-2 shadow-md w-[30%] h-[45px]"
+            onSubmit={(e) => e.preventDefault()} // evitar recarga
+          >
             <input
               type="text"
               placeholder="Buscar..."
               className="p-2 border-none focus:ring-0 outline-none flex-1 h-[30px]"
+              value={searchTerm}
+              onChange={onSearchChange}
             />
             <Button className="blue_a"><FaSearch/></Button>
           </form>
@@ -54,18 +63,15 @@ const GeneralTable = ({
                     {columns.map((col) => (
                     <td key={col.accessor} className="p-2 border border-gray-300">
                       {col.accessor === stateAccessor ? (
-                        <div className="flex justify-center gap-2">
+                        <div className="flex justify-center">
                           <label className="switch">
                             <input
                               type="checkbox"
-                              checked={row[stateAccessor]} 
+                              checked={row[stateAccessor]}  // Estado 1 = activo, 0 = inactivo
                               onChange={() => onToggleEstado(row[idAccessor])}
                             />
                             <span className="slider round"></span>
                           </label>
-                          <span className={`font-semibold ${row[stateAccessor] ? 'text-green-600' : 'text-red-600'}`}>
-                              {row[stateAccessor]}
-                          </span>
                         </div>
                       ) : (
                         row[col.accessor]
@@ -107,9 +113,18 @@ const GeneralTable = ({
           </table>
         </div>
       </div>
-      {/* <div className="pagination mt-4">
-        <center><BasicPagination /></center>
-      </div> */}
+
+      {/* Paginación funcional */}
+      <div className="pagination mt-4">
+        <center>
+          <BasicPagination 
+            count={totalPages} 
+            page={currentPage} 
+            onChange={onPageChange} 
+            color="secondary" 
+          />
+        </center>
+      </div> 
     </div>
   );
 };

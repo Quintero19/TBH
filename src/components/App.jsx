@@ -15,6 +15,7 @@ import CompraAdmin from '../pages/Admin/Compras/Compra/Index'
 
 import Proveedores from '../pages/Admin/Compras/Proveedores/Index'
 import AgregarProveedor from '../pages/Admin/Compras/Proveedores/AgregarProveedor'
+import EditarProveedor from '../pages/Admin/Compras/Proveedores/EditarProveedor'
 
 import CategoriaProductoAdmin from '../pages/Admin/Compras/CategoriaProductos/Index'
 import ProductoAdmin from '../pages/Admin/Compras/Productos/Index'
@@ -46,6 +47,7 @@ function App() {
 
       <Route path="/admin/proveedores" element={<ProtectedRoute requiredRole={1}><Proveedores /></ProtectedRoute>}/>
       <Route path="/admin/proveedores/agregar" element={<ProtectedRoute requiredRole={1}><AgregarProveedor /></ProtectedRoute>}/>
+      <Route path="/admin/proveedores/editar/:id" element={<ProtectedRoute requiredRole={1}><EditarProveedor /></ProtectedRoute>}/>
 
       <Route path="/admin/categoriaproducto" element={<ProtectedRoute requiredRole={1}><CategoriaProductoAdmin /></ProtectedRoute>}/>
       <Route path="/admin/producto" element={<ProtectedRoute requiredRole={1}><ProductoAdmin /></ProtectedRoute>}/>

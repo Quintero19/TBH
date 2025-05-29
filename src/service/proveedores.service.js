@@ -23,8 +23,8 @@ export const proveedorService = {
         return res.data;
     },
 
-    actualizarProveedor: async (id) => {
-        const res = await api.put(`${USER_URL}/${id}`);
+    actualizarProveedor: async (id, proveedor) => {
+        const res = await api.put(`${USER_URL}/${id}`, proveedor);
         return res.data;
     },
 
@@ -33,7 +33,7 @@ export const proveedorService = {
         return res.data;
     },
 
-    eliminarUsuario: async (id) => {
+    eliminarProveedor: async (id) => {
         const res = await api.delete(`${USER_URL}/${id}`);
         return res.data;
     }
