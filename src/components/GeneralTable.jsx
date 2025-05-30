@@ -22,7 +22,7 @@ const GeneralTable = ({
 	onPageChange,
 }) => {
 	return (
-		<div className="p-9">
+		<div className="p-9 w-full">
 			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
 
 			<div className="p-4 bg-white rounded-lg mb-4 shadow-md">
@@ -47,6 +47,15 @@ const GeneralTable = ({
 						<FaPlus />
 						Agregar
 					</Button>
+
+					{title == "Productos" && (
+						<div className="flex justify-end flex-1">
+							<div className="flex space-x-2">
+								<Button className="green"> Tallas</Button>
+								<Button className="green"> Tamaños</Button>
+							</div>
+						</div>
+					)}
 				</div>
 
 				<div className="mt-4 border-t-4 border-black pt-4">

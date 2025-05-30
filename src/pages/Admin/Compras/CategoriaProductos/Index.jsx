@@ -1,31 +1,210 @@
-import React from "react";
+import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../../../components/sideBar";
+import Swal from "sweetalert2";
+import GeneralTable from "../../../../components/GeneralTable";
+import { catProductoService } from "../../../../service/categoriaProducto.service";
 
-export default function Usuario() {
+const columns = [
+	{ header: "ID", accessor: "Id_Categoria_Producto" },
+	{ header: "Nombre", accessor: "Nombre" },
+	{ header: "Descripción", accessor: "Descripcion" },
+	{ header: "Es Ropa?", accessor: "Es_Ropa"},
+	{ header: "Estado", accessor: "Estado" },
+];
+
+
+const CategoriasProducto = () => {
+	const [data, setData] = useState([]);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 5;
 	const navigate = useNavigate();
 
-	const handleLogout = async () => {
+	const fetchData = useCallback(async () => {
 		try {
-			await fetch("http://localhost:3000/api/logout/", {
-				method: "POST",
-				credentials: "include",
-			});
-			navigate("/login");
+			const response = await catProductoService.obtenerCategorias();
+			console.log(response);
+			setData(response.data);
 		} catch (error) {
-			console.error("Error al cerrar sesión:", error);
+			console.error(
+				"Error al obtener las categorias:",
+				error.response?.data || error,
+			);
+		}
+	}, []);
+
+const filteredData = useMemo(() => {
+	if (!searchTerm) {
+		return data.map((item) => ({
+			...item,
+			Es_Ropa: item.Es_Ropa ? "Si" : "No",
+		}));
+	}
+
+	const lowerSearch = searchTerm.toLowerCase();
+
+	const filtered = data.filter((item) => {
+		const idMatch = item.Id_Categoria_Producto.toString().includes(lowerSearch);
+		const tipoMatch = item.Nombre?.toLowerCase().includes(lowerSearch);
+		const nombreMatch = item.Descripcion?.toLowerCase().includes(lowerSearch);
+
+		const esRopaStr = item.Es_Ropa ? "si" : "no";
+		const esRopaMatch = esRopaStr.includes(lowerSearch);
+
+		let estadoMatch = false;
+		if (["1", "activo"].includes(lowerSearch)) {
+			estadoMatch = item.Estado === 1 || item.Estado === true;
+		} else if (["0", "inactivo"].includes(lowerSearch)) {
+			estadoMatch = item.Estado === 0 || item.Estado === false;
+		}
+
+		return (
+			idMatch ||
+			tipoMatch ||
+			nombreMatch ||
+			esRopaMatch ||
+			estadoMatch
+		);
+	});
+
+	return filtered.map((item) => ({
+		...item,
+		Es_Ropa: item.Es_Ropa ? "Sí" : "No",
+	}));
+}, [data, searchTerm]);
+
+	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+	const paginatedData = filteredData.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage,
+	);
+
+	const handleSearchChange = (e) => {
+		setSearchTerm(e.target.value);
+		setCurrentPage(1);
+	};
+
+	const handleToggleEstado = async (id) => {
+		try {
+			await catProductoService.actualizarEstadoCategoria(id);
+			await fetchData();
+		} catch (error) {
+			console.error("Error cambiando estado:", error.response?.data || error);
+			alert("Error cambiando estado");
 		}
 	};
 
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
+
+	const handleAdd = () => {
+		navigate("/admin/categoriaproducto/agregar");
+	};
+
+	const handleVerDetalles = async (categoria) => {
+		try {
+			Swal.fire({
+				title: `Detalles Cat.Producto ID: ${categoria.Id_Categoria_Producto}`,
+				html: `
+		  <div class="text-left">
+			<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
+			<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
+			<p><strong>Es_Ropa?:</strong> ${categoria.Es_Ropa}</p>
+			<p><strong>Estado:</strong> ${categoria.Estado ? "Activo" : "Inactivo"}</p>
+		  </div>
+	  `,
+				icon: "info",
+				confirmButtonText: "Cerrar",
+				padding: "1rem",
+				confirmButtonColor: "#3085d6",
+				background: "#000",
+				color: "#fff",
+			});
+		} catch (error) {
+			console.error("Error al obtener la categoria:", error);
+			Swal.fire(
+				"Error",
+				"No se pudieron cargar los detalles de la categoria",
+				"error",
+			);
+		}
+	};
+
+	const handleEdit = (categoria) => {
+		navigate(`/admin/categoriaproducto/editar/${categoria.Id_Categoria_Producto}`);
+	};
+
+	const handleDelete = async (categoria) => {
+		const result = await Swal.fire({
+			title: "¿Estás seguro?",
+			text: `¿Deseas Eliminar la Categoria de Producto "${categoria.Nombre}"?`,
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#d33",
+			cancelButtonColor: "#3085d6",
+			confirmButtonText: "Sí, eliminar",
+			cancelButtonText: "Cancelar",
+			background: "#000",
+			color: "#fff",
+		});
+
+		if (result.isConfirmed) {
+			try {
+				await catProductoService.eliminarCategoria(categoria.Id_Categoria_Producto);
+
+				await Swal.fire({
+					title: "Eliminada",
+					text: "Categoria eliminada correctamente",
+					icon: "success",
+					timer: 2000,
+					showConfirmButton: false,
+					background: "#000",
+					color: "#fff",
+				});
+
+				fetchData();
+			} catch (error) {
+				console.error("Error Eliminando Categoria:", error);
+				const mensaje =
+					error.response?.data?.message || "Error al Eliminar la Categoria";
+
+				Swal.fire({
+					title: "Error",
+					text: mensaje,
+					icon: "error",
+					timer: 2500,
+					showConfirmButton: false,
+					background: "#000",
+					color: "#fff",
+				});
+			}
+		}
+	};
+
+	const handlePageChange = (event, value) => {
+		setCurrentPage(value);
+	};
+
 	return (
-		<>
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
-				<h1>Bienvenido al Categoria Producto</h1>
-				<button type="button" onClick={handleLogout}>
-					Cerrar Sesión
-				</button>
-			</div>
-		</>
+				<GeneralTable
+					title="Categorias Producto"
+					columns={columns}
+					data={paginatedData}
+					onAdd={handleAdd}
+					onView={handleVerDetalles}
+					onEdit={handleEdit}
+					onDelete={handleDelete}
+					onToggleEstado={handleToggleEstado}
+					idAccessor="Id_Categoria_Producto"
+					stateAccessor="Estado"
+					searchTerm={searchTerm}
+					onSearchChange={handleSearchChange}
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={handlePageChange}
+				/>
 	);
-}
+};
+
+export default CategoriasProducto;
