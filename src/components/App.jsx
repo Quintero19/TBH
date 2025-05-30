@@ -3,7 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import "../styles/css/App.css";
 
 import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
-import CategoriaProductoAdmin from "../pages/Admin/Compras/CategoriaProductos/Index";
+import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
+import AgregarCatProducto from "../pages/Admin/Compras/CategoriaProductos/AgregarCatProducto";
+import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarCatProducto";
 import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import ProductoAdmin from "../pages/Admin/Compras/Productos/Index";
@@ -67,7 +69,9 @@ function App() {
 				<Route path="proveedores" element={<Proveedores />} />
 				<Route path="proveedores/agregar" element={<AgregarProveedor />} />
 				<Route path="proveedores/editar/:id" element={<EditarProveedor />} />
-				<Route path="categoriaproducto" element={<CategoriaProductoAdmin />} />
+				<Route path="categoriaproducto" element={<CategoriasProducto />} />
+				<Route path="categoriaproducto/agregar" element={<AgregarCatProducto />} />
+				<Route path="categoriaproducto/editar/:id" element={<EditarCatProducto />} />
 				<Route path="producto" element={<ProductoAdmin />} />
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
 				<Route path="insumo" element={<InsumoAdmin />} />

@@ -125,7 +125,7 @@ const Proveedores = () => {
                 <p><strong>Celular del Asesor:</strong> ${proveedor.CelularAsesor || "-"}</p>
                 `
 							: `
-                <p><strong>Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
+                <p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
                 <p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
                 <p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
                 <p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p
@@ -210,8 +210,6 @@ const Proveedores = () => {
 	};
 
 	return (
-		<div className="flex">
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<GeneralTable
 					title="Proveedores"
 					columns={columns}
@@ -229,8 +227,6 @@ const Proveedores = () => {
 					totalPages={totalPages}
 					onPageChange={handlePageChange}
 				/>
-			</div>
-		</div>
 	);
 };
 
