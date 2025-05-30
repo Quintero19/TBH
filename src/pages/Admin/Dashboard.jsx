@@ -150,8 +150,6 @@ export default function Dashboard() {
 
 	return (
 		<>
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<HomeAdminContainer>
 					<h1>Dashboard de Ventas y Compras</h1>
 
@@ -177,7 +175,6 @@ export default function Dashboard() {
 						</ChartWrapperCentered>
 					</ChartsContainer>
 				</HomeAdminContainer>
-			</div>
 		</>
 	);
 }

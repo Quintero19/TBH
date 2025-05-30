@@ -19,13 +19,10 @@ export default function Usuario() {
 
 	return (
 		<>
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<h1>Bienvenido al Servicio</h1>
 				<button type="button" onClick={handleLogout}>
 					Cerrar Sesión
 				</button>
-			</div>
 		</>
 	);
 }

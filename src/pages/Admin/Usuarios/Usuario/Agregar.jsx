@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Sidebar from '../../../../components/sideBar';
 import Button from "../../../../components/Buttons/Button";
 import { userService } from "../../../../service/usuario.service";
 
@@ -102,7 +101,6 @@ export default function AgregarUsuario () {
 
   return (
     <div className="flex">
-    {/* <Sidebar /> */}
     <div className="grow p-6">
       <h1 className="text-3xl font-bold mb-4 text-black">Agregar Usuario</h1>
 
