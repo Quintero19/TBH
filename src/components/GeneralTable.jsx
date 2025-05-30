@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { FaEye, FaPencilAlt, FaPlus, FaSearch, FaTrash } from "react-icons/fa";
 import Button from "./Buttons/Button";
@@ -14,7 +15,7 @@ const GeneralTable = ({
 	onToggleEstado,
 	idAccessor = "id",
 	stateAccessor = "Estado",
-	searchTerm,
+	searchTerm = "",
 	onSearchChange,
 	currentPage,
 	totalPages,
@@ -43,8 +44,8 @@ const GeneralTable = ({
 					</form>
 
 					<Button className="green" onClick={onAdd}>
-						{" "}
-						Agregar{" "}
+						<FaPlus />
+						Agregar
 					</Button>
 				</div>
 
@@ -64,7 +65,7 @@ const GeneralTable = ({
 						</thead>
 						<tbody>
 							{data.length > 0 ? (
-								data.map((row, index) => (
+								data.map((row) => (
 									<tr key={row[idAccessor]}>
 										{columns.map((col) => (
 											<td
@@ -130,6 +131,35 @@ const GeneralTable = ({
 			</div>
 		</div>
 	);
+};
+
+GeneralTable.propTypes = {
+	title: PropTypes.string.isRequired,
+	columns: PropTypes.arrayOf(
+		PropTypes.shape({
+			header: PropTypes.string.isRequired,
+			accessor: PropTypes.string.isRequired,
+		}),
+	).isRequired,
+	data: PropTypes.arrayOf(PropTypes.object).isRequired,
+	onAdd: PropTypes.func.isRequired,
+	onView: PropTypes.func.isRequired,
+	onEdit: PropTypes.func.isRequired,
+	onDelete: PropTypes.func.isRequired,
+	onToggleEstado: PropTypes.func.isRequired,
+	idAccessor: PropTypes.string,
+	stateAccessor: PropTypes.string,
+	searchTerm: PropTypes.string,
+	onSearchChange: PropTypes.func.isRequired,
+	currentPage: PropTypes.number.isRequired,
+	totalPages: PropTypes.number.isRequired,
+	onPageChange: PropTypes.func.isRequired,
+};
+
+GeneralTable.defaultProps = {
+	idAccessor: "id",
+	stateAccessor: "Estado",
+	searchTerm: "",
 };
 
 export default GeneralTable;

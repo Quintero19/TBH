@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import "../../styles/css/Features.css";
 
@@ -27,4 +28,14 @@ export const Features = (props) => {
 			</div>
 		</section>
 	);
+};
+
+Features.propTypes = {
+	data: PropTypes.arrayOf(
+		PropTypes.shape({
+			icon: PropTypes.string.isRequired,
+			title: PropTypes.string.isRequired,
+			text: PropTypes.string.isRequired,
+		}),
+	),
 };

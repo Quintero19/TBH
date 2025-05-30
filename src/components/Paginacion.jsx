@@ -1,5 +1,6 @@
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import PropTypes from "prop-types";
 import * as React from "react";
 
 export default function BasicPagination({ count, page, onChange }) {
@@ -14,3 +15,9 @@ export default function BasicPagination({ count, page, onChange }) {
 		</Stack>
 	);
 }
+
+BasicPagination.propTypes = {
+	count: PropTypes.number.isRequired,
+	page: PropTypes.number.isRequired,
+	onChange: PropTypes.func.isRequired,
+};

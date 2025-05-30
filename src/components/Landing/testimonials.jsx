@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 export const Testimonials = (props) => {
@@ -18,11 +19,10 @@ export const Testimonials = (props) => {
 								>
 									<div className="testimonial">
 										<div className="testimonial-image">
-											{" "}
-											<img src={d.img} alt="" />{" "}
+											<img src={d.img} alt="" />
 										</div>
 										<div className="testimonial-content">
-											<p>"{d.text}"</p>
+											<p>&quot;{d.text}&quot;</p>
 											<div className="testimonial-meta"> - {d.name} </div>
 										</div>
 									</div>
@@ -33,4 +33,14 @@ export const Testimonials = (props) => {
 			</div>
 		</div>
 	);
+};
+
+Testimonials.propTypes = {
+	data: PropTypes.arrayOf(
+		PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			img: PropTypes.string.isRequired,
+			text: PropTypes.string.isRequired,
+		}),
+	),
 };

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 export const Services = (props) => {
@@ -20,7 +21,6 @@ export const Services = (props) => {
 									data-aos={i % 2 === 0 ? "flip-left" : "flip-right"}
 									data-aos-delay={i * 100}
 								>
-									{" "}
 									<i className={d.icon} />
 									<div className="service-desc">
 										<h3>{d.name}</h3>
@@ -33,4 +33,14 @@ export const Services = (props) => {
 			</div>
 		</div>
 	);
+};
+
+Services.propTypes = {
+	data: PropTypes.arrayOf(
+		PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			icon: PropTypes.string.isRequired,
+			text: PropTypes.string.isRequired,
+		}),
+	),
 };

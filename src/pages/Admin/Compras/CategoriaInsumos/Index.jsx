@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import GeneralTable from "../../../../components/GeneralTable";
 import api from "../../../../utils/api";
 
 const CategoriaInsumoAdmin = () => {
 	const [categorias, setCategorias] = useState([]);
-	const [nombre, setNombre] = useState("");
-	const [descripcion, setDescripcion] = useState("");
-	const [estado, setEstado] = useState(true);
-	const [error, setError] = useState(null);
-	const [editando, setEditando] = useState(null);
-	const [cargando, setCargando] = useState(false);
+	const [nombre, setNombre] = useState(""); // eslint-disable-line no-unused-vars
+	const [descripcion, setDescripcion] = useState(""); // eslint-disable-line no-unused-vars
+	const [estado, setEstado] = useState(true); // eslint-disable-line no-unused-vars
+	const [error, setError] = useState(null); // eslint-disable-line no-unused-vars
+	const [editando, setEditando] = useState(null); // eslint-disable-line no-unused-vars
+	const [cargando, setCargando] = useState(false); // eslint-disable-line no-unused-vars
 
 	const cargarCategorias = useCallback(async () => {
 		try {
@@ -37,58 +37,6 @@ const CategoriaInsumoAdmin = () => {
 		} catch (err) {
 			console.error(err);
 			alert("Error al cambiar el estado.");
-		}
-	};
-
-	const crearCategoria = async () => {
-		if (!nombre.trim()) return alert("El nombre es obligatorio.");
-		try {
-			setCargando(true);
-			await api.post("/categoria-insumo", {
-				Nombre: nombre,
-				Descripcion: descripcion,
-				Estado: estado,
-			});
-			limpiarFormulario();
-			await cargarCategorias();
-		} catch (err) {
-			console.error(err);
-			alert("Error al crear la categoría.");
-		} finally {
-			setCargando(false);
-		}
-	};
-
-	const actualizarCategoria = async () => {
-		if (!nombre.trim()) return alert("El nombre es obligatorio.");
-		try {
-			setCargando(true);
-			await api.put(`/categoria-insumo/${editando}`, {
-				Nombre: nombre,
-				Descripcion: descripcion,
-				Estado: estado,
-			});
-			limpiarFormulario();
-			await cargarCategorias();
-		} catch (err) {
-			console.error(err);
-			alert("Error al actualizar la categoría.");
-		} finally {
-			setCargando(false);
-		}
-	};
-
-	const eliminarCategoria = async (id) => {
-		if (!window.confirm("¿Estás seguro de eliminar esta categoría?")) return;
-		try {
-			setCargando(true);
-			await api.delete(`/categoria-insumo/${id}`);
-			await cargarCategorias();
-		} catch (err) {
-			console.error(err);
-			alert("Error al eliminar la categoría.");
-		} finally {
-			setCargando(false);
 		}
 	};
 

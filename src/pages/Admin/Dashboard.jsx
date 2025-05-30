@@ -12,7 +12,6 @@ import {
 } from "chart.js";
 import React from "react";
 import { Bar, Line, Pie, Scatter } from "react-chartjs-2";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Sidebar from "../../components/sideBar";
 
@@ -48,20 +47,6 @@ const months = [
 ];
 
 export default function Dashboard() {
-	const navigate = useNavigate();
-
-	const handleLogout = async () => {
-		try {
-			await fetch("http://localhost:3000/api/logout/", {
-				method: "POST",
-				credentials: "include",
-			});
-			navigate("/login");
-		} catch (error) {
-			console.error("Error al cerrar sesión:", error);
-		}
-	};
-
 	const lineData = generateRandomData();
 	const barData = generateRandomData();
 	const scatterData = generateRandomData();

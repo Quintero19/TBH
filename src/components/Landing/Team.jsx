@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 export const Team = (props) => {
@@ -21,7 +22,6 @@ export const Team = (props) => {
 									data-aos-delay={i * 100}
 								>
 									<div className="thumbnail">
-										{" "}
 										<img src={d.img} alt="..." className="team-img" />
 										<div className="caption">
 											<h4>{d.name}</h4>
@@ -35,4 +35,14 @@ export const Team = (props) => {
 			</div>
 		</div>
 	);
+};
+
+Team.propTypes = {
+	data: PropTypes.arrayOf(
+		PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			img: PropTypes.string.isRequired,
+			job: PropTypes.string.isRequired,
+		}),
+	),
 };

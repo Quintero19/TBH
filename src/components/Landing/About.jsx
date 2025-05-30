@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 export const About = (props) => {
@@ -10,8 +11,7 @@ export const About = (props) => {
 						data-aos="fade-left"
 						data-aos-delay="100"
 					>
-						{" "}
-						<img src="img/about.jpg" className="img-responsive" alt="" />{" "}
+						<img src="img/about.jpg" className="img-responsive" alt="" />
 					</div>
 					<div
 						className="col-xs-12 col-md-6"
@@ -44,4 +44,16 @@ export const About = (props) => {
 			</div>
 		</div>
 	);
+};
+
+About.propTypes = {
+	data: PropTypes.shape({
+		paragraph: PropTypes.string,
+		Why: PropTypes.arrayOf(PropTypes.string),
+		Why2: PropTypes.arrayOf(PropTypes.string),
+	}),
+};
+
+About.defaultProps = {
+	data: null,
 };

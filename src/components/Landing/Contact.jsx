@@ -1,12 +1,13 @@
 import emailjs from "emailjs-com";
-import { useState } from "react";
-import React from "react";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
 
 const initialState = {
 	name: "",
 	email: "",
 	message: "",
 };
+
 export const Contact = (props) => {
 	const [{ name, email, message }, setState] = useState(initialState);
 
@@ -14,6 +15,7 @@ export const Contact = (props) => {
 		const { name, value } = e.target;
 		setState((prevState) => ({ ...prevState, [name]: value }));
 	};
+
 	const clearState = () => setState({ ...initialState });
 
 	const handleSubmit = (e) => {
@@ -37,135 +39,94 @@ export const Contact = (props) => {
 				},
 			);
 	};
+
 	return (
 		<div>
 			<div id="contact">
 				<div className="container">
-					<div className="col-md-8" data-aos="fade-up" data-aos-delay="100">
+					{/* ... */}
+					<form name="sentMessage" onSubmit={handleSubmit}>
 						<div className="row">
-							<div className="section-title">
-								<h2>Get In Touch</h2>
-								<p>
-									Please fill out the form below to send us an email and we will
-									get back to you as soon as possible.
-								</p>
+							<div className="col-md-6">
+								<input
+									type="text"
+									id="name"
+									name="name"
+									className="form-control"
+									placeholder="Name"
+									required
+									onChange={handleChange}
+									value={name}
+								/>
 							</div>
-							<form name="sentMessage" onSubmit={handleSubmit}>
-								<div className="row">
-									<div className="col-md-6">
-										<div className="form-group">
-											<input
-												type="text"
-												id="name"
-												name="name"
-												className="form-control"
-												placeholder="Name"
-												required
-												onChange={handleChange}
-											/>
-											<p className="help-block text-danger" />
-										</div>
-									</div>
-									<div className="col-md-6">
-										<div className="form-group">
-											<input
-												type="email"
-												id="email"
-												name="email"
-												className="form-control"
-												placeholder="Email"
-												required
-												onChange={handleChange}
-											/>
-											<p className="help-block text-danger" />
-										</div>
-									</div>
-								</div>
-								<div className="form-group">
-									<textarea
-										name="message"
-										id="message"
-										className="form-control"
-										rows="4"
-										placeholder="Message"
-										required
-										onChange={handleChange}
-									/>
-									<p className="help-block text-danger" />
-								</div>
-								<div id="success" />
-								<button type="submit" className="btn btn-custom btn-lg">
-									Send Message
-								</button>
-							</form>
-						</div>
-					</div>
-					<div
-						className="col-md-3 col-md-offset-1 contact-info"
-						data-aos="fade-down"
-						data-aos-delay="200"
-					>
-						<div className="contact-item">
-							<h3>Contact Info</h3>
-							<p>
-								<span>
-									<i className="fa fa-map-marker" /> Address
-								</span>
-								{props.data ? props.data.address : "loading"}
-							</p>
-						</div>
-						<div className="contact-item">
-							<p>
-								<span>
-									<i className="fa fa-phone" /> Phone
-								</span>{" "}
-								{props.data ? props.data.phone : "loading"}
-							</p>
-						</div>
-						<div className="contact-item">
-							<p>
-								<span>
-									<i className="fa fa-envelope-o" /> Email
-								</span>{" "}
-								{props.data ? props.data.email : "loading"}
-							</p>
-						</div>
-					</div>
-					<div className="col-md-12">
-						<div className="row">
-							<div className="social">
-								<ul>
-									<li>
-										<a href={props.data ? props.data.facebook : "/"}>
-											<i className="fa fa-facebook" />
-										</a>
-									</li>
-									<li>
-										<a href={props.data ? props.data.twitter : "/"}>
-											<i className="fa fa-twitter" />
-										</a>
-									</li>
-									<li>
-										<a href={props.data ? props.data.youtube : "/"}>
-											<i className="fa fa-youtube" />
-										</a>
-									</li>
-								</ul>
+							<div className="col-md-6">
+								<input
+									type="email"
+									id="email"
+									name="email"
+									className="form-control"
+									placeholder="Email"
+									required
+									onChange={handleChange}
+									value={email}
+								/>
 							</div>
 						</div>
+						<textarea
+							name="message"
+							id="message"
+							className="form-control"
+							rows="4"
+							placeholder="Message"
+							required
+							onChange={handleChange}
+							value={message}
+						/>
+						<button type="submit" className="btn btn-custom btn-lg">
+							Send Message
+						</button>
+					</form>
+					{/* ... */}
+					<div className="contact-info">
+						<p>{props.data ? props.data.address : "Cargando..."}</p>
+						<p>{props.data ? props.data.phone : "Cargando..."}</p>
+						<p>{props.data ? props.data.email : "Cargando..."}</p>
 					</div>
-				</div>
-			</div>
-			<div id="footer">
-				<div className="container text-center">
-					<p>
-						&copy; 2023 Issaaf Kattan React Land Page Template. Design by{" "}
-						<a href="http://www.templatewire.com" rel="nofollow">
-							TemplateWire
+					<div className="social">
+						<a href={props.data ? props.data.facebook : "/"}>
+							<i className="fa fa-facebook" />
 						</a>
-					</p>
+						<a href={props.data ? props.data.twitter : "/"}>
+							<i className="fa fa-twitter" />
+						</a>
+						<a href={props.data ? props.data.youtube : "/"}>
+							<i className="fa fa-youtube" />
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
 	);
+};
+
+Contact.propTypes = {
+	data: PropTypes.shape({
+		address: PropTypes.string,
+		phone: PropTypes.string,
+		email: PropTypes.string,
+		facebook: PropTypes.string,
+		twitter: PropTypes.string,
+		youtube: PropTypes.string,
+	}),
+};
+
+Contact.defaultProps = {
+	data: {
+		address: "Loading...",
+		phone: "Loading...",
+		email: "Loading...",
+		facebook: "/",
+		twitter: "/",
+		youtube: "/",
+	},
 };

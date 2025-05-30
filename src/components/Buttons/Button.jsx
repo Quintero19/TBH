@@ -1,5 +1,5 @@
+import PropTypes from "prop-types";
 import React from "react";
-// import Button from "../../../components/Buttons/Button";
 
 const Button = ({
 	href,
@@ -23,7 +23,9 @@ const Button = ({
 		gray: "bg-gray-500 border-gray-400 hover:bg-gray-600 cursor-not-allowed",
 	};
 
-	const buttonClasses = `${baseClasses} ${colors[className] || "bg-gray-400 border-gray-400"}`;
+	const buttonClasses = `${baseClasses} ${
+		colors[className] || "bg-gray-400 border-gray-400"
+	}`;
 
 	return href ? (
 		<a href={href} className={`${buttonClasses} text-center`} {...props}>
@@ -33,7 +35,9 @@ const Button = ({
 	) : (
 		<button
 			type={type}
-			className={`${buttonClasses} text-center ${props.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+			className={`${buttonClasses} text-center ${
+				props.disabled ? "opacity-50 cursor-not-allowed" : ""
+			}`}
 			disabled={props.disabled}
 			{...props}
 		>
@@ -41,6 +45,15 @@ const Button = ({
 			{children}
 		</button>
 	);
+};
+
+Button.propTypes = {
+	href: PropTypes.string,
+	type: PropTypes.string,
+	icon: PropTypes.node,
+	className: PropTypes.string,
+	children: PropTypes.node.isRequired,
+	disabled: PropTypes.bool,
 };
 
 export default Button;

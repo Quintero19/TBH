@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import "../../styles/css/Header.css";
 
@@ -82,4 +83,11 @@ export const Header = (props) => {
 			</header>
 		</div>
 	);
+};
+
+Header.propTypes = {
+	data: PropTypes.shape({
+		title: PropTypes.string,
+		paragraph: PropTypes.string,
+	}),
 };
