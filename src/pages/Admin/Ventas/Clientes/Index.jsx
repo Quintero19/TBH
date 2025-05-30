@@ -15,21 +15,11 @@ export default function Usuario() {
 
 	return (
 		<div className="flex">
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<GeneralTable
 					title="Clientes"
 					columns={columns}
 					data={data}
-					// onAdd={handleAdd}
-					// onView={handleView}
-					// onEdit={handleEdit}
-					// onDelete={handleDelete}
-					// onToggleEstado={handleToggleEstado}
-					// idAccessor="Id_Proveedores"
-					// stateAccessor="Estado"
 				/>
-			</div>
 		</div>
 	);
 }

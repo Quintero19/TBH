@@ -17,8 +17,6 @@ export default function Usuario() {
 
 	return (
 		<>
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<GeneralTable
 					title={title}
 					columns={columns}
@@ -28,7 +26,6 @@ export default function Usuario() {
 					onEdit={(row) => console.log("Editar", row)}
 					onDelete={(row) => console.log("Eliminar", row)}
 				/>
-			</div>
 		</>
 	);
 }

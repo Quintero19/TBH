@@ -104,8 +104,6 @@ const EditarProveedor = () => {
 
 	return (
 		<>
-			<Sidebar />
-			<div className="md:ml-64 p-6 md:p-20">
 				<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
 					Editar Proveedor
 				</h1>
@@ -300,7 +298,6 @@ const EditarProveedor = () => {
 						</Button>
 					</div>
 				</form>
-			</div>
 		</>
 	);
 };
