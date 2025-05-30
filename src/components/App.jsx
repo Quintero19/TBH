@@ -1,37 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 import "../styles/css/App.css";
 
-import RolesAdmin from '../pages/Admin/Configuracion/Roles/Index'
-import UsuarioAdmin from '../pages/Admin/Usuarios/Usuario/Index'
-import EmpleadoAdmin from '../pages/Admin/Usuarios/Empleados/Index'
-import ServicioAdmin from '../pages/Admin/Servicios/Servicio/Index'
-import AgendamientoAdmin from '../pages/Admin/Servicios/Agendamiento/Index'
-import HorarioAdmin from '../pages/Admin/Servicios/Horarios/Index'
-import CompraAdmin from '../pages/Admin/Compras/Compra/Index'
-
-import Proveedores from '../pages/Admin/Compras/Proveedores/Index'
-import AgregarProveedor from '../pages/Admin/Compras/Proveedores/AgregarProveedor'
-import EditarProveedor from '../pages/Admin/Compras/Proveedores/EditarProveedor'
-
-import CategoriaProductoAdmin from '../pages/Admin/Compras/CategoriaProductos/Index'
-import ProductoAdmin from '../pages/Admin/Compras/Productos/Index'
-import CategoriaInsumoAdmin from '../pages/Admin/Compras/CategoriaInsumos/Index'
-import InsumoAdmin from '../pages/Admin/Compras/Insumos/Index'
-import VentaAdmin from '../pages/Admin/Ventas/Venta/Index'
-import ClienteAdmin from '../pages/Admin/Ventas/Clientes/Index'
-import DevolucionesAdmin from '../pages/Admin/Ventas/Devoluciones/Index'
-import Dashboard from "../pages/Admin/Dashboard";
-import AuthForm from "../pages/Auth/AuthForm";
-import RecoverPassword from "../pages/Auth/RCP";
-import Home from "../pages/Landing/Home";
-
 import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
 import CategoriaProductoAdmin from "../pages/Admin/Compras/CategoriaProductos/Index";
 import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import ProductoAdmin from "../pages/Admin/Compras/Productos/Index";
+import AgregarProveedor from "../pages/Admin/Compras/Proveedores/AgregarProveedor";
+import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor";
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
+import Dashboard from "../pages/Admin/Dashboard";
 import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
 import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
@@ -41,70 +20,23 @@ import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
 import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
 
+import AuthForm from "../pages/Auth/AuthForm";
+import RecoverPassword from "../pages/Auth/RCP";
+import Home from "../pages/Landing/Home";
+import UsuarioIndex from "../pages/Usuario/Index";
+
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
-import UsuarioIndex from "../pages/Usuario/Index";
 
 function App() {
 	return (
 		<Routes>
+			{/* Rutas públicas */}
 			<Route path="/" element={<Home />} />
 			<Route path="/login" element={<AuthForm />} />
 			<Route path="/rcp" element={<RecoverPassword />} />
-      //admin
-      <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={1}><Dashboard /></ProtectedRoute>}/>
-      <Route path="/admin/roles" element={<ProtectedRoute requiredRole={1}><RolesAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/usuario" element={<ProtectedRoute requiredRole={1}><UsuarioAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/empleado" element={<ProtectedRoute requiredRole={1}><EmpleadoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/servicios" element={<ProtectedRoute requiredRole={1}><ServicioAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/agendamiento" element={<ProtectedRoute requiredRole={1}><AgendamientoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/horarios" element={<ProtectedRoute requiredRole={1}><HorarioAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/compras" element={<ProtectedRoute requiredRole={1}><CompraAdmin /></ProtectedRoute>}/>
 
-      <Route path="/admin/proveedores" element={<ProtectedRoute requiredRole={1}><Proveedores /></ProtectedRoute>}/>
-      <Route path="/admin/proveedores/agregar" element={<ProtectedRoute requiredRole={1}><AgregarProveedor /></ProtectedRoute>}/>
-      <Route path="/admin/proveedores/editar/:id" element={<ProtectedRoute requiredRole={1}><EditarProveedor /></ProtectedRoute>}/>
-
-      <Route path="/admin/categoriaproducto" element={<ProtectedRoute requiredRole={1}><CategoriaProductoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/producto" element={<ProtectedRoute requiredRole={1}><ProductoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/categoriainsumo" element={<ProtectedRoute requiredRole={1}><CategoriaInsumoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/insumo" element={<ProtectedRoute requiredRole={1}><InsumoAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/ventas" element={<ProtectedRoute requiredRole={1}><VentaAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/clientes" element={<ProtectedRoute requiredRole={1}><ClienteAdmin /></ProtectedRoute>}/>
-      <Route path="/admin/devoluciones" element={<ProtectedRoute requiredRole={1}><DevolucionesAdmin /></ProtectedRoute>}/>
-			{/* Layout para admin */}
-			<Route
-				element={
-					<ProtectedRoute requiredRole={1}>
-						<AdminLayout />
-					</ProtectedRoute>
-				}
-			>
-				<Route path="/admin/dashboard" element={<Dashboard />} />
-				<Route path="/admin/roles" element={<RolesAdmin />} />
-				<Route path="/admin/usuario" element={<UsuarioAdmin />} />
-				<Route path="/admin/empleado" element={<EmpleadoAdmin />} />
-				<Route path="/admin/servicios" element={<ServicioAdmin />} />
-				<Route path="/admin/agendamiento" element={<AgendamientoAdmin />} />
-				<Route path="/admin/horarios" element={<HorarioAdmin />} />
-				<Route path="/admin/compras" element={<CompraAdmin />} />
-				<Route path="/admin/proveedores" element={<Proveedores />} />
-				<Route
-					path="/admin/categoriaproducto"
-					element={<CategoriaProductoAdmin />}
-				/>
-				<Route path="/admin/producto" element={<ProductoAdmin />} />
-				<Route
-					path="/admin/categoriainsumo"
-					element={<CategoriaInsumoAdmin />}
-				/>
-				<Route path="/admin/insumo" element={<InsumoAdmin />} />
-				<Route path="/admin/ventas" element={<VentaAdmin />} />
-				<Route path="/admin/clientes" element={<ClienteAdmin />} />
-				<Route path="/admin/devoluciones" element={<DevolucionesAdmin />} />
-			</Route>
-
-			{/* Usuario */}
+			{/* Rutas privadas de usuario normal */}
 			<Route
 				path="/usuario/index"
 				element={
@@ -113,6 +45,35 @@ function App() {
 					</ProtectedRoute>
 				}
 			/>
+
+			{/* Rutas administrativas con Sidebar */}
+			<Route
+				path="/admin"
+				element={
+					<ProtectedRoute requiredRole={1}>
+						<AdminLayout />
+					</ProtectedRoute>
+				}
+			>
+				<Route path="dashboard" element={<Dashboard />} />
+				<Route path="roles" element={<RolesAdmin />} />
+				<Route path="usuario" element={<UsuarioAdmin />} />
+				<Route path="empleado" element={<EmpleadoAdmin />} />
+				<Route path="servicios" element={<ServicioAdmin />} />
+				<Route path="agendamiento" element={<AgendamientoAdmin />} />
+				<Route path="horarios" element={<HorarioAdmin />} />
+				<Route path="compras" element={<CompraAdmin />} />
+				<Route path="proveedores" element={<Proveedores />} />
+				<Route path="proveedores/agregar" element={<AgregarProveedor />} />
+				<Route path="proveedores/editar/:id" element={<EditarProveedor />} />
+				<Route path="categoriaproducto" element={<CategoriaProductoAdmin />} />
+				<Route path="producto" element={<ProductoAdmin />} />
+				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
+				<Route path="insumo" element={<InsumoAdmin />} />
+				<Route path="ventas" element={<VentaAdmin />} />
+				<Route path="clientes" element={<ClienteAdmin />} />
+				<Route path="devoluciones" element={<DevolucionesAdmin />} />
+			</Route>
 		</Routes>
 	);
 }
