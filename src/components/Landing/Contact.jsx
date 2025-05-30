@@ -72,6 +72,7 @@ export const Contact = (props) => {
 								/>
 							</div>
 						</div>
+						<br />
 						<textarea
 							name="message"
 							id="message"
