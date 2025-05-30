@@ -1,10 +1,11 @@
 import { React, useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 import GeneralTable from "../../../../components/GeneralTable";
-import Sidebar from "../../../../components/sideBar";
 import { userService } from "../../../../service/usuario.service";
 
 export default function Usuario() {
+	const navigate = useNavigate();
 	const title = "Usuarios";
 
 	const columns = [
@@ -18,7 +19,6 @@ export default function Usuario() {
 	const obtenerUsuarios = useCallback(async () => {
 		try {
 			const response = await userService.listarUsuarios();
-			console.log("Respuesta cruda del backend:", response);
 
 			const usuariosBackend = response.data;
 
@@ -35,6 +35,35 @@ export default function Usuario() {
 			console.error("Error al obtener los usuarios:", error);
 		}
 	}, []);
+
+	const handleDelete = (usuario) => {
+		Swal.fire({
+		  title: "¿Estás seguro?",
+		  text: "Esta acción no se puede deshacer.",
+		  icon: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: "#d33",
+		  cancelButtonColor: "#3085d6",
+		  confirmButtonText: "Sí, eliminar",
+		  cancelButtonText: "Cancelar",
+		  background: '#000',  
+		  color: '#fff'
+		}).then((result) => {
+		  if (result.isConfirmed) {
+			eliminarUsuario(usuario);
+			refreshUsuarios();
+			Swal.fire({
+			  title: "Eliminado",
+			  text: "El usuario ha sido eliminado correctamente.",
+			  icon: "success",
+			  timer: 2000,
+			  showConfirmButton: false,
+			  background: '#000', 
+			  color: '#fff', 
+			}); 
+		  }
+		});
+	  };
 
 	const eliminarUsuario = async (usuario) => {
 		try {
@@ -72,18 +101,15 @@ export default function Usuario() {
 
 	return (
 		<>
-			<Sidebar />
-			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<GeneralTable
 					title={title}
 					columns={columns}
 					data={usuarios}
-					onAdd={() => console.log("Agregar")}
+					onAdd={() => navigate("/admin/usuario/agregar")}
 					onView={handleVerDetalles}
 					onEdit={(row) => console.log("Editar", row)}
-					onDelete={(row) => eliminarUsuario(row)}
+					onDelete={(handleDelete)}
 				/>
-			</div>
 		</>
 	);
 }
