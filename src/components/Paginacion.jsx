@@ -1,6 +1,6 @@
-import * as React from 'react';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
+import * as React from "react";
 
 export default function BasicPagination({ count, page, onChange }) {
   return (

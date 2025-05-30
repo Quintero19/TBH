@@ -87,9 +87,9 @@ const handleToggleEstado = async (id) => {
   }
 };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
 
   const handleAdd = () => {
     navigate('/admin/proveedores/agregar');

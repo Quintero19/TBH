@@ -1,6 +1,6 @@
 import React from "react";
+import { FaEye, FaPencilAlt, FaPlus, FaSearch, FaTrash } from "react-icons/fa";
 import Button from "./Buttons/Button";
-import { FaSearch, FaPlus, FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
 import BasicPagination from "./Paginacion";
 
 const GeneralTable = ({ 
@@ -20,6 +20,9 @@ const GeneralTable = ({
   totalPages,
   onPageChange
 }) => {
+	return (
+		<div className="p-9">
+			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
 
   return (
     <div className="p-9">
