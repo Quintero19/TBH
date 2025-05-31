@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
 import { userService } from "../../../../service/usuario.service";
+import { rolService } from "../../../../service/roles.service";
 
 export default function AgregarUsuario () {
   const navigate = useNavigate();
-
+  
+  const [roles, setRoles] = useState([]);
 
   const [formData, setFormData] = useState({
     Documento: "",
@@ -16,6 +18,29 @@ export default function AgregarUsuario () {
     Rol_Id: "",
     Estado: ""
   });
+
+  useEffect(() => {
+        const fetchRoles = async () => {
+          try {
+            const response = await rolService.listarRoles();
+            const rolesArray = response.data;
+
+            if (Array.isArray(rolesArray)) {
+              // Filtra los roles activos
+              const rolesActivos = rolesArray.filter(rol => rol.Estado === true);
+              setRoles(rolesActivos);
+            } else {
+              console.error("La propiedad data no es un array:", rolesArray);
+            }
+          } catch (error) {
+            console.error("Error al obtener roles:", error);
+          }
+        };
+
+        fetchRoles();
+      }, []);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -157,17 +182,19 @@ export default function AgregarUsuario () {
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2 block">Rol <span className="text-red-500">*</span></h3>
           <select
-            name="Rol_Id"
-            value={formData.Rol_Id}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          >
-            <option value="">Selecciona un rol</option>
-            <option value="1">Administrador</option>
-            <option value="2">Empleado</option>
-            <option value="3">Cliente</option>
-          </select>
+                name="Rol_Id"
+                value={formData.Rol_Id}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+                required
+              >
+                <option value="">Selecciona un rol</option>
+                {Array.isArray(roles) && roles.map((rol) => (
+                  <option key={rol.Id} value={rol.Id}>
+                    {rol.Nombre}
+                  </option>
+                ))}
+        </select>
         </div>
 
 

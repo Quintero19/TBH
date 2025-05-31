@@ -13,6 +13,9 @@ import AgregarProveedor from "../pages/Admin/Compras/Proveedores/AgregarProveedo
 import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor";
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
+import RolesAdminAgregar from "../pages/Admin/Configuracion/Roles/Agregar";
+import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
+
 import Dashboard from "../pages/Admin/Dashboard";
 import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
@@ -62,6 +65,8 @@ function App() {
 			>
 				<Route path="dashboard" element={<Dashboard />} />
 				<Route path="roles" element={<RolesAdmin />} />
+				<Route path="roles/agregar" element={<RolesAdminAgregar />} />
+				<Route path="roles/editar/:id" element={<RolesAdminEditar />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
 				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
         		<Route path="usuario/editar/:id" element={<UsuarioEditar />}/>

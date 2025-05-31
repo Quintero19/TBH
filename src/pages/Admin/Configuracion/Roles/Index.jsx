@@ -141,7 +141,7 @@ export default function Rol() {
 	};
 
 	const handleEdit = (rol) => {
-		navigate(`/admin/rol/editar/${rol.Id}`);
+		navigate(`/admin/roles/editar/${rol.Id}`);
 	};
 
 	const handlePageChange = (event, value) => {
@@ -157,7 +157,7 @@ export default function Rol() {
 			title={title}
 			columns={columns}
 			data={paginatedData}
-			onAdd={() => navigate("/admin/rol/agregar")}
+			onAdd={() => navigate("/admin/roles/agregar")}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
 			onDelete={handleDelete}

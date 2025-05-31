@@ -18,8 +18,8 @@ export const rolService = {
         return res.data;
     },
 
-    actualizarRoles: async (id) => {
-		const res = await api.put(`${ROL_URL}/${id}`);
+    actualizarRoles: async (id, rol) => {
+		const res = await api.put(`${ROL_URL}/${id}`, rol);
 		return res.data;
 	},
 
