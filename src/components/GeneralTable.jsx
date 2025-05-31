@@ -38,9 +38,6 @@ const GeneralTable = ({
 							value={searchTerm}
 							onChange={onSearchChange}
 						/>
-						<Button className="blue_a">
-							<FaSearch />
-						</Button>
 					</form>
 
 					<Button className="green" onClick={onAdd}>

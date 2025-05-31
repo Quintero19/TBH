@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
-import Sidebar from "../../../../components/sideBar";
 import { proveedorService } from "../../../../service/proveedores.service";
 
 const EditarProveedor = () => {

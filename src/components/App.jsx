@@ -20,7 +20,7 @@ import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
 import EmpleadoAdmin from "../pages/Admin/Usuarios/Empleados/Index";
 import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
 import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
-// import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
+import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
 import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
 import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
@@ -64,7 +64,7 @@ function App() {
 				<Route path="roles" element={<RolesAdmin />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
 				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
-      {/* <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/> */}
+        		<Route path="/admin/usuario/editar/:id" element={<UsuarioEditar />}/>
 				<Route path="empleado" element={<EmpleadoAdmin />} />
 				<Route path="servicios" element={<ServicioAdmin />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
