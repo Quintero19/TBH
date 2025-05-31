@@ -12,7 +12,8 @@ const EditarUsuario = () => {
 		Documento: "",
 		Correo: "",
 		Id_Usuario: "",
-		Rol_Id: ""
+		Rol_Id: "",
+		Estado: true
 	});
 
 	useEffect(() => {
@@ -44,6 +45,7 @@ const EditarUsuario = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		console.log(formData)
 		try {
 			await userService.actualizarUsuario(id, formData);
 			Swal.fire({

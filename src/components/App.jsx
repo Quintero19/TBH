@@ -64,7 +64,7 @@ function App() {
 				<Route path="roles" element={<RolesAdmin />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
 				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
-        		<Route path="/admin/usuario/editar/:id" element={<UsuarioEditar />}/>
+        		<Route path="usuario/editar/:id" element={<UsuarioEditar />}/>
 				<Route path="empleado" element={<EmpleadoAdmin />} />
 				<Route path="servicios" element={<ServicioAdmin />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />

@@ -33,8 +33,8 @@ export const userService = {
 		return res.data;
 	},
 
-	actualizarUsuario: async (documento) => {
-		const res = await api.put(`${USER_URL}/${documento}`);
+	actualizarUsuario: async (id, usuario) => {
+		const res = await api.put(`${USER_URL}/${id}`, usuario);
 		return res.data;
 	},
 	

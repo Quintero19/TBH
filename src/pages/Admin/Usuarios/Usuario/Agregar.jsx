@@ -102,12 +102,12 @@ export default function AgregarUsuario () {
   return (
     <div className="flex">
     <div className="grow p-6">
-      <h1 className="text-3xl font-bold mb-4 text-black">Agregar Usuario</h1>
+      <h1 className="text-5xl ml-10 font-bold mb-5 text-black">Agregar Usuario</h1>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-lg">Documento *</h3>
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Documento <span className="text-red-500">*</span></h3>
           <input
             type="number"
             name="Documento"
@@ -118,8 +118,8 @@ export default function AgregarUsuario () {
           />
         </div>
 
-        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-lg">Correo *</h3>
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Correo <span className="text-red-500">*</span></h3>
           <input
             type="email"
             name="Correo"
@@ -130,8 +130,8 @@ export default function AgregarUsuario () {
           />
         </div>
 
-        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-lg">Contraseña *</h3>
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Contraseña <span className="text-red-500">*</span></h3>
           <input
             type="password"
             name="Password"
@@ -142,8 +142,8 @@ export default function AgregarUsuario () {
           />
         </div>
 
-        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-lg">Confirmar Contraseña *</h3>
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Confirmar Contraseña <span className="text-red-500">*</span></h3>
           <input
             type="password"
             name="confirmPassword"
@@ -154,8 +154,8 @@ export default function AgregarUsuario () {
           />
         </div>
 
-        <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-lg">Rol *</h3>
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Rol <span className="text-red-500">*</span></h3>
           <select
             name="Rol_Id"
             value={formData.Rol_Id}
@@ -171,8 +171,8 @@ export default function AgregarUsuario () {
         </div>
 
 
-      <div className="p-4 bg-white shadow border-2 border-gray-200 rounded-lg">
-        <h3 className="font-bold text-lg">Estado *</h3>
+      <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+        <h3 className="text-2xl text-black font-bold mb-2 block">Estado <span className="text-red-500">*</span></h3>
         <select
           name="Estado"
           value={formData.Estado}
@@ -187,7 +187,7 @@ export default function AgregarUsuario () {
       </div>
 
 
-        <div className="md:col-span-2 flex gap-2">
+        <div className="md:col-span-2 flex gap-2 ml-7">
           <Button className="green" type="submit"> Guardar</Button>
           <Button className="red" onClick={handleCancel}> Cancelar</Button>
         </div>
