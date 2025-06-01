@@ -20,7 +20,9 @@ const GeneralTable = ({
 	currentPage,
 	totalPages,
 	onPageChange,
+	...rest
 }) => {
+
 	return (
 		<div className="p-9 w-full">
 			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
@@ -51,8 +53,16 @@ const GeneralTable = ({
 					{title == "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="green"> Tallas</Button>
-								<Button className="green"> Tamaños</Button>
+								<Button className="green" onClick={rest.goTallas}> Tallas</Button>
+								<Button className="green" onClick={rest.goTamanos}> Tamaños</Button>
+							</div>
+						</div>
+					)};
+
+					{(title === "Tallas" || title === "Tamaños") && (
+						<div className="flex justify-end flex-1">
+							<div className="flex space-x-2">
+								<Button className="red" onClick={rest.return}> Volver a Productos</Button>
 							</div>
 						</div>
 					)}
