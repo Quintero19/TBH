@@ -26,7 +26,6 @@ export default function AgregarUsuario () {
             const rolesArray = response.data;
 
             if (Array.isArray(rolesArray)) {
-              // Filtra los roles activos
               const rolesActivos = rolesArray.filter(rol => rol.Estado === true);
               setRoles(rolesActivos);
             } else {
@@ -71,6 +70,36 @@ export default function AgregarUsuario () {
         }
 
         try {
+          const usuarios = await userService.listarUsuarios();
+
+           const existeDocumento = usuarios.data.some(
+            (u) => u.Documento.toString() === formData.Documento.toString()
+          );
+          if (existeDocumento) {
+            Swal.fire({
+              title: "Error",
+              text: "El documento ya está registrado.",
+              icon: "error",
+              background: "#000",
+              color: "#fff"
+            });
+            return;
+          }
+
+          const existeCorreo = usuarios.data.some(
+            (u) => u.Correo.toLowerCase() === formData.Correo.toLowerCase()
+          );
+          if (existeCorreo) {
+            Swal.fire({
+              title: "Error",
+              text: "El correo ya está registrado.",
+              icon: "error",
+              background: "#000",
+              color: "#fff"
+            });
+            return;
+          }
+
           const usuarioFinal = {
             ...formData,
             Rol_Id: Number(formData.Rol_Id), 

@@ -13,20 +13,29 @@ const EditarUsuario = () => {
 		Correo: "",
 		Id_Usuario: "",
 		Rol_Id: "",
+		Password: "",
+    	confirmPassword: "",
 		Estado: true
 	});
 
 	useEffect(() => {
 		const cargarUsuario = async () => {
 			try {
-				const data = await userService.listarUsuarioPorId(id);
-				setFormData(data.data);
+				const { data } = await userService.listarUsuarioPorId(id);
+    			const { Password, ...resto } = data; 
+				setFormData({
+				...resto,
+				Password: "",
+				confirmPassword: ""
+				});
 			} catch (error) {
 				console.error("Error al cargar usuario:", error);
 				Swal.fire({
 					title: "Error",
 					text: "No se pudo cargar el usuario",
 					icon: "error",
+					background: "#000",
+					color: "#fff"
 				});
 				navigate("/admin/usuario"); 
 			}
@@ -45,9 +54,66 @@ const EditarUsuario = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log(formData)
+			const usuarios = await userService.listarUsuarios();
+
+			const existeDocumento = usuarios.data.some(
+			(u) =>
+				u.Documento.toString() === formData.Documento.toString() &&
+				u.Id_Usuario !== formData.Id_Usuario
+			);
+
+			if (existeDocumento) {
+			Swal.fire({
+				title: "Error",
+				text: "El documento ya está registrado por otro usuario.",
+				icon: "error",
+				background: "#000",
+				color: "#fff"
+			});
+			return;
+			}
+
+			const existeCorreo = usuarios.data.some(
+			(u) =>
+				u.Correo.toLowerCase() === formData.Correo.toLowerCase() &&
+				u.Id_Usuario !== formData.Id_Usuario
+			);
+
+			if (existeCorreo) {
+			Swal.fire({
+				title: "Error",
+				text: "El correo ya está registrado por otro usuario.",
+				icon: "error",
+				background: "#000",
+				color: "#fff"
+			});
+			return;
+			}
+
+			if (formData.Password || formData.confirmPassword) {
+				if (formData.Password !== formData.confirmPassword) {
+					Swal.fire({
+					title: "Error",
+					text: "Las contraseñas no coinciden.",
+					icon: "error",
+					background: '#000',
+					color: '#fff'
+					});
+					return;
+				}
+				}
+		
+		const dataToSend = { ...formData };
+			if (!formData.Password) {
+			delete dataToSend.Password;
+			}
+			if (!formData.confirmPassword) {
+			delete dataToSend.confirmPassword;
+			}
+
+			
 		try {
-			await userService.actualizarUsuario(id, formData);
+			await userService.actualizarUsuario(id, dataToSend);
 			Swal.fire({
 				title: "¡Éxito!",
 				text: "El usuario ha sido actualizado correctamente.",
@@ -55,7 +121,7 @@ const EditarUsuario = () => {
 				timer: 2000,
 				showConfirmButton: false,
 				background: "#000",
-				color: "#fff",
+				color: "#fff"
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
@@ -65,6 +131,8 @@ const EditarUsuario = () => {
 				title: "Error",
 				text: "No se pudo actualizar el usuario.",
 				icon: "error",
+				background: "#000",
+				color: "#fff"
 			});
 		}
 	};
@@ -122,6 +190,28 @@ const EditarUsuario = () => {
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
 				</div>
+
+				 <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Contraseña <span className="text-red-500">*</span></h3>
+          <input
+            type="password"
+            name="Password"
+            value={formData.Password}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">Confirmar Contraseña <span className="text-red-500">*</span></h3>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
 
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">Rol</h3>
