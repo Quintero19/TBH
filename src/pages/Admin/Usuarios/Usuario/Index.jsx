@@ -95,7 +95,7 @@ export default function Usuario() {
 
 		if (result.isConfirmed) {
 			try {
-				await userService.eliminarUsuario(usuario.Documento);
+				await userService.eliminarUsuario(usuario.Id_Usuario);
 				await Swal.fire({
 					title: "Eliminado",
 					text: "Usuario eliminado correctamente",
