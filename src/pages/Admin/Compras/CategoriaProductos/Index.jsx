@@ -12,7 +12,6 @@ const columns = [
 	{ header: "Estado", accessor: "Estado" },
 ];
 
-
 const CategoriasProducto = () => {
 	const [data, setData] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -26,63 +25,51 @@ const CategoriasProducto = () => {
 			console.log(response);
 			setData(response.data);
 		} catch (error) {
-			console.error(
-				"Error al obtener las categorias:",
-				error.response?.data || error,
-			);
+			console.error("Error al obtener las categorias:", error.response?.data || error);
 		}
 	}, []);
 
-const filteredData = useMemo(() => {
-	if (!searchTerm) {
-		return data.map((item) => ({
-			...item,
-			Es_Ropa: item.Es_Ropa ? "Si" : "No",
-		}));
-	}
+	const transformData = useCallback(
+		(lista) =>
+			lista.map((item) => ({
+				...item,
+				Es_Ropa: item.Es_Ropa ? "Si" : "No",
+			})), []
+	);
 
-	const lowerSearch = searchTerm.toLowerCase();
+	const filteredData = useMemo(() => {
+		const transformed = transformData(data);
+		const lowerSearch = searchTerm.toLowerCase();
 
-	const filtered = data.filter((item) => {
-		const idMatch = item.Id_Categoria_Producto.toString().includes(lowerSearch);
-		const tipoMatch = item.Nombre?.toLowerCase().includes(lowerSearch);
-		const nombreMatch = item.Descripcion?.toLowerCase().includes(lowerSearch);
+		const matchEstado = (estado) => {
+			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			return false;
+		};
 
-		const esRopaStr = item.Es_Ropa ? "si" : "no";
-		const esRopaMatch = esRopaStr.includes(lowerSearch);
-
-		let estadoMatch = false;
-		if (["1", "activo"].includes(lowerSearch)) {
-			estadoMatch = item.Estado === 1 || item.Estado === true;
-		} else if (["0", "inactivo"].includes(lowerSearch)) {
-			estadoMatch = item.Estado === 0 || item.Estado === false;
-		}
-
-		return (
-			idMatch ||
-			tipoMatch ||
-			nombreMatch ||
-			esRopaMatch ||
-			estadoMatch
-		);
-	});
-
-	return filtered.map((item) => ({
-		...item,
-		Es_Ropa: item.Es_Ropa ? "Sí" : "No",
-	}));
-}, [data, searchTerm]);
+        return !searchTerm ? transformed : transformed.filter((item) => {
+			return (
+				item.Id_Categoria_Producto?.toString().includes(lowerSearch) ||
+				item.Nombre?.toLowerCase().includes(lowerSearch) ||
+				item.Descripcion?.toLowerCase().includes(lowerSearch) ||
+				item.Es_Ropa?.toLowerCase().includes(lowerSearch) ||
+				matchEstado(item.Estado)
+			);
+		});
+	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
+
+	const paginatedData = useMemo(() => {
+		const start = (currentPage - 1) * itemsPerPage;
+		return filteredData.slice(start, start + itemsPerPage);
+	}, [filteredData, currentPage, itemsPerPage]);
 
 	const handleSearchChange = (e) => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
 	};
+
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -106,14 +93,15 @@ const filteredData = useMemo(() => {
 		try {
 			Swal.fire({
 				title: `Detalles Cat.Producto ID: ${categoria.Id_Categoria_Producto}`,
-				html: `
-		  <div class="text-left">
-			<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
-			<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
-			<p><strong>Es_Ropa?:</strong> ${categoria.Es_Ropa}</p>
-			<p><strong>Estado:</strong> ${categoria.Estado ? "Activo" : "Inactivo"}</p>
-		  </div>
-	  `,
+				html: 
+					`
+					<div class="text-left">
+						<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
+						<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
+						<p><strong>Es_Ropa?:</strong> ${categoria.Es_Ropa}</p>
+						<p><strong>Estado:</strong> ${categoria.Estado ? "Activo" : "Inactivo"}</p>
+					</div>
+					`,
 				icon: "info",
 				confirmButtonText: "Cerrar",
 				padding: "1rem",
@@ -187,23 +175,23 @@ const filteredData = useMemo(() => {
 	};
 
 	return (
-				<GeneralTable
-					title="Categorias Producto"
-					columns={columns}
-					data={paginatedData}
-					onAdd={handleAdd}
-					onView={handleVerDetalles}
-					onEdit={handleEdit}
-					onDelete={handleDelete}
-					onToggleEstado={handleToggleEstado}
-					idAccessor="Id_Categoria_Producto"
-					stateAccessor="Estado"
-					searchTerm={searchTerm}
-					onSearchChange={handleSearchChange}
-					currentPage={currentPage}
-					totalPages={totalPages}
-					onPageChange={handlePageChange}
-				/>
+		<GeneralTable
+			title="Categorias Producto"
+			columns={columns}
+			data={paginatedData}
+			onAdd={handleAdd}
+			onView={handleVerDetalles}
+			onEdit={handleEdit}
+			onDelete={handleDelete}
+			onToggleEstado={handleToggleEstado}
+			idAccessor="Id_Categoria_Producto"
+			stateAccessor="Estado"
+			searchTerm={searchTerm}
+			onSearchChange={handleSearchChange}
+			currentPage={currentPage}
+			totalPages={totalPages}
+			onPageChange={handlePageChange}
+		/>
 	);
 };
 

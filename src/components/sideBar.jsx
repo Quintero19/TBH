@@ -293,7 +293,7 @@ const Sidebar = () => {
 												Categoría productos
 											</li>
 										</Link>
-										<Link to="/admin/producto">
+										<Link to="/admin/productos">
 											<li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
 												Productos
 											</li>

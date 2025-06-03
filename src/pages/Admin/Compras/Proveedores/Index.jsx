@@ -13,17 +13,6 @@ const columns = [
 	{ header: "Estado", accessor: "Estado" },
 ];
 
-const transformData = (data) => {
-	return data.map((item) => {
-		const isEmpresa = item.Tipo_Proveedor === "Empresa";
-		return {
-			...item,
-			nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
-			celular: isEmpresa ? item.Celular_Empresa : item.Celular,
-		};
-	});
-};
-
 const Proveedores = () => {
 	const [data, setData] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -37,58 +26,56 @@ const Proveedores = () => {
 			console.log(response);
 			setData(transformData(response.data));
 		} catch (error) {
-			console.error(
-				"Error al obtener proveedores:",
-				error.response?.data || error,
-			);
+			console.error("Error al obtener proveedores:", error.response?.data || error);
 		}
 	}, []);
 
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return data;
+	const transformData = useCallback(
+		(data) =>
+			data.map((item) => {
+				const isEmpresa = item.Tipo_Proveedor === "Empresa";
+				return {
+					...item,
+					nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
+					celular: isEmpresa ? item.Celular_Empresa : item.Celular,
+				};
+			}), []
+	);
 
+	const filteredData = useMemo(() => {
+		const transformed = transformData(data);
 		const lowerSearch = searchTerm.toLowerCase();
 
-		return data.filter((item) => {
-			const idMatch = item.Id_Proveedores.toString().includes(lowerSearch);
-			const tipoMatch =
-				item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch);
-			const nombreMatch = item.nombre?.toLowerCase().includes(lowerSearch);
-			const celularMatch = item.celular?.toLowerCase().includes(lowerSearch);
-			const emailMatch = item.Email?.toLowerCase().includes(lowerSearch);
+		const matchEstado = (estado) => {
+			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			return false;
+		};
 
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					item.Estado === true || item.Estado === 1 || item.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					item.Estado === false ||
-					item.Estado === 0 ||
-					item.Estado === "Inactivo";
-			}
-
+		return !searchTerm ? transformed : transformed.filter((item) => {
 			return (
-				idMatch ||
-				tipoMatch ||
-				nombreMatch ||
-				celularMatch ||
-				emailMatch ||
-				estadoMatch
+				item.Id_Proveedores?.toString().includes(lowerSearch) ||
+				item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch) ||
+				item.nombre?.toLowerCase().includes(lowerSearch) ||
+				item.celular?.toLowerCase().includes(lowerSearch) ||
+				item.Email?.toLowerCase().includes(lowerSearch) ||
+				matchEstado(item.Estado)
 			);
 		});
 	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
 	const paginatedData = filteredData.slice(
 		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
+		currentPage * itemsPerPage
 	);
 
 	const handleSearchChange = (e) => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
 	};
+
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -112,31 +99,31 @@ const Proveedores = () => {
 		try {
 			Swal.fire({
 				title: `Detalles Proveedor ID: ${proveedor.Id_Proveedores}`,
-				html: `
-          <div class="text-left">
-            <p><strong>Tipo de Proveedor:</strong> ${proveedor.Tipo_Proveedor || "-"}</p>
-          ${
-						proveedor.Tipo_Proveedor !== "Natural"
-							? `
-                <p><strong>NIT:</strong> ${proveedor.NIT}</p>
-                <p><strong>Nombre de la Empresa:</strong> ${proveedor.NombreEmpresa || "-"}</p>
-                <p><strong>Celular de la Empresa:</strong> ${proveedor.CelularEmpresa || "-"}</p>
-                <p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
-                <p><strong>Celular del Asesor:</strong> ${proveedor.CelularAsesor || "-"}</p>
-                `
-							: `
-                <p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
-                <p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
-                <p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
-                <p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p
-              `
-					}
-            <p></p>
-            <p><strong>Correo:</strong> ${proveedor.Email || "-"}</p>
-            <p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
-            <p><strong>Estado:</strong> ${proveedor.Estado ? "Activo" : "Inactivo"}</p>
-          </div>
-      `,
+				html: 
+					`
+					<div class="text-left">
+						<p><strong>Tipo de Proveedor:</strong> ${proveedor.Tipo_Proveedor || "-"}</p>
+							${
+								proveedor.Tipo_Proveedor !== "Natural"?
+									`
+									<p><strong>NIT:</strong> ${proveedor.NIT}</p>
+									<p><strong>Nombre de la Empresa:</strong> ${proveedor.NombreEmpresa || "-"}</p>
+									<p><strong>Celular de la Empresa:</strong> ${proveedor.CelularEmpresa || "-"}</p>
+									<p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
+									<p><strong>Celular del Asesor:</strong> ${proveedor.CelularAsesor || "-"}</p>
+									` : `
+									<p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
+									<p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
+									<p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
+									<p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p
+									`
+							}
+						<p></p>
+						<p><strong>Correo:</strong> ${proveedor.Email || "-"}</p>
+						<p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
+						<p><strong>Estado:</strong> ${proveedor.Estado ? "Activo" : "Inactivo"}</p>
+					</div>
+					`,
 				icon: "info",
 				confirmButtonText: "Cerrar",
 				padding: "1rem",
@@ -210,23 +197,23 @@ const Proveedores = () => {
 	};
 
 	return (
-				<GeneralTable
-					title="Proveedores"
-					columns={columns}
-					data={paginatedData}
-					onAdd={handleAdd}
-					onView={handleVerDetalles}
-					onEdit={handleEdit}
-					onDelete={handleDelete}
-					onToggleEstado={handleToggleEstado}
-					idAccessor="Id_Proveedores"
-					stateAccessor="Estado"
-					searchTerm={searchTerm}
-					onSearchChange={handleSearchChange}
-					currentPage={currentPage}
-					totalPages={totalPages}
-					onPageChange={handlePageChange}
-				/>
+		<GeneralTable
+			title="Proveedores"
+			columns={columns}
+			data={paginatedData}
+			onAdd={handleAdd}
+			onView={handleVerDetalles}
+			onEdit={handleEdit}
+			onDelete={handleDelete}
+			onToggleEstado={handleToggleEstado}
+			idAccessor="Id_Proveedores"
+			stateAccessor="Estado"
+			searchTerm={searchTerm}
+			onSearchChange={handleSearchChange}
+			currentPage={currentPage}
+			totalPages={totalPages}
+			onPageChange={handlePageChange}
+		/>
 	);
 };
 

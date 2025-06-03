@@ -2,30 +2,21 @@ import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
-import { proveedorService } from "../../../../service/proveedores.service";
+import { productoService } from "../../../../service/productos.service";
+import { catProductoService } from "../../../../service/categoriaProducto.service";
 
 const columns = [
-	{ header: "ID", accessor: "Id_Proveedores" },
-	{ header: "Tipo Proveedor", accessor: "Tipo_Proveedor" },
-	{ header: "Nombre / Empresa", accessor: "nombre" },
-	{ header: "Celular / Celular Empresa", accessor: "celular" },
-	{ header: "Email", accessor: "Email" },
+	{ header: "ID", accessor: "Id_Productos" },
+	{ header: "Categoria Producto", accessor: "NombreCategoria" },
+	{ header: "Nombre", accessor: "Nombre" },
+	{ header: "Precio de Venta", accessor: "Precio_Venta" },
+	{ header: "Stock Disponible", accessor: "Stock" },
 	{ header: "Estado", accessor: "Estado" },
 ];
 
-const transformData = (data) => {
-	return data.map((item) => {
-		const isEmpresa = item.Tipo_Proveedor === "Empresa";
-		return {
-			...item,
-			nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
-			celular: isEmpresa ? item.Celular_Empresa : item.Celular,
-		};
-	});
-};
-
-const Proveedores = () => {
+const Productos = () => {
 	const [data, setData] = useState([]);
+	const [categorias, setCategorias] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 5;
@@ -33,53 +24,60 @@ const Proveedores = () => {
 
 	const fetchData = useCallback(async () => {
 		try {
-			const response = await proveedorService.obtenerProveedores();
+			const response = await productoService.obtenerProductoss();
 			console.log(response);
-			setData(transformData(response.data));
+			setData(response.data);
 		} catch (error) {
-			console.error(
-				"Error al obtener proveedores:",
-				error.response?.data || error,
-			);
+			console.error("Error al obtener productos:", error.response?.data || error);
 		}
 	}, []);
 
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return data;
+	const fetchCategorias = useCallback(async () => {
+		try {
+			const response = await catProductoService.obtenerCategorias();
+			setCategorias(response.data);
+		} catch (error) {
+			console.error("Error al obtener categorías:", error.response?.data || error);
+		}
+	}, []);
 
+	const transformData = useCallback(
+        (lista) =>
+        lista.map((item) => {
+			const categoria = categorias.find(c => c.Id_Categoria_Producto === item.Id_Categoria_Producto);
+			return {
+				...item,
+				NombreCategoria: categoria?.Nombre || "Desconocido",
+				Precio_Venta: Number(item.Precio_Venta).toFixed(0),
+				Precio_Compra: Number(item.Precio_Compra).toFixed(0)
+			};
+		}), [categorias]
+    );
+
+	const filteredData = useMemo(() => {
+		const transformed = transformData(data);
 		const lowerSearch = searchTerm.toLowerCase();
 
-		return data.filter((item) => {
-			const idMatch = item.Id_Proveedores.toString().includes(lowerSearch);
-			const tipoMatch =
-				item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch);
-			const nombreMatch = item.nombre?.toLowerCase().includes(lowerSearch);
-			const celularMatch = item.celular?.toLowerCase().includes(lowerSearch);
-			const emailMatch = item.Email?.toLowerCase().includes(lowerSearch);
+		const matchEstado = (estado) => {
+			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			return false;
+		};
 
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					item.Estado === true || item.Estado === 1 || item.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					item.Estado === false ||
-					item.Estado === 0 ||
-					item.Estado === "Inactivo";
-			}
-
+        return !searchTerm ? transformed : transformed.filter((item) => {
 			return (
-				idMatch ||
-				tipoMatch ||
-				nombreMatch ||
-				celularMatch ||
-				emailMatch ||
-				estadoMatch
+				item.Id_Productos?.toString().toLowerCase().includes(lowerSearch) ||
+				item.NombreCategoria?.toString().toLowerCase().includes(lowerSearch) ||
+				item.Nombre?.toLowerCase().includes(lowerSearch) ||
+				item.Precio_Venta?.toString().toLowerCase().includes(lowerSearch)||
+				item.Stock?.toString().toLowerCase().includes(lowerSearch) ||
+				matchEstado(item.Estado)
 			);
 		});
 	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
 	const paginatedData = filteredData.slice(
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage,
@@ -90,9 +88,10 @@ const Proveedores = () => {
 		setCurrentPage(1);
 	};
 
+
 	const handleToggleEstado = async (id) => {
 		try {
-			await proveedorService.actualizarEstadoProveedor(id);
+			await productoService.actualizarEstadoProducto(id);
 			await fetchData();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
@@ -101,42 +100,29 @@ const Proveedores = () => {
 	};
 
 	useEffect(() => {
+		fetchCategorias();
 		fetchData();
-	}, [fetchData]);
+	}, [fetchCategorias, fetchData]);
 
 	const handleAdd = () => {
-		navigate("/admin/proveedores/agregar");
+		navigate("/admin/productos/agregar");
 	};
 
-	const handleVerDetalles = async (proveedor) => {
+	const handleVerDetalles = async (producto) => {
 		try {
 			Swal.fire({
-				title: `Detalles Proveedor ID: ${proveedor.Id_Proveedores}`,
-				html: `
-		  <div class="text-left">
-			<p><strong>Tipo de Proveedor:</strong> ${proveedor.Tipo_Proveedor || "-"}</p>
-		  ${
-						proveedor.Tipo_Proveedor !== "Natural"
-							? `
-				<p><strong>NIT:</strong> ${proveedor.NIT}</p>
-				<p><strong>Nombre de la Empresa:</strong> ${proveedor.NombreEmpresa || "-"}</p>
-				<p><strong>Celular de la Empresa:</strong> ${proveedor.CelularEmpresa || "-"}</p>
-				<p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
-				<p><strong>Celular del Asesor:</strong> ${proveedor.CelularAsesor || "-"}</p>
+				title: `Detalles Producto ID: ${producto.Id_Productos}`,
+				html: 
 				`
-							: `
-				<p><strong>Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
-				<p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
-				<p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
-				<p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p
-			  `
-					}
-			<p></p>
-			<p><strong>Correo:</strong> ${proveedor.Email || "-"}</p>
-			<p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
-			<p><strong>Estado:</strong> ${proveedor.Estado ? "Activo" : "Inactivo"}</p>
-		  </div>
-	  `,
+				<div class="text-left">
+					<p><strong>Categoria de Producto:</strong> ${producto.Id_Categoria_Producto || "-"}</p>
+					<p><strong>Nombre:</strong> ${producto.Nombre || "-"}</p>
+					<p><strong>Precio de Venta:</strong> ${producto.Precio_Venta || "-"}</p>
+					<p><strong>Precio de Compra:</strong> ${producto.Precio_Compra || "-"}</p>
+					<p><strong>Stock:</strong> ${producto.Stock || "-"}</p>
+					<p><strong>Estado:</strong> ${producto.Estado ? "Activo" : "Inactivo"}</p>
+				</div>
+				`,
 				icon: "info",
 				confirmButtonText: "Cerrar",
 				padding: "1rem",
@@ -145,23 +131,23 @@ const Proveedores = () => {
 				color: "#fff",
 			});
 		} catch (error) {
-			console.error("Error al obtener el proveedor:", error);
+			console.error("Error al obtener el producto:", error);
 			Swal.fire(
 				"Error",
-				"No se pudieron cargar los detalles del proveedor",
+				"No se pudieron cargar los detalles del producto",
 				"error",
 			);
 		}
 	};
 
-	const handleEdit = (proveedor) => {
-		navigate(`/admin/proveedores/editar/${proveedor.Id_Proveedores}`);
+	const handleEdit = (producto) => {
+		navigate(`/admin/productos/editar/${producto.Id_Productos}`);
 	};
 
-	const handleDelete = async (proveedor) => {
+	const handleDelete = async (producto) => {
 		const result = await Swal.fire({
 			title: "¿Estás seguro?",
-			text: `¿Deseas eliminar al proveedor "${proveedor.Nombre}"?`,
+			text: `¿Deseas eliminar al producto "${producto.Nombre}"?`,
 			icon: "warning",
 			showCancelButton: true,
 			confirmButtonColor: "#d33",
@@ -174,11 +160,11 @@ const Proveedores = () => {
 
 		if (result.isConfirmed) {
 			try {
-				await proveedorService.eliminarProveedor(proveedor.Id_Proveedores);
+				await productoService.eliminarProducto(producto.Id_Productos);
 
 				await Swal.fire({
 					title: "Eliminado",
-					text: "Proveedor eliminado correctamente",
+					text: "Producto eliminado correctamente",
 					icon: "success",
 					timer: 2000,
 					showConfirmButton: false,
@@ -188,9 +174,9 @@ const Proveedores = () => {
 
 				fetchData();
 			} catch (error) {
-				console.error("Error Eliminando Proveedor:", error);
+				console.error("Error Eliminando Producto:", error);
 				const mensaje =
-					error.response?.data?.message || "Error al eliminar el proveedor";
+					error.response?.data?.message || "Error al eliminar el producto";
 
 				Swal.fire({
 					title: "Error",
@@ -209,25 +195,34 @@ const Proveedores = () => {
 		setCurrentPage(value);
 	};
 
+	const handleTallas = () => {
+		navigate(`/admin/tallas`);
+	};
+	const handleTamanos = () => {
+		navigate(`/admin/tamanos`);
+	} 
+
 	return (
-				<GeneralTable
-					title="Productos"
-					columns={columns}
-					data={paginatedData}
-					onAdd={handleAdd}
-					onView={handleVerDetalles}
-					onEdit={handleEdit}
-					onDelete={handleDelete}
-					onToggleEstado={handleToggleEstado}
-					idAccessor="Id_Productos"
-					stateAccessor="Estado"
-					searchTerm={searchTerm}
-					onSearchChange={handleSearchChange}
-					currentPage={currentPage}
-					totalPages={totalPages}
-					onPageChange={handlePageChange}
-				/>
+		<GeneralTable
+			title="Productos"
+			columns={columns}
+			data={paginatedData}
+			onAdd={handleAdd}
+			onView={handleVerDetalles}
+			onEdit={handleEdit}
+			onDelete={handleDelete}
+			onToggleEstado={handleToggleEstado}
+			idAccessor="Id_Productos"
+			stateAccessor="Estado"
+			searchTerm={searchTerm}
+			onSearchChange={handleSearchChange}
+			currentPage={currentPage}
+			totalPages={totalPages}
+			onPageChange={handlePageChange}
+			goTallas={handleTallas} 
+			goTamanos={handleTamanos}
+		/>
 	);
 };
 
-export default Proveedores;
+export default Productos;
