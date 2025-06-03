@@ -364,9 +364,6 @@ const Sidebar = () => {
 
 				{/* Pie de página - Cerrar sesión */}
 				<div className="p-8 border-t border-[#2d333b]">
-					<div className="uppercase text-base text-gray-400 mb-4">
-						Cerrar Sesión
-					</div>
 					<div className="flex items-center space-x-5 hover:bg-[#161b22] p-4 rounded-xl cursor-pointer">
 						<FiLogOut className="w-7 h-7 text-gray-300" />
 						<button type="button" onClick={handleLogout}>
