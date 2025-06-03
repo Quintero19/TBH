@@ -13,6 +13,9 @@ import AgregarProveedor from "../pages/Admin/Compras/Proveedores/AgregarProveedo
 import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor";
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
+import RolesAdminAgregar from "../pages/Admin/Configuracion/Roles/Agregar";
+import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
+
 import Dashboard from "../pages/Admin/Dashboard";
 import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
@@ -22,7 +25,7 @@ import AgregarEmpleado from "../pages/Admin/Usuarios/Empleados/AgregarEmpleado"
 import EditarEmpleado from "../pages/Admin/Usuarios/Empleados/EditarEmpleado"
 import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
 import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
-// import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
+import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
 import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
 import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
@@ -64,9 +67,11 @@ function App() {
 			>
 				<Route path="dashboard" element={<Dashboard />} />
 				<Route path="roles" element={<RolesAdmin />} />
+				<Route path="roles/agregar" element={<RolesAdminAgregar />} />
+				<Route path="roles/editar/:id" element={<RolesAdminEditar />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
 				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
-      {/* <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/> */}
+        		<Route path="usuario/editar/:id" element={<UsuarioEditar />}/>
 				<Route path="empleado" element={<EmpleadoAdmin />} />
 				<Route path="empleado/agregar" element={<AgregarEmpleado />} />
 				<Route path="empleado/editar/:id" element={<EditarEmpleado />} />
