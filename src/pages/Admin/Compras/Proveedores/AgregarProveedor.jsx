@@ -4,6 +4,8 @@ import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
 import Sidebar from "../../../../components/sideBar";
 import { proveedorService } from "../../../../service/proveedores.service";
+import { FaSave } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const AgregarProveedor = () => {
 	const navigate = useNavigate();
@@ -303,11 +305,17 @@ const AgregarProveedor = () => {
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
 					<Button type="submit" className="green">
-						Guardar
+						<div className="flex items-center gap-2">
+							<FaSave />
+							Guardar
+						</div>
 					</Button>
 
 					<Button className="red" onClick={handleCancel}>
-						Cancelar
+						<div className="flex items-center gap-2">
+							<IoClose />
+							Cancelar
+						</div>
 					</Button>
 				</div>
 			</form>

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
 import { catProductoService } from "../../../../service/categoriaProducto.service";
+import { FaSave } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 
 const AgregarCatProducto = () => {
@@ -115,15 +117,21 @@ const AgregarCatProducto = () => {
                                 />
                             </div>
                         
-                    <div className="md:col-span-2 flex gap-2 ml-7">
-                        <Button type="submit" className="green">
-                            Guardar
-                        </Button>
-
-                        <Button className="red" onClick={handleCancel}>
-                            Cancelar
-                        </Button>
-                    </div>
+                    <div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
+                              <Button type="submit" className="green">
+                                <div className="flex items-center gap-2">
+                                  <FaSave />
+                                  Guardar
+                                </div>
+                              </Button>
+                              
+                              <Button type="button" className="red" onClick={handleCancel}>
+                                <div className="flex items-center gap-2">
+                                  <IoClose />
+                                  Cancelar
+                                </div>
+                              </Button>
+                            </div>
                 </form>
         </>
     );

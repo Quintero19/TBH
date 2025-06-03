@@ -18,6 +18,8 @@ import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
 import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
 import EmpleadoAdmin from "../pages/Admin/Usuarios/Empleados/Index";
+import AgregarEmpleado from "../pages/Admin/Usuarios/Empleados/AgregarEmpleado"
+import EditarEmpleado from "../pages/Admin/Usuarios/Empleados/EditarEmpleado"
 import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
 import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
 // import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
@@ -66,6 +68,8 @@ function App() {
 				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
       {/* <Route path="/admin/usuario/editar/:documento" element={<ProtectedRoute requiredRole={1}><UsuarioEditar /></ProtectedRoute>}/> */}
 				<Route path="empleado" element={<EmpleadoAdmin />} />
+				<Route path="empleado/agregar" element={<AgregarEmpleado />} />
+				<Route path="empleado/editar/:id" element={<EditarEmpleado />} />
 				<Route path="servicios" element={<ServicioAdmin />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
