@@ -66,7 +66,6 @@ const AuthForm = () => {
 
 					const meResponse = await api.get(ENDPOINTS.me);
 					const { user } = meResponse.data;
-					console.log("Usuario decodificado:", user);
 
 					const rolRoutes = {
 						1: "/admin/dashboard",
@@ -74,10 +73,10 @@ const AuthForm = () => {
 					};
 					window.location.href = rolRoutes[user.rol_id] || "/";
 				} else {
-					setMessage("¡Registro exitoso!");
+						setMessage("¡Registro exitoso!");
+					}
 				}
-			}
-		} catch (error) {
+			} catch (error) {
 			const errorMessage =
 				error.response?.data?.error || "Error al conectar con el servidor.";
 			console.error("Error:", errorMessage);
