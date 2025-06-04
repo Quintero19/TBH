@@ -24,6 +24,8 @@ import Dashboard from "../pages/Admin/Dashboard";
 import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
 import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
+import AgregarServicio from "../pages/Admin/Servicios/Servicio/AgregarServicio";
+import EditarServicios from "../pages/Admin/Servicios/Servicio/EditarServicios";
 import EmpleadoAdmin from "../pages/Admin/Usuarios/Empleados/Index";
 import AgregarEmpleado from "../pages/Admin/Usuarios/Empleados/AgregarEmpleado"
 import EditarEmpleado from "../pages/Admin/Usuarios/Empleados/EditarEmpleado"
@@ -33,6 +35,7 @@ import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
 import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
 import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
+
 
 import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
@@ -80,6 +83,8 @@ function App() {
 				<Route path="empleado/agregar" element={<AgregarEmpleado />} />
 				<Route path="empleado/editar/:id" element={<EditarEmpleado />} />
 				<Route path="servicios" element={<ServicioAdmin />} />
+				<Route path="servicios/agregar" element={<AgregarServicio />} />
+				<Route path="servicios/editar/:id" element={<EditarServicios />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
 				<Route path="compras" element={<CompraAdmin />} />
