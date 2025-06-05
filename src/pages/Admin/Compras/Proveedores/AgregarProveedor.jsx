@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
-import Sidebar from "../../../../components/sideBar";
 import { proveedorService } from "../../../../service/proveedores.service";
 import { FaSave } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 const AgregarProveedor = () => {
 	const navigate = useNavigate();
+	const [errors, setErrors] = useState({});
 
 	const [formData, setFormData] = useState({
 		Tipo_Proveedor: "",
@@ -26,22 +26,119 @@ const AgregarProveedor = () => {
 		Estado: true,
 	});
 
-	const handleChange = (e) => {
-		const { name, value, type, checked } = e.target;
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
 
-		if (name === "NIT") {
-			const regex = /^[0-9-]*$/;
-			if (!regex.test(value)) return;
+		switch (name) {
+			case "Nombre":
+			case "Asesor":
+				newErrors[name] =value.trim().length > 0 && value.length < 3 ? "Debe tener al menos 3 caracteres, sin números o caracteres especiales" : "";
+				break;
+			
+			case "Nombre_Empresa":
+				newErrors[name] = value.trim().length > 0 && value.length < 3 || !/^[a-zA-Z0-9\s]*$/.test(value) ? "Debe tener al menos 3 caracteres, sin caracteres especiales" : "";
+				break;
+
+			case "NIT":
+				newErrors[name] = value.trim().length > 0 && (!/^[0-9-]+$/.test(value) || value.length < 9 || value.length > 15) ? "Solo números y guiones, debe tener entre 9 y 15 caracteres" : "";
+				break;
+
+			case "Documento":
+				newErrors[name] = value.trim().length > 0 && !/^\d{9,11}$/.test(value) ? "Debe ser un documento entre 9 y 11 digitos" : "";
+				break;
+
+			case "Celular":
+			case "Celular_Empresa":
+			case "Celular_Asesor":
+				newErrors[name] = value.trim().length > 0 && !/^\d{9,11}$/.test(value) ? "Debe ser un numero entre 9 y 11 digitos" : "";
+				break;
+
+			case "Email":
+				newErrors[name] = value.trim().length > 0 && value && !/^\S+@\S+\.\S+$/.test(value) ? "Correo inválido" : "";
+				break;
+
+			default:
+				break;
 		}
 
-		setFormData({
-			...formData,
-			[name]: type === "checkbox" ? checked : value,
-		});
+		if (newErrors[name] === "") {
+			delete newErrors[name];
+		}
+
+		setErrors(newErrors);
+	};
+
+	const handleChange = (e) => {
+	const { name, value, type, checked } = e.target;
+
+	if (name === "NIT") {
+		const regex = /^[0-9-]*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (["Celular", "Celular_Empresa", "Celular_Asesor", "Documento"].includes(name)) {
+		const regex = /^\d*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (["Nombre", "Asesor"].includes(name)) {
+		const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (name === "Nombre_Empresa") {
+		const regex = /^[a-zA-Z0-9\s]*$/;
+		if (!regex.test(value)) return;
+	}
+
+
+	const updatedValue = type === "checkbox" ? checked : value;
+	setFormData((prev) => ({
+		...prev,
+		[name]: updatedValue,
+	}));
+
+	validateField(name, updatedValue);
+	};
+
+	const handleTipoProveedorChange = (e) => {
+		const tipoProveedor = e.target.value;
+		setFormData((prev) => ({
+			...prev,
+			Tipo_Proveedor: tipoProveedor,
+			...(tipoProveedor === "Natural"
+			? {
+				NIT: "",
+				Nombre_Empresa: "",
+				Asesor: "",
+				Celular_Empresa: "",
+				Celular_Asesor: "",
+				}
+			: {
+				Tipo_Documento: "",
+				Documento: "",
+				Nombre: "",
+				Celular: "",
+				}),
+		}));
+		setErrors({});
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		if (Object.keys(errors).length > 0) {
+			Swal.fire({
+			title: "Error",
+			text: "Por favor, corrija los errores en el formulario",
+			icon: "error",
+			timer: 2000,
+			showConfirmButton: false,
+			background: "#000",
+			color: "#fff",
+			});
+			return;
+		}
 
 		try {
 			await proveedorService.crearProveedor(formData);
@@ -106,7 +203,7 @@ const AgregarProveedor = () => {
 					<select
 						name="Tipo_Proveedor"
 						value={formData.Tipo_Proveedor}
-						onChange={handleChange}
+						onChange={handleTipoProveedorChange}
 						required
 						className="w-full p-2 border rounded"
 					>
@@ -132,12 +229,7 @@ const AgregarProveedor = () => {
 							>
 								<option value="">Seleccione el Tipo</option>
 								<option value="C.C">C.C - Cédula de Ciudadanía</option>
-								<option value="T.E">T.E - Tarjeta de Identidad</option>
 								<option value="C.E">C.E - Cédula de Extranjería</option>
-								<option value="P.P">P.P - Pasaporte</option>
-								<option value="PEP">
-									PEP - Permiso Especial de Permanencia
-								</option>
 							</select>
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
@@ -152,6 +244,7 @@ const AgregarProveedor = () => {
 								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Documento && <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -166,6 +259,7 @@ const AgregarProveedor = () => {
 								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Nombre && <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -175,18 +269,12 @@ const AgregarProveedor = () => {
 								type="text"
 								name="Celular"
 								value={formData.Celular}
-								onChange={(e) => {
-									const value = e.target.value;
-									if (!/^\d*$/.test(value)) return;
-									if (value.length > 10) return;
-									if (value.length === 1 && value !== "3") return;
-									setFormData({ ...formData, Celular: value });
-								}}
-								pattern="^3\d{9,10}$"
-								maxLength={10}
+								onChange={handleChange}
+								maxLength={11}
 								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Celular && <p className="text-red-500 text-sm mt-1">{errors.Celular}</p>}
 						</div>
 					</>
 				)}
@@ -206,6 +294,7 @@ const AgregarProveedor = () => {
 								maxLength={15}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.NIT && <p className="text-red-500 text-sm mt-1">{errors.NIT}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -220,6 +309,7 @@ const AgregarProveedor = () => {
 								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Nombre_Empresa && <p className="text-red-500 text-sm mt-1">{errors.Nombre_Empresa}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2">Asesor</h3>
@@ -231,6 +321,7 @@ const AgregarProveedor = () => {
 								maxLength={30}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Asesor && <p className="text-red-500 text-sm mt-1">{errors.Asesor}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -240,15 +331,11 @@ const AgregarProveedor = () => {
 								type="text"
 								name="Celular_Empresa"
 								value={formData.Celular_Empresa}
-								onChange={(e) => {
-									const value = e.target.value;
-									if (!/^\d*$/.test(value)) return;
-									if (value.length > 10) return;
-									if (value.length === 1 && value !== "3") return;
-									setFormData({ ...formData, Celular_Empresa: value });
-								}}
+								onChange={handleChange}
+								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Celular_Empresa && <p className="text-red-500 text-sm mt-1">{errors.Celular_Empresa}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2">
@@ -258,15 +345,11 @@ const AgregarProveedor = () => {
 								type="text"
 								name="Celular_Asesor"
 								value={formData.Celular_Asesor}
-								onChange={(e) => {
-									const value = e.target.value;
-									if (!/^\d*$/.test(value)) return;
-									if (value.length > 10) return;
-									if (value.length === 1 && value !== "3") return;
-									setFormData({ ...formData, Celular_Asesor: value });
-								}}
+								onChange={handleChange}
+								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Celular_Asesor && <p className="text-red-500 text-sm mt-1">{errors.Celular_Asesor}</p>}
 						</div>
 					</>
 				)}
@@ -286,6 +369,7 @@ const AgregarProveedor = () => {
 								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
+								{errors.Email && <p className="text-red-500 text-sm mt-1">{errors.Email}</p>}
 						</div>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2">
@@ -304,7 +388,7 @@ const AgregarProveedor = () => {
 				)}
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green">
+					<Button type="submit" className="green" disabled={Object.keys(errors).length > 0}>
 						<div className="flex items-center gap-2">
 							<FaSave />
 							Guardar
