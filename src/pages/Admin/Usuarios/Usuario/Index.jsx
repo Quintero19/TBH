@@ -6,7 +6,10 @@ import { userService } from "../../../../service/usuario.service";
 
 export default function Usuario() {
 	const navigate = useNavigate();
-	const title = "Usuarios";
+	const title = "Gestion De Usuarios";
+	const canEdit = (usuario) => usuario.Estado === true;
+	const canDelete = (usuario) => usuario.Estado === true;
+
 
 	const columns = [
 		{ header: "Documento", accessor: "Documento" },
@@ -156,21 +159,23 @@ export default function Usuario() {
 
 	return (
 		<GeneralTable
-			title={title}
-			columns={columns}
-			data={paginatedData}
-			onAdd={() => navigate("/admin/usuario/agregar")}
-			onView={handleVerDetalles}
-			onEdit={handleEdit}
-			onDelete={handleDelete}
-			onToggleEstado={handleToggleEstado}
-			idAccessor="Id_Usuario"
-			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
-		/>
+		title={title}
+		columns={columns}
+		data={paginatedData}
+		onAdd={() => navigate("/admin/usuario/agregar")}
+		onView={handleVerDetalles}
+		onEdit={handleEdit}
+		onDelete={handleDelete}
+		onToggleEstado={handleToggleEstado}
+		idAccessor="Id_Usuario"
+		stateAccessor="Estado"
+		searchTerm={searchTerm}
+		onSearchChange={handleSearchChange}
+		currentPage={currentPage}
+		totalPages={totalPages}
+		onPageChange={handlePageChange}
+		canEdit={canEdit}
+		canDelete={canDelete}
+	/>
 	);
 }

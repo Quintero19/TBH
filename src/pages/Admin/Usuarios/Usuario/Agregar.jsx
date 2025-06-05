@@ -16,7 +16,7 @@ export default function AgregarUsuario () {
     Password: "",
     confirmPassword: "",
     Rol_Id: "",
-    Estado: ""
+    Estado: true
   });
 
   useEffect(() => {
@@ -46,6 +46,11 @@ export default function AgregarUsuario () {
 
     let val = value;
 
+     if (name === "Documento") {
+        const regex = /^[0-9]*$/;
+        if (!regex.test(value)) return; 
+      }
+
      if (name === "Estado") {
         val = value === "true";
     }
@@ -58,7 +63,85 @@ export default function AgregarUsuario () {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (formData.Password !== formData.confirmPassword) {
+        if (!formData.Documento) {
+          Swal.fire({
+            title: "Error",
+            text: "Debe Completar el campo documento.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+          if (formData.Documento.length < 7 || formData.Documento.length > 15) {
+          Swal.fire({
+            title: "Error",
+            text: "El documento debe tener entre 7 y 15 dígitos.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+         if (!formData.Correo) {
+          Swal.fire({
+            title: "Error",
+            text: "Debe Completar el campo correo.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+         const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!correoRegex.test(formData.Correo)) {
+          Swal.fire({
+            title: "Error",
+            text: "El correo ingresado no es válido.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+         if (!formData.Password) {
+          Swal.fire({
+            title: "Error",
+            text: "Debe Completar el campo contraseña.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+        if (formData.Password.length < 8) {
+          Swal.fire({
+            title: "Error",
+            text: "La contraseña debe tener al menos 8 caracteres.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+        if (!formData.confirmPassword) {
+          Swal.fire({
+            title: "Error",
+            text: "Debe Completar el campo confirmar contraseña.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+         if (formData.Password !== formData.confirmPassword) {
           Swal.fire({
             title: "Error",
             text: "Las contraseñas no coinciden.",
@@ -68,6 +151,21 @@ export default function AgregarUsuario () {
           });
           return;
         }
+
+       
+
+        if (!formData.Rol_Id) {
+          Swal.fire({
+            title: "Error",
+            text: "Debe seleccionar un rol.",
+            icon: "error",
+            background: "#000",
+            color: "#fff",
+          });
+          return;
+        }
+
+      
 
         try {
           const usuarios = await userService.listarUsuarios();
@@ -163,12 +261,12 @@ export default function AgregarUsuario () {
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2 block">Documento <span className="text-red-500">*</span></h3>
           <input
-            type="number"
+            type="text"
             name="Documento"
             value={formData.Documento}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
+          
           />
         </div>
 
@@ -180,7 +278,7 @@ export default function AgregarUsuario () {
             value={formData.Correo}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
+            
           />
         </div>
 
@@ -192,7 +290,7 @@ export default function AgregarUsuario () {
             value={formData.Password}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
+            
           />
         </div>
 
@@ -204,7 +302,7 @@ export default function AgregarUsuario () {
             value={formData.confirmPassword}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
+            
           />
         </div>
 
@@ -215,7 +313,7 @@ export default function AgregarUsuario () {
                 value={formData.Rol_Id}
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
-                required
+                
               >
                 <option value="">Selecciona un rol</option>
                 {Array.isArray(roles) && roles.map((rol) => (
@@ -226,27 +324,11 @@ export default function AgregarUsuario () {
         </select>
         </div>
 
-
-      <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-        <h3 className="text-2xl text-black font-bold mb-2 block">Estado <span className="text-red-500">*</span></h3>
-        <select
-          name="Estado"
-          value={formData.Estado}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        >
-          <option value="">Selecciona estado</option>
-          <option value={true}>Activo</option>
-          <option value={false}>Inactivo</option>
-        </select>
-      </div>
-
-
         <div className="md:col-span-2 flex gap-2 ml-7">
           <Button className="green" type="submit"> Guardar</Button>
           <Button className="red" onClick={handleCancel}> Cancelar</Button>
         </div>
+
       </form>
     </div>
     </div>
