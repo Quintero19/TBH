@@ -6,8 +6,9 @@ import { rolService } from "../../../../service/roles.service";
 
 export default function Rol() {
 	const navigate = useNavigate();
-
 	const title = "Roles";
+	const canEdit = (roles) => roles.Estado === true;
+	const canDelete = (roles) => roles.Estado === true;
 
 	const columns = [
 		{ header: "Nombre", accessor: "Nombre" },
@@ -169,6 +170,8 @@ export default function Rol() {
 			currentPage={currentPage}
 			totalPages={totalPages}
 			onPageChange={handlePageChange}
+			canEdit={canEdit}
+			canDelete={canDelete}
 		/>
 	);
 }

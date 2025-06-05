@@ -20,9 +20,10 @@ const GeneralTable = ({
 	currentPage,
 	totalPages,
 	onPageChange,
+	canEdit,
+	canDelete,
 	...rest
 }) => {
-
 	return (
 		<div className="p-9 w-full">
 			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
@@ -40,9 +41,6 @@ const GeneralTable = ({
 							value={searchTerm}
 							onChange={onSearchChange}
 						/>
-						{/* <Button className="blue_a">
-							<FaSearch />
-						</Button> */}
 					</form>
 
 					<Button className="green" onClick={onAdd}>
@@ -52,14 +50,14 @@ const GeneralTable = ({
 						</div>
 					</Button>
 
-					{title == "Productos" && (
+					{title === "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
 								<Button className="green" onClick={rest.goTallas}> Tallas</Button>
 								<Button className="green" onClick={rest.goTamanos}> Tamaños</Button>
 							</div>
 						</div>
-					)};
+					)}
 
 					{(title === "Tallas" || title === "Tamaños") && (
 						<div className="flex justify-end flex-1">
@@ -114,15 +112,21 @@ const GeneralTable = ({
 												<Button className="blue_b" onClick={() => onView(row)}>
 													<FaEye />
 												</Button>
-												<Button
-													className="orange_b"
-													onClick={() => onEdit(row)}
-												>
-													<FaPencilAlt />
-												</Button>
-												<Button className="red" onClick={() => onDelete(row)}>
-													<FaTrash />
-												</Button>
+
+												{(canEdit ? canEdit(row) : true) && (
+													<Button
+														className="orange_b"
+														onClick={() => onEdit(row)}
+													>
+														<FaPencilAlt />
+													</Button>
+												)}
+
+												{(canDelete ? canDelete(row) : true) && (
+													<Button className="red" onClick={() => onDelete(row)}>
+														<FaTrash />
+													</Button>
+												)}
 											</div>
 										</td>
 									</tr>
@@ -175,6 +179,8 @@ GeneralTable.propTypes = {
 	currentPage: PropTypes.number.isRequired,
 	totalPages: PropTypes.number.isRequired,
 	onPageChange: PropTypes.func.isRequired,
+	canEdit: PropTypes.func,
+	canDelete: PropTypes.func,
 };
 
 GeneralTable.defaultProps = {
