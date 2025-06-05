@@ -8,6 +8,7 @@ import { IoClose } from "react-icons/io5";
 const EditarProveedor = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [errors, setErrors] = useState({});
 
 	const [formData, setFormData] = useState({
 		Id_Proveedores: "",
@@ -44,24 +45,131 @@ const EditarProveedor = () => {
 		cargarProveedor();
 	}, [id, navigate]);
 
-	const handleChange = (e) => {
-		const { name, value, type, checked } = e.target;
 
-		if (name === "NIT") {
-			const regex = /^[0-9-]*$/;
-			if (!regex.test(value)) return;
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+
+		switch (name) {
+			case "Nombre":
+			case "Asesor":
+				newErrors[name] =value.trim().length > 0 && value.length < 3 ? "Debe tener al menos 3 caracteres, sin números o caracteres especiales" : "";
+				break;
+			
+			case "Nombre_Empresa":
+				newErrors[name] = value.trim().length > 0 && value.length < 3 || !/^[a-zA-Z0-9\s]*$/.test(value) ? "Debe tener al menos 3 caracteres, sin caracteres especiales" : "";
+				break;
+
+			case "NIT":
+				newErrors[name] = value.trim().length > 0 && (!/^[0-9-]+$/.test(value) || value.length < 9 || value.length > 15) ? "Solo números y guiones, debe tener entre 9 y 15 caracteres" : "";
+				break;
+
+			case "Documento":
+				newErrors[name] = value.trim().length > 0 && !/^\d{9,11}$/.test(value) ? "Debe ser un documento entre 9 y 11 digitos" : "";
+				break;
+
+			case "Celular":
+			case "Celular_Empresa":
+			case "Celular_Asesor":
+				newErrors[name] = value.trim().length > 0 && !/^\d{9,11}$/.test(value) ? "Debe ser un numero entre 9 y 11 digitos" : "";
+				break;
+
+			case "Email":
+				newErrors[name] = value.trim().length > 0 && value && !/^\S+@\S+\.\S+$/.test(value) ? "Correo inválido" : "";
+				break;
+
+			default:
+				break;
 		}
 
-		setFormData({
-			...formData,
-			[name]: type === "checkbox" ? checked : value,
-		});
+		if (newErrors[name] === "") {
+			delete newErrors[name];
+		}
+
+		setErrors(newErrors);
+	};
+
+	const handleChange = (e) => {
+	const { name, value, type, checked } = e.target;
+
+	if (name === "NIT") {
+		const regex = /^[0-9-]*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (["Celular", "Celular_Empresa", "Celular_Asesor", "Documento"].includes(name)) {
+		const regex = /^\d*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (["Nombre", "Asesor"].includes(name)) {
+		const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
+		if (!regex.test(value)) return;
+	}
+
+	if (name === "Nombre_Empresa") {
+		const regex = /^[a-zA-Z0-9\s]*$/;
+		if (!regex.test(value)) return;
+	}
+
+
+	const updatedValue = type === "checkbox" ? checked : value;
+	setFormData((prev) => ({
+		...prev,
+		[name]: updatedValue,
+	}));
+
+	validateField(name, updatedValue);
+	};
+
+	const handleTipoProveedorChange = (e) => {
+		const tipoProveedor = e.target.value;
+		setFormData((prev) => ({
+			...prev,
+			Tipo_Proveedor: tipoProveedor,
+		}));
+		setErrors({});
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		const tipoProveedor = formData.Tipo_Proveedor;
+		let datosLimpios = { ...formData };
+
+		if (tipoProveedor === "Natural") {
+			datosLimpios = {
+				...datosLimpios,
+				NIT: "",
+				Nombre_Empresa: "",
+				Asesor: "",
+				Celular_Empresa: "",
+				Celular_Asesor: "",
+			};
+		} else if (tipoProveedor === "Empresa") {
+			datosLimpios = {
+				...datosLimpios,
+				Tipo_Documento: "",
+				Documento: "",
+				Nombre: "",
+				Celular: "",
+			};
+		}
+
+		if (Object.keys(errors).length > 0) {
+					Swal.fire({
+					title: "Error",
+					text: "Por favor, corrija los errores en el formulario",
+					icon: "error",
+					timer: 2000,
+					showConfirmButton: false,
+					background: "#000",
+					color: "#fff",
+					});
+					return;
+			}
+
 		try {
-			await proveedorService.actualizarProveedor(id, formData);
+			await proveedorService.actualizarProveedor(id, datosLimpios);
 			Swal.fire({
 				title: "¡Éxito!",
 				text: "El proveedor ha sido actualizado correctamente.",
@@ -82,6 +190,7 @@ const EditarProveedor = () => {
 			});
 		}
 	};
+
 
 	const handleCancel = () => {
 		Swal.fire({
@@ -125,7 +234,7 @@ const EditarProveedor = () => {
 						<select
 							name="Tipo_Proveedor"
 							value={formData.Tipo_Proveedor}
-							onChange={handleChange}
+							onChange={handleTipoProveedorChange}
 							required
 							className="w-full p-2 border rounded"
 						>
@@ -135,153 +244,174 @@ const EditarProveedor = () => {
 						</select>
 					</div>
 
-					{/* Mostrar campos según tipo */}
-					{formData.Tipo_Proveedor === "Empresa" && (
+					{/* Si es Natural */}
+				{formData.Tipo_Proveedor === "Natural" && (
+					<>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Tipo de Documento
+							</h3>
+							<select
+								type="text"
+								name="Tipo_Documento"
+								value={formData.Tipo_Documento}
+								onChange={handleChange}
+								className="w-full border border-gray-300 p-2 rounded"
+							>
+								<option value="">Seleccione el Tipo</option>
+								<option value="C.C">C.C - Cédula de Ciudadanía</option>
+								<option value="C.E">C.E - Cédula de Extranjería</option>
+							</select>
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Documento
+							</h3>
+							<input
+								type="text"
+								name="Documento"
+								value={formData.Documento}
+								onChange={handleChange}
+								maxLength={11}
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Documento && <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Nombre <span className="text-red-500">*</span>
+							</h3>
+							<input
+								type="text"
+								name="Nombre"
+								value={formData.Nombre}
+								onChange={handleChange}
+								maxLength={30}
+								required
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Nombre && <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Celular <span className="text-red-500">*</span>
+							</h3>
+							<input
+								type="text"
+								name="Celular"
+								value={formData.Celular}
+								onChange={handleChange}
+								maxLength={11}
+								required
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Celular && <p className="text-red-500 text-sm mt-1">{errors.Celular}</p>}
+						</div>
+					</>
+				)}
+
+				{/* Si es Empresa */}
+				{formData.Tipo_Proveedor === "Empresa" && (
+					<>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								NIT <span className="text-red-500">*</span>
+							</h3>
+							<input
+								type="text"
+								name="NIT"
+								value={formData.NIT}
+								onChange={handleChange}
+								maxLength={15}
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.NIT && <p className="text-red-500 text-sm mt-1">{errors.NIT}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Nombre de la Empresa <span className="text-red-500">*</span>
+							</h3>
+							<input
+								type="text"
+								name="Nombre_Empresa"
+								value={formData.Nombre_Empresa}
+								onChange={handleChange}
+								maxLength={30}
+								required
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Nombre_Empresa && <p className="text-red-500 text-sm mt-1">{errors.Nombre_Empresa}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2">Asesor</h3>
+							<input
+								type="text"
+								name="Asesor"
+								value={formData.Asesor}
+								onChange={handleChange}
+								maxLength={30}
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Asesor && <p className="text-red-500 text-sm mt-1">{errors.Asesor}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+								Celular Empresa <span className="text-red-500">*</span>
+							</h3>
+							<input
+								type="text"
+								name="Celular_Empresa"
+								value={formData.Celular_Empresa}
+								onChange={handleChange}
+								maxLength={11}
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Celular_Empresa && <p className="text-red-500 text-sm mt-1">{errors.Celular_Empresa}</p>}
+						</div>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2">
+								Celular Asesor
+							</h3>
+							<input
+								type="text"
+								name="Celular_Asesor"
+								value={formData.Celular_Asesor}
+								onChange={handleChange}
+								maxLength={11}
+								className="w-full border border-gray-300 p-2 rounded"
+							/>
+								{errors.Celular_Asesor && <p className="text-red-500 text-sm mt-1">{errors.Celular_Asesor}</p>}
+						</div>
+					</>
+				)}
+
+					{/* Email y Direccion (ambos tipos) */}
+					{formData.Tipo_Proveedor && (
 						<>
 							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 								<h3 className="text-2xl text-black font-bold mb-2 block">
-									NIT <span className="text-red-500">*</span>
+									Email <span className="text-red-500">*</span>
 								</h3>
 								<input
-									type="text"
-									name="NIT"
-									value={formData.NIT}
+									type="email"
+									name="Email"
+									value={formData.Email}
 									onChange={handleChange}
-									maxLength={15}
+									required
 									className="w-full border border-gray-300 p-2 rounded"
 								/>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Nombre de la Empresa <span className="text-red-500">*</span>
-								</h3>
-								<input
-									type="text"
-									name="Nombre_Empresa"
-									value={formData.Nombre_Empresa}
-									onChange={handleChange}
-									maxLength={30}
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2">Asesor</h3>
-								<input
-									type="text"
-									name="Asesor"
-									value={formData.Asesor}
-									onChange={handleChange}
-									maxLength={30}
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Celular Empresa <span className="text-red-500">*</span>
-								</h3>
-								<input
-									type="text"
-									name="Celular_Empresa"
-									value={formData.Celular_Empresa}
-									onChange={(e) => {
-										const value = e.target.value;
-										if (!/^\d*$/.test(value)) return;
-										if (value.length > 10) return;
-										if (value.length === 1 && value !== "3") return;
-										setFormData({ ...formData, Celular_Empresa: value });
-									}}
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
+									{errors.Email && <p className="text-red-500 text-sm mt-1">{errors.Email}</p>}
 							</div>
 							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 								<h3 className="text-2xl text-black font-bold mb-2">
-									Celular Asesor
+									Dirección
 								</h3>
 								<input
 									type="text"
-									name="Celular_Asesor"
-									value={formData.Celular_Asesor}
-									onChange={(e) => {
-										const value = e.target.value;
-										if (!/^\d*$/.test(value)) return;
-										if (value.length > 10) return;
-										if (value.length === 1 && value !== "3") return;
-										setFormData({ ...formData, Celular_Asesor: value });
-									}}
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
-							</div>
-						</>
-					)}
-
-					{/* Mostrar campos Tipo Natural */}
-					{formData.Tipo_Proveedor === "Natural" && (
-						<>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Tipo de Documento
-								</h3>
-								<select
-									name="Tipo_Documento"
-									value={formData.Tipo_Documento}
-									onChange={handleChange}
-									className="w-full border border-gray-300 p-2 rounded"
-								>
-									<option value="">Seleccione el Tipo</option>
-									<option value="C.C">C.C - Cédula de Ciudadanía</option>
-									<option value="T.E">T.E - Tarjeta de Identidad</option>
-									<option value="C.E">C.E - Cédula de Extranjería</option>
-									<option value="P.P">P.P - Pasaporte</option>
-									<option value="PEP">
-										PEP - Permiso Especial de Permanencia
-									</option>
-								</select>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Documento
-								</h3>
-								<input
-									type="text"
-									name="Documento"
-									value={formData.Documento}
-									onChange={handleChange}
-									maxLength={11}
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Nombre <span className="text-red-500">*</span>
-								</h3>
-								<input
-									type="text"
-									name="Nombre"
-									value={formData.Nombre}
+									name="Direccion"
+									value={formData.Direccion}
 									onChange={handleChange}
 									maxLength={30}
-									required
-									className="w-full border border-gray-300 p-2 rounded"
-								/>
-							</div>
-							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-								<h3 className="text-2xl text-black font-bold mb-2 block">
-									Celular <span className="text-red-500">*</span>
-								</h3>
-								<input
-									type="text"
-									name="Celular"
-									value={formData.Celular}
-									onChange={(e) => {
-										const value = e.target.value;
-										if (!/^\d*$/.test(value)) return;
-										if (value.length > 10) return;
-										if (value.length === 1 && value !== "3") return;
-										setFormData({ ...formData, Celular: value });
-									}}
-									pattern="^3\d{9,10}$"
-									maxLength={10}
-									required
 									className="w-full border border-gray-300 p-2 rounded"
 								/>
 							</div>
@@ -289,20 +419,20 @@ const EditarProveedor = () => {
 					)}
 
 					<div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
-							  <Button type="submit" className="green">
-								<div className="flex items-center gap-2">
-								  <FaSave />
-								  Guardar
-								</div>
-							  </Button>
-							  
-							  <Button type="button" className="red" onClick={handleCancel}>
-								<div className="flex items-center gap-2">
-								  <IoClose />
-								  Cancelar
-								</div>
-							  </Button>
+						<Button type="submit" className="green" disabled={Object.keys(errors).length > 0}>
+							<div className="flex items-center gap-2">
+								<FaSave />
+								Guardar
 							</div>
+						</Button>
+
+						<Button type="button" className="red" onClick={handleCancel}>
+							<div className="flex items-center gap-2">
+								<IoClose />
+								Cancelar
+							</div>
+						</Button>
+					</div>
 				</form>
 		</>
 	);

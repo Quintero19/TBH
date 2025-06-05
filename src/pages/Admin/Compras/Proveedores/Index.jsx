@@ -107,10 +107,10 @@ const Proveedores = () => {
 								proveedor.Tipo_Proveedor !== "Natural"?
 									`
 									<p><strong>NIT:</strong> ${proveedor.NIT}</p>
-									<p><strong>Nombre de la Empresa:</strong> ${proveedor.NombreEmpresa || "-"}</p>
-									<p><strong>Celular de la Empresa:</strong> ${proveedor.CelularEmpresa || "-"}</p>
+									<p><strong>Nombre de la Empresa:</strong> ${proveedor.Nombre_Empresa || "-"}</p>
+									<p><strong>Celular de la Empresa:</strong> ${proveedor.Celular_Empresa || "-"}</p>
 									<p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
-									<p><strong>Celular del Asesor:</strong> ${proveedor.CelularAsesor || "-"}</p>
+									<p><strong>Celular del Asesor:</strong> ${proveedor.Celular_Asesor || "-"}</p>
 									` : `
 									<p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
 									<p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
