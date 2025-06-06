@@ -19,10 +19,10 @@ export default function Usuario() {
 
 	return (
 		<>
-				<h1>Bienvenido al Compra</h1>
-				<button type="button" onClick={handleLogout}>
-					Cerrar Sesión
-				</button>
+			<h1>Bienvenido al Compra</h1>
+			<button type="button" onClick={handleLogout}>
+				Cerrar Sesión
+			</button>
 		</>
 	);
 }

@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+.swal-cancel-button {
+  background-color: #dc2626 !important;
+  color: white !important;
+  border: none;
+}
+
+.swal-cancel-button:hover {
+  background-color: #b91c1c !important;
+}
+
+.swal-confirm-button {
+  background-color: #2563eb !important;
+  color: white !important;
+  border: none;
+}
+
+.swal-confirm-button:hover {
+  background-color: #1e40af !important;
+}
+
+
 @media screen and (max-width: 400px) {
 	#features {
 		padding: 20px;

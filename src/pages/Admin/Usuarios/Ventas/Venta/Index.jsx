@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../../../components/sideBar";
 
 export default function Usuario() {
 	const navigate = useNavigate();
@@ -19,10 +18,10 @@ export default function Usuario() {
 
 	return (
 		<>
-				<h1>Bienvenido al Devoluciones</h1>
-				<button type="button" onClick={handleLogout}>
-					Cerrar Sesión
-				</button>
+			<h1>Bienvenido al Venta</h1>
+			<button type="button" onClick={handleLogout}>
+				Cerrar Sesión
+			</button>
 		</>
 	);
 }

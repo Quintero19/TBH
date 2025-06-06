@@ -3,39 +3,38 @@ import { Route, Routes } from "react-router-dom";
 import "../styles/css/App.css";
 
 import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
-import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
 import AgregarCatProducto from "../pages/Admin/Compras/CategoriaProductos/AgregarCatProducto";
 import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarCatProducto";
+import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
 import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import Productos from "../pages/Admin/Compras/Productos/Index";
-import Tallas from "../pages/Admin/Compras/Productos/Tallas/Index";
 import AgregarTalla from "../pages/Admin/Compras/Productos/Tallas/AgregarTalla";
 import EditarTalla from "../pages/Admin/Compras/Productos/Tallas/EditarTalla";
+import Tallas from "../pages/Admin/Compras/Productos/Tallas/Index";
 import Tamanos from "../pages/Admin/Compras/Productos/Tamanos/Index";
 import AgregarProveedor from "../pages/Admin/Compras/Proveedores/AgregarProveedor";
 import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor";
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
-import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
 import RolesAdminAgregar from "../pages/Admin/Configuracion/Roles/Agregar";
 import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
+import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
 
 import Dashboard from "../pages/Admin/Dashboard";
 import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
-import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
 import AgregarServicio from "../pages/Admin/Servicios/Servicio/AgregarServicio";
 import EditarServicios from "../pages/Admin/Servicios/Servicio/EditarServicios";
+import ServicioAdmin from "../pages/Admin/Servicios/Servicio/Index";
+import AgregarEmpleado from "../pages/Admin/Usuarios/Empleados/AgregarEmpleado";
+import EditarEmpleado from "../pages/Admin/Usuarios/Empleados/EditarEmpleado";
 import EmpleadoAdmin from "../pages/Admin/Usuarios/Empleados/Index";
-import AgregarEmpleado from "../pages/Admin/Usuarios/Empleados/AgregarEmpleado"
-import EditarEmpleado from "../pages/Admin/Usuarios/Empleados/EditarEmpleado"
+import UsuarioAgregar from "../pages/Admin/Usuarios/Usuario/Agregar";
+import UsuarioEditar from "../pages/Admin/Usuarios/Usuario/Editar";
 import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
-import UsuarioAgregar from '../pages/Admin/Usuarios/Usuario/Agregar'
-import UsuarioEditar from '../pages/Admin/Usuarios/Usuario/Editar'
-import ClienteAdmin from "../pages/Admin/Ventas/Clientes/Index";
-import DevolucionesAdmin from "../pages/Admin/Ventas/Devoluciones/Index";
-import VentaAdmin from "../pages/Admin/Ventas/Venta/Index";
-
+import ClienteAdmin from "../pages/Admin/Usuarios/Ventas/Clientes/Index";
+import DevolucionesAdmin from "../pages/Admin/Usuarios/Ventas/Devoluciones/Index";
+import VentaAdmin from "../pages/Admin/Usuarios/Ventas/Venta/Index";
 
 import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
@@ -77,8 +76,8 @@ function App() {
 				<Route path="roles/agregar" element={<RolesAdminAgregar />} />
 				<Route path="roles/editar/:id" element={<RolesAdminEditar />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
-				<Route path="usuario/agregar" element={<UsuarioAgregar />}/>
-        		<Route path="usuario/editar/:id" element={<UsuarioEditar />}/>
+				<Route path="usuario/agregar" element={<UsuarioAgregar />} />
+				<Route path="usuario/editar/:id" element={<UsuarioEditar />} />
 				<Route path="empleado" element={<EmpleadoAdmin />} />
 				<Route path="empleado/agregar" element={<AgregarEmpleado />} />
 				<Route path="empleado/editar/:id" element={<EditarEmpleado />} />
@@ -92,8 +91,14 @@ function App() {
 				<Route path="proveedores/agregar" element={<AgregarProveedor />} />
 				<Route path="proveedores/editar/:id" element={<EditarProveedor />} />
 				<Route path="categoriaproducto" element={<CategoriasProducto />} />
-				<Route path="categoriaproducto/agregar" element={<AgregarCatProducto />} />
-				<Route path="categoriaproducto/editar/:id" element={<EditarCatProducto />} />
+				<Route
+					path="categoriaproducto/agregar"
+					element={<AgregarCatProducto />}
+				/>
+				<Route
+					path="categoriaproducto/editar/:id"
+					element={<EditarCatProducto />}
+				/>
 				<Route path="productos" element={<Productos />} />
 				<Route path="tallas" element={<Tallas />} />
 				<Route path="tallas/agregar" element={<AgregarTalla />} />

@@ -150,31 +150,31 @@ export default function Dashboard() {
 
 	return (
 		<>
-				<HomeAdminContainer>
-					<h1>Dashboard de Ventas y Compras</h1>
+			<HomeAdminContainer>
+				<h1>Dashboard de Ventas y Compras</h1>
 
-					<ChartsContainer>
-						<ChartWrapper>
-							<h3>Gráfica de Líneas</h3>
-							<Line data={lineChartData} />
-						</ChartWrapper>
+				<ChartsContainer>
+					<ChartWrapper>
+						<h3>Gráfica de Líneas</h3>
+						<Line data={lineChartData} />
+					</ChartWrapper>
 
-						<ChartWrapper>
-							<h3>Gráfica de Barras</h3>
-							<Bar data={barChartData} />
-						</ChartWrapper>
+					<ChartWrapper>
+						<h3>Gráfica de Barras</h3>
+						<Bar data={barChartData} />
+					</ChartWrapper>
 
-						<ChartWrapper>
-							<h3>Gráfica de Puntos</h3>
-							<Scatter data={scatterChartData} />
-						</ChartWrapper>
+					<ChartWrapper>
+						<h3>Gráfica de Puntos</h3>
+						<Scatter data={scatterChartData} />
+					</ChartWrapper>
 
-						<ChartWrapperCentered>
-							<h3>Gráfica de Torta</h3>
-							<Pie data={pieChartData} options={pieChartOptions} />
-						</ChartWrapperCentered>
-					</ChartsContainer>
-				</HomeAdminContainer>
+					<ChartWrapperCentered>
+						<h3>Gráfica de Torta</h3>
+						<Pie data={pieChartData} options={pieChartOptions} />
+					</ChartWrapperCentered>
+				</ChartsContainer>
+			</HomeAdminContainer>
 		</>
 	);
 }

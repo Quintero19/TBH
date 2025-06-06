@@ -1,6 +1,6 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
 import { rolService } from "../../../../service/roles.service";
 
@@ -45,13 +45,16 @@ export default function Rol() {
 
 		return roles.filter((rol) => {
 			const nombreMatch = rol.Nombre?.toLowerCase().includes(lowerSearch);
-			const descripcionMatch = rol.Descripcion?.toLowerCase().includes(lowerSearch);
+			const descripcionMatch =
+				rol.Descripcion?.toLowerCase().includes(lowerSearch);
 
 			let estadoMatch = false;
 			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch = rol.Estado === true || rol.Estado === 1 || rol.Estado === "Activo";
+				estadoMatch =
+					rol.Estado === true || rol.Estado === 1 || rol.Estado === "Activo";
 			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch = rol.Estado === false || rol.Estado === 0 || rol.Estado === "Inactivo";
+				estadoMatch =
+					rol.Estado === false || rol.Estado === 0 || rol.Estado === "Inactivo";
 			}
 
 			return nombreMatch || descripcionMatch || estadoMatch;
@@ -61,7 +64,7 @@ export default function Rol() {
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 	const paginatedData = filteredData.slice(
 		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
+		currentPage * itemsPerPage,
 	);
 
 	const handleSearchChange = (e) => {

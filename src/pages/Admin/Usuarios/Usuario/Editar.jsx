@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
-import { userService } from "../../../../service/usuario.service";
 import { rolService } from "../../../../service/roles.service";
+import { userService } from "../../../../service/usuario.service";
 
 const EditarUsuario = () => {
 	const { id } = useParams();
@@ -20,7 +20,7 @@ const EditarUsuario = () => {
 					text: "ID de usuario no proporcionado.",
 					icon: "error",
 					background: "#000",
-					color: "#fff"
+					color: "#fff",
 				});
 				navigate("/admin/usuario");
 				return;
@@ -32,19 +32,18 @@ const EditarUsuario = () => {
 				setFormData({
 					...resto,
 					Password: "",
-					confirmPassword: ""
+					confirmPassword: "",
 				});
 
 				const rolesData = await rolService.listarRoles();
 				const rolesArray = rolesData.data;
 
 				if (Array.isArray(rolesArray)) {
-					const rolesActivos = rolesArray.filter(rol => rol.Estado === true);
+					const rolesActivos = rolesArray.filter((rol) => rol.Estado === true);
 					setRoles(rolesActivos);
 				} else {
 					console.error("La propiedad data no es un array:", rolesArray);
 				}
-
 			} catch (error) {
 				console.error("Error al cargar datos:", error);
 				Swal.fire({
@@ -52,7 +51,7 @@ const EditarUsuario = () => {
 					text: "No se pudo cargar el usuario o los roles.",
 					icon: "error",
 					background: "#000",
-					color: "#fff"
+					color: "#fff",
 				});
 				navigate("/admin/usuario");
 			}
@@ -65,7 +64,7 @@ const EditarUsuario = () => {
 		const { name, value, type, checked } = e.target;
 		setFormData({
 			...formData,
-			[name]: type === "checkbox" ? checked : value
+			[name]: type === "checkbox" ? checked : value,
 		});
 	};
 
@@ -77,7 +76,7 @@ const EditarUsuario = () => {
 		const existeDocumento = usuarios.data.some(
 			(u) =>
 				u.Documento.toString() === formData.Documento.toString() &&
-				u.Id_Usuario !== formData.Id_Usuario
+				u.Id_Usuario !== formData.Id_Usuario,
 		);
 		if (existeDocumento) {
 			return "El documento ya está registrado por otro usuario.";
@@ -86,7 +85,7 @@ const EditarUsuario = () => {
 		const existeCorreo = usuarios.data.some(
 			(u) =>
 				u.Correo.toLowerCase() === formData.Correo.toLowerCase() &&
-				u.Id_Usuario !== formData.Id_Usuario
+				u.Id_Usuario !== formData.Id_Usuario,
 		);
 		if (existeCorreo) {
 			return "El correo ya está registrado por otro usuario.";
@@ -113,14 +112,14 @@ const EditarUsuario = () => {
 					text: error,
 					icon: "error",
 					background: "#000",
-					color: "#fff"
+					color: "#fff",
 				});
 				return;
 			}
 
 			const dataToSend = { ...formData };
-			if (!formData.Password) delete dataToSend.Password;
-			if (!formData.confirmPassword) delete dataToSend.confirmPassword;
+			if (!formData.Password) dataToSend.Password = undefined;
+			if (!formData.confirmPassword) dataToSend.confirmPassword = undefined;
 
 			await userService.actualizarUsuario(id, dataToSend);
 
@@ -131,7 +130,7 @@ const EditarUsuario = () => {
 				timer: 2000,
 				showConfirmButton: false,
 				background: "#000",
-				color: "#fff"
+				color: "#fff",
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
@@ -142,7 +141,7 @@ const EditarUsuario = () => {
 				text: "No se pudo actualizar el usuario.",
 				icon: "error",
 				background: "#000",
-				color: "#fff"
+				color: "#fff",
 			});
 		}
 	};
@@ -158,7 +157,7 @@ const EditarUsuario = () => {
 			confirmButtonText: "Sí, cancelar",
 			cancelButtonText: "No, continuar",
 			background: "#000",
-			color: "#fff"
+			color: "#fff",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/usuario");
@@ -166,13 +165,19 @@ const EditarUsuario = () => {
 		});
 	};
 
-	if (!formData) return <p className="text-center mt-10 text-xl">Cargando usuario...</p>;
+	if (!formData)
+		return <p className="text-center mt-10 text-xl">Cargando usuario...</p>;
 
 	return (
 		<>
-			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">Editar Usuario</h1>
+			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
+				Editar Usuario
+			</h1>
 
-			<form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<form
+				onSubmit={handleSubmit}
+				className="grid grid-cols-1 md:grid-cols-2 gap-6"
+			>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">Documento</h3>
 					<input
@@ -187,7 +192,9 @@ const EditarUsuario = () => {
 				</div>
 
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">Correo Electrónico</h3>
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Correo Electrónico
+					</h3>
 					<input
 						type="email"
 						name="Correo"
@@ -210,7 +217,9 @@ const EditarUsuario = () => {
 				</div>
 
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">Confirmar Contraseña</h3>
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Confirmar Contraseña
+					</h3>
 					<input
 						type="password"
 						name="confirmPassword"

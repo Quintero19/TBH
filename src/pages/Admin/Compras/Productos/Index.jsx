@@ -2,8 +2,8 @@ import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
-import { productoService } from "../../../../service/productos.service";
 import { catProductoService } from "../../../../service/categoriaProducto.service";
+import { productoService } from "../../../../service/productos.service";
 
 const columns = [
 	{ header: "ID", accessor: "Id_Productos" },
@@ -28,7 +28,10 @@ const Productos = () => {
 			console.log(response);
 			setData(response.data);
 		} catch (error) {
-			console.error("Error al obtener productos:", error.response?.data || error);
+			console.error(
+				"Error al obtener productos:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -37,43 +40,55 @@ const Productos = () => {
 			const response = await catProductoService.obtenerCategorias();
 			setCategorias(response.data);
 		} catch (error) {
-			console.error("Error al obtener categorías:", error.response?.data || error);
+			console.error(
+				"Error al obtener categorías:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
 	const transformData = useCallback(
-        (lista) =>
-        lista.map((item) => {
-			const categoria = categorias.find(c => c.Id_Categoria_Producto === item.Id_Categoria_Producto);
-			return {
-				...item,
-				NombreCategoria: categoria?.Nombre || "Desconocido",
-				Precio_Venta: Number(item.Precio_Venta).toFixed(0),
-				Precio_Compra: Number(item.Precio_Compra).toFixed(0)
-			};
-		}), [categorias]
-    );
+		(lista) =>
+			lista.map((item) => {
+				const categoria = categorias.find(
+					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
+				);
+				return {
+					...item,
+					NombreCategoria: categoria?.Nombre || "Desconocido",
+					Precio_Venta: Number(item.Precio_Venta).toFixed(0),
+					Precio_Compra: Number(item.Precio_Compra).toFixed(0),
+				};
+			}),
+		[categorias],
+	);
 
 	const filteredData = useMemo(() => {
 		const transformed = transformData(data);
 		const lowerSearch = searchTerm.toLowerCase();
 
 		const matchEstado = (estado) => {
-			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
-			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			if (["1", "activo"].includes(lowerSearch))
+				return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch))
+				return estado === false || estado === 0 || estado === "Inactivo";
 			return false;
 		};
 
-        return !searchTerm ? transformed : transformed.filter((item) => {
-			return (
-				item.Id_Productos?.toString().toLowerCase().includes(lowerSearch) ||
-				item.NombreCategoria?.toString().toLowerCase().includes(lowerSearch) ||
-				item.Nombre?.toLowerCase().includes(lowerSearch) ||
-				item.Precio_Venta?.toString().toLowerCase().includes(lowerSearch)||
-				item.Stock?.toString().toLowerCase().includes(lowerSearch) ||
-				matchEstado(item.Estado)
-			);
-		});
+		return !searchTerm
+			? transformed
+			: transformed.filter((item) => {
+					return (
+						item.Id_Productos?.toString().toLowerCase().includes(lowerSearch) ||
+						item.NombreCategoria?.toString()
+							.toLowerCase()
+							.includes(lowerSearch) ||
+						item.Nombre?.toLowerCase().includes(lowerSearch) ||
+						item.Precio_Venta?.toString().toLowerCase().includes(lowerSearch) ||
+						item.Stock?.toString().toLowerCase().includes(lowerSearch) ||
+						matchEstado(item.Estado)
+					);
+				});
 	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -87,7 +102,6 @@ const Productos = () => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
 	};
-
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -112,8 +126,7 @@ const Productos = () => {
 		try {
 			Swal.fire({
 				title: `Detalles Producto ID: ${producto.Id_Productos}`,
-				html: 
-				`
+				html: `
 				<div class="text-left">
 					<p><strong>Categoria de Producto:</strong> ${producto.Id_Categoria_Producto || "-"}</p>
 					<p><strong>Nombre:</strong> ${producto.Nombre || "-"}</p>
@@ -196,11 +209,11 @@ const Productos = () => {
 	};
 
 	const handleTallas = () => {
-		navigate(`/admin/tallas`);
+		navigate("/admin/tallas");
 	};
 	const handleTamanos = () => {
-		navigate(`/admin/tamanos`);
-	} 
+		navigate("/admin/tamanos");
+	};
 
 	return (
 		<GeneralTable
@@ -219,7 +232,7 @@ const Productos = () => {
 			currentPage={currentPage}
 			totalPages={totalPages}
 			onPageChange={handlePageChange}
-			goTallas={handleTallas} 
+			goTallas={handleTallas}
 			goTamanos={handleTamanos}
 		/>
 	);

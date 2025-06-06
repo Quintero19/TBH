@@ -53,8 +53,14 @@ const GeneralTable = ({
 					{title === "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="green" onClick={rest.goTallas}> Tallas</Button>
-								<Button className="green" onClick={rest.goTamanos}> Tamaños</Button>
+								<Button className="green" onClick={rest.goTallas}>
+									{" "}
+									Tallas
+								</Button>
+								<Button className="green" onClick={rest.goTamanos}>
+									{" "}
+									Tamaños
+								</Button>
 							</div>
 						</div>
 					)}
@@ -62,7 +68,10 @@ const GeneralTable = ({
 					{(title === "Tallas" || title === "Tamaños") && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="red" onClick={rest.return}> Volver a Productos</Button>
+								<Button className="red" onClick={rest.return}>
+									{" "}
+									Volver a Productos
+								</Button>
 							</div>
 						</div>
 					)}

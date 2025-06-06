@@ -1,6 +1,5 @@
 import React from "react";
-import GeneralTable from "../../../../components/GeneralTable";
-import Sidebar from "../../../../components/sideBar";
+import GeneralTable from "../../../../../components/GeneralTable";
 
 export default function Usuario() {
 	const columns = [
@@ -15,11 +14,7 @@ export default function Usuario() {
 
 	return (
 		<div className="flex">
-				<GeneralTable
-					title="Clientes"
-					columns={columns}
-					data={data}
-				/>
+			<GeneralTable title="Clientes" columns={columns} data={data} />
 		</div>
 	);
 }

@@ -1,8 +1,8 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import GeneralTable from "../../../../components/GeneralTable";
-import { proveedorService } from "../../../../service/proveedores.service";
+import GeneralTable from "@/components/GeneralTable";
+import { proveedorService } from "@/service/proveedores.service";
+import { showAlert } from "@/components/AlertProvider";
 
 const columns = [
 	{ header: "ID", accessor: "Id_Proveedores" },
@@ -23,10 +23,13 @@ const Proveedores = () => {
 	const fetchData = useCallback(async () => {
 		try {
 			const response = await proveedorService.obtenerProveedores();
-			console.log(response);
+			// console.log(response); 
 			setData(transformData(response.data));
 		} catch (error) {
-			console.error("Error al obtener proveedores:", error.response?.data || error);
+			console.error(
+				"Error al obtener proveedores:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -39,7 +42,8 @@ const Proveedores = () => {
 					nombre: isEmpresa ? item.Nombre_Empresa : item.Nombre,
 					celular: isEmpresa ? item.Celular_Empresa : item.Celular,
 				};
-			}), []
+			}),
+		[],
 	);
 
 	const filteredData = useMemo(() => {
@@ -47,35 +51,38 @@ const Proveedores = () => {
 		const lowerSearch = searchTerm.toLowerCase();
 
 		const matchEstado = (estado) => {
-			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
-			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			if (["1", "activo"].includes(lowerSearch))
+				return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch))
+				return estado === false || estado === 0 || estado === "Inactivo";
 			return false;
 		};
 
-		return !searchTerm ? transformed : transformed.filter((item) => {
-			return (
-				item.Id_Proveedores?.toString().includes(lowerSearch) ||
-				item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch) ||
-				item.nombre?.toLowerCase().includes(lowerSearch) ||
-				item.celular?.toLowerCase().includes(lowerSearch) ||
-				item.Email?.toLowerCase().includes(lowerSearch) ||
-				matchEstado(item.Estado)
-			);
-		});
+		return !searchTerm
+			? transformed
+			: transformed.filter((item) => {
+					return (
+						item.Id_Proveedores?.toString().includes(lowerSearch) ||
+						item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch) ||
+						item.nombre?.toLowerCase().includes(lowerSearch) ||
+						item.celular?.toLowerCase().includes(lowerSearch) ||
+						item.Email?.toLowerCase().includes(lowerSearch) ||
+						matchEstado(item.Estado)
+					);
+				});
 	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
 	const paginatedData = filteredData.slice(
 		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
+		currentPage * itemsPerPage,
 	);
 
 	const handleSearchChange = (e) => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
 	};
-
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -90,107 +97,114 @@ const Proveedores = () => {
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
+	/*------------- ESO DE AHI ↑↑↑↑ NO TENGO NI LA MENOR IDEA DE QUE ES ENTONCES NO LO PUEDO MARCAR ---------------*/
+	/*----------------------------------------------------------------------------------*/
+
+	/*-------------------- AGREGAR ---------------------------------------------------*/
 
 	const handleAdd = () => {
 		navigate("/admin/proveedores/agregar");
 	};
 
+	/*----------------------------------------------------------------------------------*/
+
+	/*-------------------- VER DETALLES ---------------------------------------------------*/
 	const handleVerDetalles = async (proveedor) => {
 		try {
-			Swal.fire({
+			const html = `
+				<div class="text-left">
+					<p><strong>Tipo de Proveedor:</strong> ${proveedor.Tipo_Proveedor || "-"}</p>
+					${
+						proveedor.Tipo_Proveedor !== "Natural"
+							? `
+								<p><strong>NIT:</strong> ${proveedor.NIT}</p>
+								<p><strong>Nombre de la Empresa:</strong> ${proveedor.Nombre_Empresa || "-"}</p>
+								<p><strong>Celular de la Empresa:</strong> ${proveedor.Celular_Empresa || "-"}</p>
+								<p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
+								<p><strong>Celular del Asesor:</strong> ${proveedor.Celular_Asesor || "-"}</p>
+							`
+							: `
+								<p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
+								<p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
+								<p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
+								<p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p>
+							`
+					}
+					<p><strong>Correo:</strong> ${proveedor.Email || "-"}</p>
+					<p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
+					<p><strong>Estado:</strong> ${proveedor.Estado ? "Activo" : "Inactivo"}</p>
+				</div>
+			`;
+
+			await showAlert(html, {
+				type: "info",
 				title: `Detalles Proveedor ID: ${proveedor.Id_Proveedores}`,
-				html: 
-					`
-					<div class="text-left">
-						<p><strong>Tipo de Proveedor:</strong> ${proveedor.Tipo_Proveedor || "-"}</p>
-							${
-								proveedor.Tipo_Proveedor !== "Natural"?
-									`
-									<p><strong>NIT:</strong> ${proveedor.NIT}</p>
-									<p><strong>Nombre de la Empresa:</strong> ${proveedor.Nombre_Empresa || "-"}</p>
-									<p><strong>Celular de la Empresa:</strong> ${proveedor.Celular_Empresa || "-"}</p>
-									<p><strong>Nombre Asesor:</strong> ${proveedor.Asesor || "-"}</p>
-									<p><strong>Celular del Asesor:</strong> ${proveedor.Celular_Asesor || "-"}</p>
-									` : `
-									<p><strong>Tipo de Documento:</strong> ${proveedor.Tipo_Documento || "-"}</p> 
-									<p><strong>Documento:</strong> ${proveedor.Documento || "-"}</p> 
-									<p><strong>Nombre:</strong> ${proveedor.Nombre || "-"}</p>
-									<p><strong>Celular:</strong> ${proveedor.Celular || "-"}</p
-									`
-							}
-						<p></p>
-						<p><strong>Correo:</strong> ${proveedor.Email || "-"}</p>
-						<p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
-						<p><strong>Estado:</strong> ${proveedor.Estado ? "Activo" : "Inactivo"}</p>
-					</div>
-					`,
-				icon: "info",
-				confirmButtonText: "Cerrar",
-				padding: "1rem",
-				confirmButtonColor: "#3085d6",
-				background: "#000",
-				color: "#fff",
+				showConfirmButton: true,
+				swalOptions: {
+					confirmButtonText: "Cerrar",
+					padding: "1rem",
+				}
 			});
 		} catch (error) {
-			console.error("Error al obtener el proveedor:", error);
-			Swal.fire(
-				"Error",
-				"No se pudieron cargar los detalles del proveedor",
-				"error",
-			);
+			showAlert(`No se pudieron cargar los detalles del proveedor: ${error}`, {
+				type: "error",
+				title: "Error",
+			});
 		}
 	};
+
+	/*----------------------------------------------------------------------------------*/
+
+	/*-------------------- EDITAR ---------------------------------------------------*/
 
 	const handleEdit = (proveedor) => {
 		navigate(`/admin/proveedores/editar/${proveedor.Id_Proveedores}`);
 	};
+	
+	/*----------------------------------------------------------------------------------*/
 
-	const handleDelete = async (proveedor) => {
-		const result = await Swal.fire({
+
+	/*-------------------- ELIMINAR ---------------------------------------------------*/
+
+	  const handleDelete = async (proveedor) => {
+		const result = await window.showAlert(
+			`¿Deseas eliminar al proveedor <strong>"${proveedor.Nombre}"</strong>?`,
+			{
+			type: "warning",
 			title: "¿Estás seguro?",
-			text: `¿Deseas eliminar al proveedor "${proveedor.Nombre}"?`,
-			icon: "warning",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
 			confirmButtonText: "Sí, eliminar",
 			cancelButtonText: "Cancelar",
-			background: "#000",
-			color: "#fff",
-		});
+			}
+		);
 
 		if (result.isConfirmed) {
 			try {
-				await proveedorService.eliminarProveedor(proveedor.Id_Proveedores);
+			await proveedorService.eliminarProveedor(proveedor.Id_Proveedores);
 
-				await Swal.fire({
-					title: "Eliminado",
-					text: "Proveedor eliminado correctamente",
-					icon: "success",
-					timer: 2000,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
+			await window.showAlert("Proveedor eliminado correctamente", {
+				type: "success",
+				title: "Eliminado",
+				duration: 2000,
+			});
 
-				fetchData();
+			fetchData();
 			} catch (error) {
-				console.error("Error Eliminando Proveedor:", error);
-				const mensaje =
-					error.response?.data?.message || "Error al eliminar el proveedor";
+			console.error("Error Eliminando Proveedor:", error);
+			const mensaje =
+				error.response?.data?.message || "Error al eliminar el proveedor";
 
-				Swal.fire({
-					title: "Error",
-					text: mensaje,
-					icon: "error",
-					timer: 2500,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
+			window.showAlert(mensaje, {
+				type: "error",
+				title: "Error",
+				duration: 2500,
+			});
 			}
 		}
-	};
+		};
+
+	/*-----------------------------------------------------------------------------------*/
 
 	const handlePageChange = (event, value) => {
 		setCurrentPage(value);

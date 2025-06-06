@@ -8,7 +8,7 @@ const columns = [
 	{ header: "ID", accessor: "Id_Categoria_Producto" },
 	{ header: "Nombre", accessor: "Nombre" },
 	{ header: "Descripción", accessor: "Descripcion" },
-	{ header: "Es Ropa?", accessor: "Es_Ropa"},
+	{ header: "Es Ropa?", accessor: "Es_Ropa" },
 	{ header: "Estado", accessor: "Estado" },
 ];
 
@@ -25,7 +25,10 @@ const CategoriasProducto = () => {
 			console.log(response);
 			setData(response.data);
 		} catch (error) {
-			console.error("Error al obtener las categorias:", error.response?.data || error);
+			console.error(
+				"Error al obtener las categorias:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -34,7 +37,8 @@ const CategoriasProducto = () => {
 			lista.map((item) => ({
 				...item,
 				Es_Ropa: item.Es_Ropa ? "Si" : "No",
-			})), []
+			})),
+		[],
 	);
 
 	const filteredData = useMemo(() => {
@@ -42,20 +46,24 @@ const CategoriasProducto = () => {
 		const lowerSearch = searchTerm.toLowerCase();
 
 		const matchEstado = (estado) => {
-			if (["1", "activo"].includes(lowerSearch)) return estado === true || estado === 1 || estado === "Activo";
-			if (["0", "inactivo"].includes(lowerSearch)) return estado === false || estado === 0 || estado === "Inactivo";
+			if (["1", "activo"].includes(lowerSearch))
+				return estado === true || estado === 1 || estado === "Activo";
+			if (["0", "inactivo"].includes(lowerSearch))
+				return estado === false || estado === 0 || estado === "Inactivo";
 			return false;
 		};
 
-        return !searchTerm ? transformed : transformed.filter((item) => {
-			return (
-				item.Id_Categoria_Producto?.toString().includes(lowerSearch) ||
-				item.Nombre?.toLowerCase().includes(lowerSearch) ||
-				item.Descripcion?.toLowerCase().includes(lowerSearch) ||
-				item.Es_Ropa?.toLowerCase().includes(lowerSearch) ||
-				matchEstado(item.Estado)
-			);
-		});
+		return !searchTerm
+			? transformed
+			: transformed.filter((item) => {
+					return (
+						item.Id_Categoria_Producto?.toString().includes(lowerSearch) ||
+						item.Nombre?.toLowerCase().includes(lowerSearch) ||
+						item.Descripcion?.toLowerCase().includes(lowerSearch) ||
+						item.Es_Ropa?.toLowerCase().includes(lowerSearch) ||
+						matchEstado(item.Estado)
+					);
+				});
 	}, [data, searchTerm]);
 
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -69,7 +77,6 @@ const CategoriasProducto = () => {
 		setSearchTerm(e.target.value);
 		setCurrentPage(1);
 	};
-
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -93,8 +100,7 @@ const CategoriasProducto = () => {
 		try {
 			Swal.fire({
 				title: `Detalles Cat.Producto ID: ${categoria.Id_Categoria_Producto}`,
-				html: 
-					`
+				html: `
 					<div class="text-left">
 						<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
 						<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
@@ -120,7 +126,9 @@ const CategoriasProducto = () => {
 	};
 
 	const handleEdit = (categoria) => {
-		navigate(`/admin/categoriaproducto/editar/${categoria.Id_Categoria_Producto}`);
+		navigate(
+			`/admin/categoriaproducto/editar/${categoria.Id_Categoria_Producto}`,
+		);
 	};
 
 	const handleDelete = async (categoria) => {
@@ -139,7 +147,9 @@ const CategoriasProducto = () => {
 
 		if (result.isConfirmed) {
 			try {
-				await catProductoService.eliminarCategoria(categoria.Id_Categoria_Producto);
+				await catProductoService.eliminarCategoria(
+					categoria.Id_Categoria_Producto,
+				);
 
 				await Swal.fire({
 					title: "Eliminada",
