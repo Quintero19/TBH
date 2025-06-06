@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { FaEye, FaPencilAlt, FaPlus, FaSearch, FaTrash } from "react-icons/fa";
+import { FaEye, FaPencilAlt, FaPlus, FaTrash } from "react-icons/fa";
 import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
 
@@ -159,7 +159,6 @@ const GeneralTable = ({
 						count={totalPages}
 						page={currentPage}
 						onChange={onPageChange}
-						color="secondary"
 					/>
 				</center>
 			</div>
