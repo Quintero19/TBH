@@ -2,7 +2,8 @@ import { React, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GeneralTable from "@/components/GeneralTable";
 import { proveedorService } from "@/service/proveedores.service";
-import { showAlert } from "@/components/AlertProvider";
+import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Proveedores = () => {
 
@@ -119,7 +120,7 @@ const Proveedores = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			showAlert(`No se pudieron cargar los detalles del proveedor: ${error}`, {
@@ -151,7 +152,7 @@ const Proveedores = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
@@ -176,6 +177,10 @@ const Proveedores = () => {
 				});
 			}
 		}
+	};
+
+	/*-----------------------------------------------------------------------------------*/
+
 	};
 
 	/* ───────────────────────────────────── */
