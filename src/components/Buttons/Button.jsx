@@ -27,10 +27,16 @@ const Button = ({
 		colors[className] || "bg-gray-400 border-gray-400"
 	}`;
 
+	const content = (
+		<>
+			{icon && <i className={`fas ${icon} mr-2`} />}
+			{children}
+		</>
+	);
+
 	return href ? (
 		<a href={href} className={`${buttonClasses} text-center`} {...props}>
-			{icon && <i className={`fas ${icon}`} />}
-			{children}
+			{content}
 		</a>
 	) : (
 		<button
@@ -41,8 +47,7 @@ const Button = ({
 			disabled={props.disabled}
 			{...props}
 		>
-			{icon && <i className={`fas ${icon}`} />}
-			{children}
+			{content}
 		</button>
 	);
 };
@@ -50,7 +55,7 @@ const Button = ({
 Button.propTypes = {
 	href: PropTypes.string,
 	type: PropTypes.string,
-	icon: PropTypes.node,
+	icon: PropTypes.string,
 	className: PropTypes.string,
 	children: PropTypes.node.isRequired,
 	disabled: PropTypes.bool,

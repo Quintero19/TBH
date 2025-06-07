@@ -1,8 +1,8 @@
-import { React, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { proveedorService } from "@/service/proveedores.service";
-import { showAlert } from "@/components/AlertProvider";
+import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
 	{ header: "ID", accessor: "Id_Proveedores" },
@@ -23,7 +23,7 @@ const Proveedores = () => {
 	const fetchData = useCallback(async () => {
 		try {
 			const response = await proveedorService.obtenerProveedores();
-			// console.log(response); 
+			// console.log(response);
 			setData(transformData(response.data));
 		} catch (error) {
 			console.error(
@@ -143,7 +143,7 @@ const Proveedores = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			showAlert(`No se pudieron cargar los detalles del proveedor: ${error}`, {
@@ -160,49 +160,48 @@ const Proveedores = () => {
 	const handleEdit = (proveedor) => {
 		navigate(`/admin/proveedores/editar/${proveedor.Id_Proveedores}`);
 	};
-	
-	/*----------------------------------------------------------------------------------*/
 
+	/*----------------------------------------------------------------------------------*/
 
 	/*-------------------- ELIMINAR ---------------------------------------------------*/
 
-	  const handleDelete = async (proveedor) => {
+	const handleDelete = async (proveedor) => {
 		const result = await window.showAlert(
 			`¿Deseas eliminar al proveedor <strong>"${proveedor.Nombre}"</strong>?`,
 			{
-			type: "warning",
-			title: "¿Estás seguro?",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-			}
+				type: "warning",
+				title: "¿Estás seguro?",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, eliminar",
+				cancelButtonText: "Cancelar",
+			},
 		);
 
 		if (result.isConfirmed) {
 			try {
-			await proveedorService.eliminarProveedor(proveedor.Id_Proveedores);
+				await proveedorService.eliminarProveedor(proveedor.Id_Proveedores);
 
-			await window.showAlert("Proveedor eliminado correctamente", {
-				type: "success",
-				title: "Eliminado",
-				duration: 2000,
-			});
+				await window.showAlert("Proveedor eliminado correctamente", {
+					type: "success",
+					title: "Eliminado",
+					duration: 2000,
+				});
 
-			fetchData();
+				fetchData();
 			} catch (error) {
-			console.error("Error Eliminando Proveedor:", error);
-			const mensaje =
-				error.response?.data?.message || "Error al eliminar el proveedor";
+				console.error("Error Eliminando Proveedor:", error);
+				const mensaje =
+					error.response?.data?.message || "Error al eliminar el proveedor";
 
-			window.showAlert(mensaje, {
-				type: "error",
-				title: "Error",
-				duration: 2500,
-			});
+				window.showAlert(mensaje, {
+					type: "error",
+					title: "Error",
+					duration: 2500,
+				});
 			}
 		}
-		};
+	};
 
 	/*-----------------------------------------------------------------------------------*/
 
