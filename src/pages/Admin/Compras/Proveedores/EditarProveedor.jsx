@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { FaSave } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
+import { showAlert } from "@/components/AlertProvider";
 import Button from "../../../../components/Buttons/Button";
 import { proveedorService } from "../../../../service/proveedores.service";
+
 const EditarProveedor = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -33,10 +34,10 @@ const EditarProveedor = () => {
 				setFormData(data.data);
 			} catch (error) {
 				console.error("Error al cargar proveedor:", error);
-				Swal.fire({
+				showAlert("Error al cargar el proveedor", {
+					type: "error",
 					title: "Error",
-					text: "No se pudo cargar el proveedor",
-					icon: "error",
+					duration: 2000,
 				});
 				navigate("/admin/proveedores");
 			}
@@ -178,53 +179,41 @@ const EditarProveedor = () => {
 		}
 
 		if (Object.keys(errors).length > 0) {
-			Swal.fire({
+			showAlert("Por favor Corregir los errores en el formulario", {
+				type: "error",
 				title: "Error",
-				text: "Por favor, corrija los errores en el formulario",
-				icon: "error",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+				duration: 2000,
 			});
 			return;
 		}
 
 		try {
 			await proveedorService.actualizarProveedor(id, datosLimpios);
-			Swal.fire({
+			showAlert("El proveedor ha sido actualizado correctamente.",{
 				title: "¡Éxito!",
-				text: "El proveedor ha sido actualizado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+				type: "success",
+				duration: 2000,
 			}).then(() => {
 				navigate("/admin/proveedores");
 			});
 		} catch (error) {
 			console.error("Error al actualizar proveedor:", error);
-			Swal.fire({
+			showAlert("No se pudo actualizar el proveedor", {
+				type: "error",
 				title: "Error",
-				text: "No se pudo actualizar el proveedor.",
-				icon: "error",
+				duration: 2000,
 			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
+		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
 			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los cambios realizados.",
-			icon: "warning",
+			type: "warning",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
 			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
+			cancelButtonText: "Continuar Editando",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/proveedores");

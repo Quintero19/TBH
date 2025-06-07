@@ -1,30 +1,32 @@
-import { showAlert } from "@/components/AlertProvider";
+import { React, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import GeneralTable from "@/components/GeneralTable";
 import { proveedorService } from "@/service/proveedores.service";
 import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const columns = [
-	{ header: "ID", accessor: "Id_Proveedores" },
-	{ header: "Tipo Proveedor", accessor: "Tipo_Proveedor" },
-	{ header: "Nombre / Empresa", accessor: "nombre" },
-	{ header: "Celular / Celular Empresa", accessor: "celular" },
-	{ header: "Email", accessor: "Email" },
-	{ header: "Estado", accessor: "Estado" },
-];
-
 const Proveedores = () => {
-	const [data, setData] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
-	const navigate = useNavigate();
 
-	const fetchData = useCallback(async () => {
+	const [proveedores, setProveedores] = useState([]);
+	const navigate = useNavigate();
+	const canEdit = (proveedor) => proveedor.Estado === true;
+	const canDelete = (proveedor) => proveedor.Estado === true;
+
+	const columns = [
+		{ header: "ID", accessor: "Id_Proveedores" },
+		{ header: "Tipo Proveedor", accessor: "Tipo_Proveedor" },
+		{ header: "Nombre / Empresa", accessor: "nombre" },
+		{ header: "Celular / Celular Empresa", accessor: "celular" },
+		{ header: "Email", accessor: "Email" },
+		{ header: "Estado", accessor: "Estado" },
+	];
+
+	/* ─────── Cargar Proveedores ──────── */
+
+	const fetchProveedores = useCallback(async () => {
 		try {
 			const response = await proveedorService.obtenerProveedores();
-			// console.log(response);
-			setData(transformData(response.data));
+			setProveedores(transformData(response.data));
 		} catch (error) {
 			console.error(
 				"Error al obtener proveedores:",
@@ -32,6 +34,14 @@ const Proveedores = () => {
 			);
 		}
 	}, []);
+
+	useEffect(() => {
+		fetchProveedores();
+	}, [fetchProveedores]);
+
+	/* ─────────────────────────────────── */
+
+	/* ───── Transformación de Datos ───── */
 
 	const transformData = useCallback(
 		(data) =>
@@ -46,69 +56,36 @@ const Proveedores = () => {
 		[],
 	);
 
-	const filteredData = useMemo(() => {
-		const transformed = transformData(data);
-		const lowerSearch = searchTerm.toLowerCase();
+	/* ─────────────────────────────────── */
 
-		const matchEstado = (estado) => {
-			if (["1", "activo"].includes(lowerSearch))
-				return estado === true || estado === 1 || estado === "Activo";
-			if (["0", "inactivo"].includes(lowerSearch))
-				return estado === false || estado === 0 || estado === "Inactivo";
-			return false;
-		};
-
-		return !searchTerm
-			? transformed
-			: transformed.filter((item) => {
-					return (
-						item.Id_Proveedores?.toString().includes(lowerSearch) ||
-						item.Tipo_Proveedor?.toLowerCase().includes(lowerSearch) ||
-						item.nombre?.toLowerCase().includes(lowerSearch) ||
-						item.celular?.toLowerCase().includes(lowerSearch) ||
-						item.Email?.toLowerCase().includes(lowerSearch) ||
-						matchEstado(item.Estado)
-					);
-				});
-	}, [data, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
+	/* ───────── Cambiar Estado ────────── */
 
 	const handleToggleEstado = async (id) => {
 		try {
 			await proveedorService.actualizarEstadoProveedor(id);
-			await fetchData();
+			await fetchProveedores();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
-			alert("Error cambiando estado");
+
+			showAlert(`Error Cambiando Estado del proveedor: ${error}`, {
+				type: "error",
+				title: "Error",
+			})
 		}
 	};
 
-	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
-	/*------------- ESO DE AHI ↑↑↑↑ NO TENGO NI LA MENOR IDEA DE QUE ES ENTONCES NO LO PUEDO MARCAR ---------------*/
-	/*----------------------------------------------------------------------------------*/
+	/* ─────────────────────────────────── */
 
-	/*-------------------- AGREGAR ---------------------------------------------------*/
+	/* ────────── Ir a Agregar ─────────── */
 
 	const handleAdd = () => {
 		navigate("/admin/proveedores/agregar");
 	};
 
-	/*----------------------------------------------------------------------------------*/
+	/* ──────────────────────────────────── */
 
-	/*-------------------- VER DETALLES ---------------------------------------------------*/
+	/* ────────── Ver Detalles ──────────── */
+
 	const handleVerDetalles = async (proveedor) => {
 		try {
 			const html = `
@@ -153,21 +130,21 @@ const Proveedores = () => {
 		}
 	};
 
-	/*----------------------------------------------------------------------------------*/
+	/* ──────────────────────────────────── */
 
-	/*-------------------- EDITAR ---------------------------------------------------*/
+	/* ──────────── Ir a Editar ─────────── */
 
 	const handleEdit = (proveedor) => {
 		navigate(`/admin/proveedores/editar/${proveedor.Id_Proveedores}`);
 	};
+	
+	/* ───────────────────────────────────── */
 
-	/*----------------------------------------------------------------------------------*/
-
-	/*-------------------- ELIMINAR ---------------------------------------------------*/
+	/* ───────────── Eliminar ───────────────*/
 
 	const handleDelete = async (proveedor) => {
 		const result = await window.showAlert(
-			`¿Deseas eliminar al proveedor <strong>"${proveedor.Nombre}"</strong>?`,
+			`¿Deseas eliminar al proveedor <strong>${proveedor.nombre}</strong>?`,
 			{
 				type: "warning",
 				title: "¿Estás seguro?",
@@ -188,11 +165,10 @@ const Proveedores = () => {
 					duration: 2000,
 				});
 
-				fetchData();
+				fetchProveedores();
 			} catch (error) {
 				console.error("Error Eliminando Proveedor:", error);
-				const mensaje =
-					error.response?.data?.message || "Error al eliminar el proveedor";
+				const mensaje = error.response?.data?.message || "Error al eliminar el proveedor";
 
 				window.showAlert(mensaje, {
 					type: "error",
@@ -205,15 +181,15 @@ const Proveedores = () => {
 
 	/*-----------------------------------------------------------------------------------*/
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
 	};
+
+	/* ───────────────────────────────────── */
 
 	return (
 		<GeneralTable
 			title="Proveedores"
 			columns={columns}
-			data={paginatedData}
+			data={proveedores}
 			onAdd={handleAdd}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
@@ -221,11 +197,8 @@ const Proveedores = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Proveedores"
 			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
+			canEdit={canEdit}
+			canDelete={canDelete}	
 		/>
 	);
 };

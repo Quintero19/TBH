@@ -17,9 +17,6 @@ export default function Rol() {
 	];
 
 	const [roles, setRoles] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
 
 	const obtenerRoles = useCallback(async () => {
 		try {
@@ -37,40 +34,6 @@ export default function Rol() {
 			console.error("Error al obtener los roles:", error);
 		}
 	}, []);
-
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return roles;
-
-		const lowerSearch = searchTerm.toLowerCase();
-
-		return roles.filter((rol) => {
-			const nombreMatch = rol.Nombre?.toLowerCase().includes(lowerSearch);
-			const descripcionMatch =
-				rol.Descripcion?.toLowerCase().includes(lowerSearch);
-
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					rol.Estado === true || rol.Estado === 1 || rol.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					rol.Estado === false || rol.Estado === 0 || rol.Estado === "Inactivo";
-			}
-
-			return nombreMatch || descripcionMatch || estadoMatch;
-		});
-	}, [roles, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -148,10 +111,6 @@ export default function Rol() {
 		navigate(`/admin/roles/editar/${rol.Id}`);
 	};
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
-
 	useEffect(() => {
 		obtenerRoles();
 	}, [obtenerRoles]);
@@ -160,7 +119,7 @@ export default function Rol() {
 		<GeneralTable
 			title={title}
 			columns={columns}
-			data={paginatedData}
+			data={roles}
 			onAdd={() => navigate("/admin/roles/agregar")}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
@@ -168,11 +127,6 @@ export default function Rol() {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id"
 			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
 			canEdit={canEdit}
 			canDelete={canDelete}
 		/>

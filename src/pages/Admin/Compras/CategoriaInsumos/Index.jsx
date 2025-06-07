@@ -22,8 +22,6 @@ const columns = [
  */
 const CategoriaInsumoAdmin = () => {
 	const [categorias, setCategorias] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
 	const [error, setError] = useState(null);
 	const navigate = useNavigate();
 
@@ -234,7 +232,7 @@ const CategoriaInsumoAdmin = () => {
 			<GeneralTable
 				title="Listado de Categorías"
 				columns={columns}
-				data={paginatedCategorias}
+				data={categorias}
 				onView={handleVerDetalles}
 				onToggleEstado={toggleEstado}
 				onAdd={handleAdd}
@@ -242,11 +240,6 @@ const CategoriaInsumoAdmin = () => {
 				onDelete={handleDelete}
 				canDelete={canDelete}
 				idAccessor="Id_Categoria_Insumos"
-				searchTerm={searchTerm}
-				onSearchChange={(e) => setSearchTerm(e.target.value)}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={(_, page) => setCurrentPage(page)}
 			/>
 		</>
 	);

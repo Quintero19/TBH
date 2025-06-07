@@ -42,7 +42,7 @@ const Button = ({
 		<button
 			type={type}
 			className={`${buttonClasses} text-center ${
-				props.disabled ? "opacity-50 cursor-not-allowed" : ""
+				props.disabled ? "opacity-50 !cursor-not-allowed" : ""
 			}`}
 			disabled={props.disabled}
 			{...props}
