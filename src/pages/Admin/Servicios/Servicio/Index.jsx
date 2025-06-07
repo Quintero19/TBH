@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
 import { servicioService } from "../../../../service/serviciosService";
+
 const columns = [
 	{ header: "Id_Servicios", accessor: "Id_Servicios" },
 	{ header: "Nombre", accessor: "Nombre" },
@@ -21,17 +22,14 @@ const transformData = (data) => {
 };
 
 const Servicios = () => {
-	const [data, setData] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
+	const [servicios, setServicios] = useState([]);
 	const navigate = useNavigate();
 
-	const fetchData = useCallback(async () => {
+	const fetchServicios = useCallback(async () => {
 		try {
 			const response = await servicioService.obtenerServicios();
 			console.log(response);
-			setData(transformData(response.data));
+			setServicios(transformData(response.data));
 		} catch (error) {
 			console.error(
 				"Error al obtener Servicios:",
@@ -40,49 +38,10 @@ const Servicios = () => {
 		}
 	}, []);
 
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return data;
-
-		const lowerSearch = searchTerm.toLowerCase();
-
-		return data.filter((item) => {
-			const idMatch = item.Id_Servicios.toString().includes(lowerSearch);
-			const nombreMatch = item.Nombre?.toLowerCase().includes(lowerSearch);
-			const duracionMatch = item.Duracion;
-			const precioMatch = item.Precio;
-
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					item.Estado === true || item.Estado === 1 || item.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					item.Estado === false ||
-					item.Estado === 0 ||
-					item.Estado === "Inactivo";
-			}
-
-			return (
-				idMatch || nombreMatch || precioMatch || duracionMatch || estadoMatch
-			);
-		});
-	}, [data, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
-
 	const handleToggleEstado = async (id) => {
 		try {
 			await servicioService.actualizarEstadoServicios(id);
-			await fetchData();
+			await fetchServicios();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
@@ -90,8 +49,8 @@ const Servicios = () => {
 	};
 
 	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
+		fetchServicios();
+	}, [fetchServicios]);
 
 	const handleAdd = () => {
 		navigate("/admin/servicios/agregar"); //cambiar ruta
@@ -159,7 +118,7 @@ const Servicios = () => {
 					color: "#fff",
 				});
 
-				fetchData();
+				fetchServicios();
 			} catch (error) {
 				console.error("Error Eliminando Servicios:", error);
 				const mensaje =
@@ -178,16 +137,12 @@ const Servicios = () => {
 		}
 	};
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
-
 	return (
 		<>
 			<GeneralTable
 				title="Servicios"
 				columns={columns}
-				data={paginatedData}
+				data={servicios}
 				onAdd={handleAdd}
 				onView={handleVerDetalles}
 				onEdit={handleEdit}
@@ -195,11 +150,6 @@ const Servicios = () => {
 				onToggleEstado={handleToggleEstado}
 				idAccessor="Id_Servicios"
 				stateAccessor="Estado"
-				searchTerm={searchTerm}
-				onSearchChange={handleSearchChange}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={handlePageChange}
 			/>
 		</>
 	);

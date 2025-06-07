@@ -3,15 +3,11 @@ import GeneralTable from "@/components/GeneralTable";
 import api from "@/utils/api";
 import { showAlert } from "@/components/AlertProvider";
 
-const pageSize = 10;
-
 const CategoriaInsumoAdmin = () => {
 	/** ─────────────────────────────
 	 * Estados principales
 	 * ───────────────────────────── */
 	const [categorias, setCategorias] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
 	const [error, setError] = useState(null);
 
 	/** ─────────────────────────────
@@ -63,37 +59,6 @@ const CategoriaInsumoAdmin = () => {
 	];
 
 	/** ─────────────────────────────
-	 * Filtrado y paginado en memoria
-	 * ───────────────────────────── */
-	const categoriasFiltradas = categorias.filter((cat) => {
-	const search = searchTerm.trim().toUpperCase();
-
-	if (search === "ACTIVO") {
-		return cat.Estado === true;
-	}
-	if (search === "INACTIVO") {
-		return cat.Estado === false;
-	}
-
-	const searchLower = searchTerm.trim().toLowerCase();
-	return (
-		cat.Nombre?.toLowerCase().includes(searchLower) ||
-		cat.Descripcion?.toLowerCase().includes(searchLower)
-	);
-	});
-
-	const totalPages = Math.max(1, Math.ceil(categoriasFiltradas.length / pageSize));
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm]);
-
-	const paginatedCategorias = categoriasFiltradas.slice(
-		(currentPage - 1) * pageSize,
-		currentPage * pageSize,
-	);
-
-	/** ─────────────────────────────
 	 * Acciones CRUD
 	 * ───────────────────────────── */
 
@@ -143,18 +108,13 @@ const CategoriaInsumoAdmin = () => {
 			<GeneralTable
 				title="Listado de Categorías"
 				columns={columns}
-				data={paginatedCategorias}
+				data={categorias}
 				onView={handleVerDetalles}
 				onToggleEstado={toggleEstado}
 				onAdd={handleAdd}
 				onEdit={handleEdit}
 				onDelete={handleDelete}
 				idAccessor="Id_Categoria_Insumos"
-				searchTerm={searchTerm}
-				onSearchChange={(e) => setSearchTerm(e.target.value)}
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={(_, page) => setCurrentPage(page)}
 			/>
 		</>
 	);

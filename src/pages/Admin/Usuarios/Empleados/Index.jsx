@@ -2,7 +2,6 @@ import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
-import Sidebar from "../../../../components/sideBar";
 import { empleadoService } from "../../../../service/empleado.service";
 
 const columns = [
@@ -13,17 +12,14 @@ const columns = [
 ];
 
 const Empleados = () => {
-	const [data, setData] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
+	const [empleados, setEmpleados] = useState([]);
 	const navigate = useNavigate();
 
-	const fetchData = useCallback(async () => {
+	const fetchEmpleados = useCallback(async () => {
 		try {
 			const response = await empleadoService.obtenerEmpleados();
 			console.log("Datos empleados API:", response.data);
-			setData(response.data);
+			setEmpleados(response.data);
 		} catch (error) {
 			console.error(
 				"Error al obtener empleados:",
@@ -33,47 +29,13 @@ const Empleados = () => {
 	}, []);
 
 	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
-
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return data;
-		const lowerSearch = searchTerm.toLowerCase();
-
-		return data.filter((item) => {
-			const documentoMatch = item.Documento?.toString()
-				.toLowerCase()
-				.includes(lowerSearch);
-			const nombreMatch = item.Nombre?.toLowerCase().includes(lowerSearch);
-			const celularMatch = item.Celular?.toString()
-				.toLowerCase()
-				.includes(lowerSearch);
-
-			const estadoMatch =
-				(lowerSearch === "activo" &&
-					(item.Estado === true || item.Estado === 1)) ||
-				(lowerSearch === "inactivo" &&
-					(item.Estado === false || item.Estado === 0));
-
-			return documentoMatch || nombreMatch || celularMatch || estadoMatch;
-		});
-	}, [data, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
+		fetchEmpleados();
+	}, [fetchEmpleados]);
 
 	const handleToggleEstado = async (id) => {
 		try {
 			await empleadoService.actualizarEstadoEmpleado(id);
-			await fetchData();
+			await fetchEmpleados();
 		} catch (error) {
 			console.error("Error actualizando estado:", error);
 		}
@@ -129,7 +91,7 @@ const Empleados = () => {
 					background: "#000",
 					color: "#fff",
 				});
-				fetchData();
+				fetchEmpleados();
 			} catch (error) {
 				console.error("Error al eliminar empleado:", error);
 				Swal.fire({
@@ -145,15 +107,11 @@ const Empleados = () => {
 		}
 	};
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
-
 	return (
 		<GeneralTable
 			title="Empleados"
 			columns={columns}
-			data={paginatedData}
+			data={empleados}
 			onAdd={handleAdd}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
@@ -161,11 +119,6 @@ const Empleados = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Empleados"
 			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
 		/>
 	);
 };
