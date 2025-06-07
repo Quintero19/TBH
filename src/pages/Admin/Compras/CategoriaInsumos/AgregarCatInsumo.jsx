@@ -1,0 +1,164 @@
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { categoriaInsumoService } from "@/service/categoriaInsumo.service";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const AgregarCatInsumo = () => {
+	const navigate = useNavigate();
+
+	const [formData, setFormData] = useState({
+		Nombre: "",
+		Descripcion: "",
+		Estado: true,
+	});
+	const [errors, setErrors] = useState({});
+
+	/* ---------- Validaciones ---------- */
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+		const val = value.trim();
+
+		switch (name) {
+			case "Nombre":
+				if (!val) {
+					newErrors.Nombre = "El nombre es obligatorio";
+				} else if (val.length < 3) {
+					newErrors.Nombre = "Mínimo 3 letras";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val)) {
+					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
+				} else {
+					newErrors.Nombre = undefined;
+				}
+				break;
+
+			case "Descripcion":
+				if (!val) {
+					newErrors.Descripcion = "La descripción es obligatoria";
+				} else if (val.length < 5) {
+					newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
+				} else if (val.length > 100) {
+					newErrors.Descripcion = "Máximo 100 caracteres permitidos";
+				} else {
+					newErrors.Descripcion = undefined;
+				}
+				break;
+
+			default:
+				break;
+		}
+
+		setErrors(newErrors);
+	};
+
+	/* ---------- Manejo de cambios ---------- */
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({ ...prev, [name]: value }));
+		validateField(name, value);
+	};
+
+	/* ---------- Guardar ---------- */
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		validateField("Nombre", formData.Nombre);
+		validateField("Descripcion", formData.Descripcion);
+
+		if (Object.keys(errors).length > 0) {
+			showAlert("Corrige los errores antes de guardar", {
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
+			});
+			return;
+		}
+
+		try {
+			await categoriaInsumoService.crearCategoria(formData);
+			await showAlert("La categoría fue creada exitosamente", {
+				type: "success",
+				duration: 1500,
+			});
+			navigate("/admin/categoriainsumo");
+		} catch (err) {
+			console.error(err);
+			showAlert(`Error al guardar: ${err.message}`, {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
+
+	/* ---------- Cancelar ---------- */
+	const handleCancel = () => {
+		showAlert("Si cancelas, perderás los datos ingresados.", {
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
+			showCancelButton: true,
+			confirmButtonText: "Sí, salir",
+			cancelButtonText: "No, continuar",
+		}).then((r) => r.isConfirmed && navigate("/admin/categoriainsumo"));
+	};
+
+	/* ---------- Render ---------- */
+	return (
+		<>
+			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
+				Agregar Categoría de Insumo
+			</h1>
+
+			<form
+				onSubmit={handleSubmit}
+				className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
+			>
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 min-h-[120px]">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Nombre <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="text"
+						name="Nombre"
+						value={formData.Nombre}
+						onChange={handleChange}
+						required
+						className="w-full border border-gray-300 p-2 rounded"
+					/>
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
+				</div>
+
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Descripción <span className="text-red-500">*</span>
+					</h3>
+					<textarea
+						name="Descripcion"
+						value={formData.Descripcion}
+						onChange={handleChange}
+						required
+						maxLength={100}
+						className="w-full border border-gray-300 p-2 rounded"
+						style={{ resize: "vertical" }}
+					/>
+					{errors.Descripcion && (
+						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					)}
+				</div>
+
+				<div className="md:col-span-2 flex gap-4">
+					<Button icon="fa fa-floppy-o" className="green" type="submit">
+						Guardar
+					</Button>
+					<Button icon="fa fa-times" className="red" onClick={handleCancel}>
+						Cancelar
+					</Button>
+				</div>
+			</form>
+		</>
+	);
+};
+
+export default AgregarCatInsumo;
