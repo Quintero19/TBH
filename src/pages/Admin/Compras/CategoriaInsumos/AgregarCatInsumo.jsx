@@ -14,58 +14,44 @@ const AgregarCatInsumo = () => {
 	});
 	const [errors, setErrors] = useState({});
 
-	/* ---------- Validaciones ---------- */
-	const validateField = (name, value) => {
-		const newErrors = { ...errors };
-		const val = value.trim();
+	/* ---------- Validar todo el formulario ---------- */
+	const validateForm = () => {
+		const newErrors = {};
 
-		switch (name) {
-			case "Nombre":
-				if (!val) {
-					newErrors.Nombre = "El nombre es obligatorio";
-				} else if (val.length < 3) {
-					newErrors.Nombre = "Mínimo 3 letras";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val)) {
-					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
-				} else {
-					newErrors.Nombre = undefined;
-				}
-				break;
+		const nombre = formData.Nombre.trim();
+		const descripcion = formData.Descripcion.trim();
 
-			case "Descripcion":
-				if (!val) {
-					newErrors.Descripcion = "La descripción es obligatoria";
-				} else if (val.length < 5) {
-					newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
-				} else if (val.length > 100) {
-					newErrors.Descripcion = "Máximo 100 caracteres permitidos";
-				} else {
-					newErrors.Descripcion = undefined;
-				}
-				break;
+		if (!nombre) {
+			newErrors.Nombre = "El nombre es obligatorio";
+		} else if (nombre.length < 3) {
+			newErrors.Nombre = "Mínimo 3 letras";
+		} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(nombre)) {
+			newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
+		}
 
-			default:
-				break;
+		if (!descripcion) {
+			newErrors.Descripcion = "La descripción es obligatoria";
+		} else if (descripcion.length < 5) {
+			newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
+		} else if (descripcion.length > 100) {
+			newErrors.Descripcion = "Máximo 100 caracteres permitidos";
 		}
 
 		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
 	};
 
 	/* ---------- Manejo de cambios ---------- */
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
-		validateField(name, value);
 	};
 
 	/* ---------- Guardar ---------- */
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		validateField("Nombre", formData.Nombre);
-		validateField("Descripcion", formData.Descripcion);
-
-		if (Object.keys(errors).length > 0) {
+		if (!validateForm()) {
 			showAlert("Corrige los errores antes de guardar", {
 				type: "error",
 				title: "Datos inválidos",

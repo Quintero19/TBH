@@ -4,8 +4,6 @@ import { categoriaInsumoService } from "@/service/categoriaInsumo.service";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const pageSize = 5;
-
 /**
  * Definición de columnas para la tabla general, con
  * encabezados y claves de acceso a los datos.
@@ -147,49 +145,6 @@ const CategoriaInsumoAdmin = () => {
 
 	
 	/*----------------------------------------------------------------------------------*/
-
-	/**
-	 * Filtrado de categorías según el término de búsqueda.
-	 * Soporta filtros especiales para "ACTIVO" e "INACTIVO" que filtran
-	 * por estado booleano, o busca en nombre y descripción.
-	 */
-	const categoriasFiltradas = categorias.filter((cat) => {
-		const search = searchTerm.trim().toUpperCase();
-
-		if (search === "ACTIVO") return cat.Estado === true;
-		if (search === "INACTIVO") return cat.Estado === false;
-
-		const searchLower = searchTerm.trim().toLowerCase();
-		return (
-			cat.Nombre?.toLowerCase().includes(searchLower) ||
-			cat.Descripcion?.toLowerCase().includes(searchLower)
-		);
-	});
-
-	/**
-	 * Cálculo del número total de páginas para la paginación,
-	 * asegurando que sea al menos 1.
-	 */
-	const totalPages = Math.max(
-		1,
-		Math.ceil(categoriasFiltradas.length / pageSize),
-	);
-
-	/**
-	 * Hook que resetea la página actual a 1 cuando cambia el término de búsqueda.
-	 */
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm]);
-
-	/**
-	 * Se obtienen los datos de la página actual mediante slicing
-	 * para la paginación.
-	 */
-	const paginatedCategorias = categoriasFiltradas.slice(
-		(currentPage - 1) * pageSize,
-		currentPage * pageSize,
-	);
 
 	/**
 	 * Función para mostrar detalles de una categoría en un modal alerta.
