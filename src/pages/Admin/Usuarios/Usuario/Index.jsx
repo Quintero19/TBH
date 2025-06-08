@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
 import { userService } from "../../../../service/usuario.service";
+import { rolService } from "../../../../service/roles.service.js"
 
 export default function Usuario() {
 	const navigate = useNavigate();
 	const title = "Gestion De Usuarios";
+	const [roles, setRoles] = useState([]);
 	const canEdit = (usuario) => usuario.Estado === true;
 	const canDelete = (usuario) => usuario.Estado === true;
 
@@ -15,6 +17,19 @@ export default function Usuario() {
 		{ header: "Correo", accessor: "Correo" },
 		{ header: "Estado", accessor: "Estado" },
 	];
+
+	useEffect(() => {
+		const fetchRoles = async () => {
+			try {
+			const response = await rolService.listarRoles(); 
+			setRoles(response.data); 
+			} catch (error) {
+			console.error("Error al cargar roles:", error);
+			}
+		};
+
+		fetchRoles();
+		}, []);
 
 	const [usuarios, setUsuarios] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -130,17 +145,19 @@ export default function Usuario() {
 	};
 
 	const handleVerDetalles = (usuario) => {
+		const rolNombre = roles.find((r) => r.Id === usuario.Rol_Id)?.Nombre || "Desconocido";
+
 		Swal.fire({
 			title: "Detalles del Usuario",
 			html: `
-        <div class="text-left">
-          <p><strong>ID:</strong> ${usuario.Id_Usuario}</p>
-          <p><strong>Documento:</strong> ${usuario.Documento}</p>
-          <p><strong>Correo:</strong> ${usuario.Correo}</p>
-          <p><strong>Estado:</strong> ${usuario.Estado ? "Activo" : "Inactivo"}</p>
-          <p><strong>Rol:</strong> ${usuario.Rol_Id}</p>
-        </div>
-      `,
+			<div class="text-left">
+				<p><strong>ID:</strong> ${usuario.Id_Usuario}</p>
+				<p><strong>Documento:</strong> ${usuario.Documento}</p>
+				<p><strong>Correo:</strong> ${usuario.Correo}</p>
+				<p><strong>Estado:</strong> ${usuario.Estado ? "Activo" : "Inactivo"}</p>
+				<p><strong>Rol:</strong> ${rolNombre}</p>
+			</div>
+			`,
 			icon: "info",
 			confirmButtonText: "Cerrar",
 			padding: "1rem",
@@ -148,7 +165,8 @@ export default function Usuario() {
 			background: "#000",
 			color: "#fff",
 		});
-	};
+		};
+
 
 	const handleEdit = (usuario) => {
 		navigate(`/admin/usuario/editar/${usuario.Id_Usuario}`);
