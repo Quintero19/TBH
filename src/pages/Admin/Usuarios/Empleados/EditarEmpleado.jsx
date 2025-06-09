@@ -2,224 +2,356 @@ import React, { useState, useEffect } from "react";
 import { FaSave } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
+import { showAlert } from "@/components/AlertProvider";
 import Button from "../../../../components/Buttons/Button";
-import Sidebar from "../../../../components/sideBar";
 import { empleadoService } from "../../../../service/empleado.service";
 
 const EditarEmpleado = () => {
-	const { id } = useParams();
-	const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
-	const [formData, setFormData] = useState({
-		Id_Empleados: "",
-		Documento: "",
-		Nombre: "",
-		Celular: "",
-		F_Nacimiento: "",
-		Direccion: "",
-		Sexo: "",
-	});
+  const [formData, setFormData] = useState({
+    Id_Empleados: "",
+    Tipo_Documento: "",
+    Documento: "",
+    Nombre: "",
+    Celular: "",
+    F_Nacimiento: "",
+    Direccion: "",
+    Sexo: "",
+    Estado: true,
+  });
 
-	useEffect(() => {
-		const cargarEmpleado = async () => {
-			try {
-				const data = await empleadoService.obtenerEmpleadoPorId(id);
-				const empleadoData = data.data;
-				if (empleadoData.F_Nacimiento) {
-					empleadoData.F_Nacimiento = empleadoData.F_Nacimiento.split("T")[0];
-				}
-				setFormData(empleadoData);
-			} catch (error) {
-				console.error("Error al cargar empleado:", error);
-				Swal.fire({
-					title: "Error",
-					text: "No se pudo cargar el empleado",
-					icon: "error",
-					background: "#000",
-					color: "#fff",
-				});
-				navigate("/admin/empleado");
-			}
-		};
+  useEffect(() => {
+    const cargarEmpleado = async () => {
+      try {
+        const data = await empleadoService.obtenerEmpleadoPorId(id);
+        const empleadoData = data.data;
+        
+        // Formatear fecha si existe
+        if (empleadoData.F_Nacimiento) {
+          empleadoData.F_Nacimiento = empleadoData.F_Nacimiento.split("T")[0];
+        }
+        
+        setFormData(empleadoData);
+      } catch (error) {
+        console.error("Error al cargar empleado:", error);
+        showAlert("Error al cargar el empleado", {
+          type: "error",
+          title: "Error",
+          duration: 2000,
+        });
+        navigate("/admin/empleado");
+      }
+    };
 
-		cargarEmpleado();
-	}, [id, navigate]);
+    cargarEmpleado();
+  }, [id, navigate]);
 
-	const handleChange = (e) => {
-		const { name, value, type, checked } = e.target;
-		setFormData({
-			...formData,
-			[name]: type === "checkbox" ? checked : value,
-		});
-	};
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		try {
-			await empleadoService.actualizarEmpleado(id, formData);
-			Swal.fire({
-				title: "¡Éxito!",
-				text: "El empleado ha sido actualizado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
-			}).then(() => {
-				navigate("/admin/empleado");
-			});
-		} catch (error) {
-			console.error("Error al actualizar empleado:", error);
-			Swal.fire({
-				title: "Error",
-				text: "No se pudo actualizar el empleado.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
-			});
-		}
-	};
+    switch (name) {
+      case "Nombre":
+        newErrors[name] =
+          value.trim().length > 0 && value.length < 3
+            ? "Debe tener al menos 3 caracteres, sin números o caracteres especiales"
+            : "";
+        break;
 
-	const handleCancel = () => {
-		Swal.fire({
-			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los cambios realizados.",
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/empleado");
-			}
-		});
-	};
+      case "Documento":
+        newErrors[name] =
+          value.trim().length > 0 && !/^\d{10,12}$/.test(value)
+            ? "Debe ser un documento entre 10 y 12 dígitos"
+            : "";
+        break;
 
-	return (
-		<>
-			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-				Editar Empleado
-			</h1>
+      case "Celular":
+        newErrors[name] =
+          value.trim().length > 0 && !/^\d{9,11}$/.test(value)
+            ? "Debe ser un número entre 9 y 11 dígitos"
+            : "";
+        break;
+      case "F_Nacimiento":
+        if (value) {
+          const birthDate = new Date(value);
+          const minDate = new Date();
+          minDate.setFullYear(minDate.getFullYear() - 100);
+          const maxDate = new Date();
+          maxDate.setFullYear(maxDate.getFullYear() - 18);
 
-			<form
-				onSubmit={handleSubmit}
-				className="grid grid-cols-1 md:grid-cols-2 gap-6"
-			>
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2 md:col-span-1">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Documento
-					</h3>
-					<input
-						type="text"
-						name="Documento"
-						value={formData.Documento}
-						readOnly
-						className="w-full border border-gray-300 p-2 rounded bg-gray-100"
-					/>
-				</div>
+          if (birthDate < minDate || birthDate > maxDate) {
+            newErrors[name] = "La edad debe estar entre 14 y 100 años";
+          }
+        }
+        break;
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Nombre <span className="text-red-500">*</span>
-					</h3>
-					<input
-						type="text"
-						name="Nombre"
-						value={formData.Nombre}
-						onChange={handleChange}
-						maxLength={30}
-						required
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-				</div>
+      case "Sexo":
+      case "Tipo_Documento":
+        newErrors[name] = value.trim().length === 0 ? "Este campo es requerido" : "";
+        break;
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Celular <span className="text-red-500">*</span>
-					</h3>
-					<input
-						type="text"
-						name="Celular"
-						value={formData.Celular}
-						onChange={(e) => {
-							const value = e.target.value;
-							if (!/^\d*$/.test(value)) return;
-							if (value.length > 10) return;
-							if (value.length === 1 && value !== "3") return;
-							setFormData({ ...formData, Celular: value });
-						}}
-						pattern="^3\d{9,10}$"
-						maxLength={10}
-						required
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-				</div>
+      default:
+        break;
+    }
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Fecha de Nacimiento
-					</h3>
-					<input
-						type="date"
-						name="F_Nacimiento"
-						value={formData.F_Nacimiento}
-						onChange={handleChange}
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-				</div>
+    if (newErrors[name] === "") {
+      delete newErrors[name];
+    }
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Dirección
-					</h3>
-					<input
-						type="text"
-						name="Direccion"
-						value={formData.Direccion}
-						onChange={handleChange}
-						maxLength={100}
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-				</div>
+    setErrors(newErrors);
+  };
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">Sexo</h3>
-					<select
-						name="Sexo"
-						value={formData.Sexo}
-						onChange={handleChange}
-						className="w-full border border-gray-300 p-2 rounded"
-					>
-						<option value="">Seleccione...</option>
-						<option value="Masculino">Masculino</option>
-						<option value="Femenino">Femenino</option>
-						<option value="Otro">Otro</option>
-					</select>
-				</div>
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
 
-				<div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
-					<Button type="submit" className="green">
-						<div className="flex items-center gap-2">
-							<FaSave />
-							Guardar
-						</div>
-					</Button>
+    if (["Documento", "Celular"].includes(name)) {
+      const regex = /^\d*$/;
+      if (!regex.test(value)) return;
+    }
 
-					<Button type="button" className="red" onClick={handleCancel}>
-						<div className="flex items-center gap-2">
-							<IoClose />
-							Cancelar
-						</div>
-					</Button>
-				</div>
-			</form>
-		</>
-	);
+    if (name === "Nombre") {
+      const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
+      if (!regex.test(value)) return;
+    }
+
+
+    const updatedValue = type === "checkbox" ? checked : value;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: updatedValue,
+    }));
+
+    validateField(name, updatedValue);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const requiredFields = ["Tipo_Documento", "Documento", "Nombre", "Celular", "Sexo"];
+    const newErrors = { ...errors };
+
+    requiredFields.forEach(field => {
+      if (!formData[field]) {
+        newErrors[field] = "Este campo es requerido";
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      showAlert("Por favor corrige los errores en el formulario", {
+        type: "error",
+        title: "Error",
+        duration: 2000,
+      });
+      return;
+    }
+
+    try {
+      await empleadoService.actualizarEmpleado(id, formData);
+      showAlert("El empleado ha sido actualizado correctamente.", {
+        title: "¡Éxito!",
+        type: "success",
+        duration: 2000,
+      }).then(() => {
+        navigate("/admin/empleado");
+      });
+    } catch (error) {
+      console.error("Error al actualizar empleado:", error);
+      showAlert("No se pudo actualizar el empleado: " + (error.message || "Error desconocido"), {
+        type: "error",
+        title: "Error",
+        duration: 2000,
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    showAlert("Si cancelas, perderás los cambios realizados.", {
+      title: "¿Estás seguro?",
+      type: "warning",
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar editando",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/admin/empleado");
+      }
+    });
+  };
+
+  return (
+    <>
+      <h1 className="text-5xl ml-10 font-bold mb-5 text-black">
+        Editar Empleado
+      </h1>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2 md:col-span-1">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Tipo de Documento <span className="text-red-500">*</span>
+          </h3>
+          <select
+            name="Tipo_Documento"
+            value={formData.Tipo_Documento}
+            onChange={handleChange}
+            required
+            className={`w-full border border-gray-300 p-2 rounded ${errors.Tipo_Documento ? "border-red-500" : ""}`}
+          >
+            <option value="">Seleccione el Tipo</option>
+            <option value="C.C">C.C - Cédula de Ciudadanía</option>
+            <option value="C.E">C.E - Cédula de Extranjería</option>
+          </select>
+          {errors.Tipo_Documento && (
+            <p className="text-red-500 text-sm mt-1">{errors.Tipo_Documento}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Documento <span className="text-red-500">*</span>
+          </h3>
+          <input
+            type="text"
+            name="Documento"
+            value={formData.Documento}
+            onChange={handleChange}
+            maxLength={15}
+            required
+            className={`w-full border border-gray-300 p-2 rounded ${errors.Documento ? "border-red-500" : ""}`}
+          />
+          {errors.Documento && (
+            <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Nombre <span className="text-red-500">*</span>
+          </h3>
+          <input
+            type="text"
+            name="Nombre"
+            value={formData.Nombre}
+            onChange={handleChange}
+            maxLength={50}
+            required
+            className={`w-full border border-gray-300 p-2 rounded ${errors.Nombre ? "border-red-500" : ""}`}
+          />
+          {errors.Nombre && (
+            <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Celular <span className="text-red-500">*</span>
+          </h3>
+          <input
+            type="text"
+            name="Celular"
+            value={formData.Celular}
+            onChange={handleChange}
+            maxLength={10}
+            required
+            className={`w-full border border-gray-300 p-2 rounded ${errors.Celular ? "border-red-500" : ""}`}
+          />
+          {errors.Celular && (
+            <p className="text-red-500 text-sm mt-1">{errors.Celular}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Fecha de Nacimiento
+          </h3>
+          <input
+            type="date"
+            name="F_Nacimiento"
+            value={formData.F_Nacimiento}
+            onChange={handleChange}
+            className={`w-full border border-gray-300 p-2 rounded ${errors.F_Nacimiento ? "border-red-500" : ""}`}
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 14)).toISOString().split("T")[0]}
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split("T")[0]}
+          />
+          {errors.F_Nacimiento && (
+            <p className="text-red-500 text-sm mt-1">{errors.F_Nacimiento}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Dirección
+          </h3>
+          <input
+            type="text"
+            name="Direccion"
+            value={formData.Direccion}
+            onChange={handleChange}
+            maxLength={100}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+          <h3 className="text-2xl text-black font-bold mb-2 block">
+            Sexo <span className="text-red-500">*</span>
+          </h3>
+          <select
+            name="Sexo"
+            value={formData.Sexo}
+            onChange={handleChange}
+            required
+            className={`w-full border border-gray-300 p-2 rounded ${errors.Sexo ? "border-red-500" : ""}`}
+          >
+            <option value="">Seleccione...</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+          </select>
+          {errors.Sexo && (
+            <p className="text-red-500 text-sm mt-1">{errors.Sexo}</p>
+          )}
+        </div>
+
+        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex items-center gap-3">
+          <label className="text-xl font-semibold text-black">Estado</label>
+          <input
+            type="checkbox"
+            name="Estado"
+            checked={formData.Estado}
+            onChange={handleChange}
+            className="w-5 h-5"
+          />
+        </div>
+
+        <div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
+          <Button 
+            type="submit" 
+            className="green"
+            disabled={Object.keys(errors).length > 0}
+          >
+            <div className="flex items-center gap-2">
+              <FaSave />
+              Guardar
+            </div>
+          </Button>
+
+          <Button type="button" className="red" onClick={handleCancel}>
+            <div className="flex items-center gap-2">
+              <IoClose />
+              Cancelar
+            </div>
+          </Button>
+        </div>
+      </form>
+    </>
+  );
 };
 
 export default EditarEmpleado;
