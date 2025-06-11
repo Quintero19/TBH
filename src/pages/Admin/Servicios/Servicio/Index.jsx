@@ -11,6 +11,8 @@ const columns = [
 	{ header: "Duracion ", accessor: "Duracion" },
 	{ header: "Estado", accessor: "Estado" },
 ];
+		const canEdit = (servicios) => servicios.Estado === true;
+	const canDelete = (servicios) => servicios.Estado === true;
 
 const transformData = (data) => {
 	return data.map((item) => {
@@ -53,7 +55,7 @@ const Servicios = () => {
 	}, [fetchServicios]);
 
 	const handleAdd = () => {
-		navigate("/admin/servicios/agregar"); //cambiar ruta
+		navigate("/admin/servicios/agregar"); 
 	};
 
 	const handleVerDetalles = async (Servicios) => {
@@ -87,7 +89,7 @@ const Servicios = () => {
 	};
 
 	const handleEdit = (Servicios) => {
-		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`); // cambiar ruta
+		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`); 
 	};
 
 	const handleDelete = async (Servicios) => {
@@ -150,6 +152,8 @@ const Servicios = () => {
 				onToggleEstado={handleToggleEstado}
 				idAccessor="Id_Servicios"
 				stateAccessor="Estado"
+				canEdit={canEdit}
+				canDelete={canDelete}
 			/>
 		</>
 	);
