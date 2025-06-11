@@ -152,6 +152,11 @@ export default function Rol() {
 		setCurrentPage(value);
 	};
 
+	const handleAsignarPermisos = (rol) => {
+		navigate(`/admin/roles/asignar/${rol.Id}`);
+	};
+
+
 	useEffect(() => {
 		obtenerRoles();
 	}, [obtenerRoles]);
@@ -175,6 +180,7 @@ export default function Rol() {
 			onPageChange={handlePageChange}
 			canEdit={canEdit}
 			canDelete={canDelete}
+			onAssignPermissions={handleAsignarPermisos}
 		/>
 	);
 }

@@ -6,7 +6,7 @@ export const permisoService = {
 
     listarPermisos: async () => {
         const res = await api.get(PERMISO_URL);
-        return res.data;
+        return res.data.data;
     },
 
     listarPermisosId: async (id) => {
