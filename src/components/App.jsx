@@ -20,6 +20,7 @@ import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor"
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
 import RolesAdminAgregar from "../pages/Admin/Configuracion/Roles/Agregar";
 import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
+import RolesAdminAsignacion from "../pages/Admin/Configuracion/Roles/Asignacion";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
 
 import Dashboard from "../pages/Admin/Dashboard";
@@ -77,6 +78,7 @@ function App() {
 				<Route path="roles" element={<RolesAdmin />} />
 				<Route path="roles/agregar" element={<RolesAdminAgregar />} />
 				<Route path="roles/editar/:id" element={<RolesAdminEditar />} />
+				<Route path="roles/asignar/:id" element={<RolesAdminAsignacion />} />
 				<Route path="usuario" element={<UsuarioAdmin />} />
 				<Route path="usuario/agregar" element={<UsuarioAgregar />} />
 				<Route path="usuario/editar/:id" element={<UsuarioEditar />} />
