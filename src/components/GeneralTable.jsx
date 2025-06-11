@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useMemo, useState } from "react";
-import { FaEye, FaPencilAlt, FaPlus, FaTrash,FaKey  } from "react-icons/fa";
+import { FaEye, FaPencilAlt, FaPlus, FaTrash,FaKey   } from "react-icons/fa";
 import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
 
@@ -15,13 +15,8 @@ const GeneralTable = ({
 	onToggleEstado,
 	idAccessor = "id",
 	stateAccessor = "Estado",
-	searchTerm = "",
-	onSearchChange,
-	currentPage,
-	totalPages,
-	onPageChange,
-	onAssignPermissions,
 	itemsPerPage = 6,
+	onAssignPermissions,
 	canEdit,
 	canDelete,
 	...rest
@@ -213,17 +208,16 @@ GeneralTable.propTypes = {
 	idAccessor: PropTypes.string,
 	stateAccessor: PropTypes.string,
 	itemsPerPage: PropTypes.number,
+	onAssignPermissions: PropTypes.func,
 	canEdit: PropTypes.func,
 	canDelete: PropTypes.func,
-	onAssignPermissions: PropTypes.func,
 };
 
 GeneralTable.defaultProps = {
 	idAccessor: "id",
 	stateAccessor: "Estado",
-	searchTerm: "",
-	onAssignPermissions: () => {},
 	itemsPerPage: 5,
+	onAssignPermissions: () => {},
 };
 
 export default GeneralTable;
