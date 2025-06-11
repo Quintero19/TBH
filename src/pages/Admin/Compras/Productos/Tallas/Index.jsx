@@ -1,211 +1,181 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "../../../../../components/GeneralTable";
 import { catProductoService } from "../../../../../service/categoriaProducto.service";
 import { tallasService } from "../../../../../service/tallas.service";
 
-const columns = [
-	{ header: "ID", accessor: "Id_Tallas" },
-	{ header: "Categoria de Producto", accessor: "NombreCategoria" },
-	{ header: "Nombre", accessor: "Nombre" },
-	{ header: "Estado", accessor: "Estado" },
-];
-
 const Tallas = () => {
+
 	const [categorias, setCategorias] = useState([]);
-	const [data, setData] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
+	const [tallas, setTallas] = useState([]);
 	const navigate = useNavigate();
 
-	const fetchCategorias = useCallback(async () => {
-		try {
-			const response = await catProductoService.obtenerCategorias();
-			setCategorias(response.data);
-		} catch (error) {
-			console.error(
-				"Error al obtener categorías:",
-				error.response?.data || error,
-			);
-		}
-	}, []);
+	const columns = [
+		{ header: "ID", accessor: "Id_Tallas" },
+		{ header: "Categoria de Producto", accessor: "NombreCategoria" },
+		{ header: "Nombre", accessor: "Nombre" },
+		{ header: "Estado", accessor: "Estado" },
+	];
 
-	const fetchData = useCallback(async () => {
+	/* ────────── Cargar Tallas ────────── */
+
+	const fetchTallas = useCallback(async (categoriasData) => {
 		try {
 			const response = await tallasService.obtenerTallas();
-			console.log(response);
-			setData(response.data);
+			setTallas(transformData(response.data, categoriasData));
 		} catch (error) {
-			console.error(
-				"Error al obtener las tallas:",
-				error.response?.data || error,
-			);
+			console.error( "Error al obtener las tallas:", error.response?.data || error);
 		}
 	}, []);
 
+	useEffect(() => {
+		const fetchCategorias = async () => {
+			try {
+				const response = await catProductoService.obtenerCategorias();
+				setCategorias(response.data);
+				await fetchTallas(response.data);
+			} catch (error) {
+				console.error("Error al obtener categorías:", error.response?.data || error);
+			}
+		};
+		fetchCategorias();
+	}, [fetchTallas]);
+
+	/* ─────────────────────────────────── */
+
+	/* ───── Transformación de Datos ───── */
+
 	const transformData = useCallback(
-		(lista) =>
-			lista.map((item) => {
-				const categoria = categorias.find(
-					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
-				);
-				return {
-					...item,
-					NombreCategoria: categoria?.Nombre || "Desconocido",
-				};
-			}),
-		[categorias],
+		(lista, listacategorias) => lista.map((item) => {
+			const categoria = listacategorias.find(
+				(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
+			);
+			return {
+				...item,
+				NombreCategoria: categoria?.Nombre || "Desconocido",
+			};
+		}), [],
 	);
 
-	const filteredData = useMemo(() => {
-		const transformed = transformData(data);
-		const lowerSearch = searchTerm.toLowerCase();
+	/* ─────────────────────────────────── */
 
-		const matchEstado = (estado) => {
-			if (["1", "activo"].includes(lowerSearch))
-				return estado === true || estado === 1 || estado === "Activo";
-			if (["0", "inactivo"].includes(lowerSearch))
-				return estado === false || estado === 0 || estado === "Inactivo";
-			return false;
-		};
-
-		return !searchTerm
-			? transformed
-			: transformed.filter((item) => {
-					return (
-						item.Id_Tallas?.toString().includes(lowerSearch) ||
-						item.NombreCategoria?.toLowerCase().includes(lowerSearch) ||
-						item.Nombre?.toLowerCase().includes(lowerSearch) ||
-						matchEstado(item.Estado)
-					);
-				});
-	}, [data, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-	const paginatedData = useMemo(() => {
-		const start = (currentPage - 1) * itemsPerPage;
-		return filteredData.slice(start, start + itemsPerPage);
-	}, [filteredData, currentPage, itemsPerPage]);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
+	/* ───────── Cambiar Estado ────────── */
 
 	const handleToggleEstado = async (id) => {
 		try {
 			await tallasService.actualizarEstadoTalla(id);
-			await fetchData();
+			await fetchTallas();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
 		}
 	};
 
-	useEffect(() => {
-		fetchCategorias();
-		fetchData();
-	}, [fetchCategorias, fetchData]);
+	/* ─────────────────────────────────── */
+
+	/* ────────── Ir a Agregar ─────────── */
 
 	const handleAdd = () => {
 		navigate("/admin/tallas/agregar");
 	};
 
+	
+	/* ──────────────────────────────────── */
+
+	/* ────────── Ver Detalles ──────────── */
+
 	const handleVerDetalles = async (talla) => {
 		try {
-			Swal.fire({
+			const html = `
+							<div class="text-left">
+								<p><strong>Categoria Producto:</strong> ${talla.NombreCategoria || "-"}</p>
+								<p><strong>Nombre:</strong> ${talla.Nombre || "-"}</p>
+								<p><strong>Estado:</strong> ${talla.Estado ? "Activo" : "Inactivo"}</p>
+							</div>
+			`
+			await showAlert(html, {
 				title: `Detalles Talla ID: ${talla.Id_Tallas}`,
-				html: `
-                    <div class="text-left">
-                        <p><strong>Categoria Producto:</strong> ${talla.NombreCategoria || "-"}</p>
-                        <p><strong>Nombre:</strong> ${talla.Nombre || "-"}</p>
-                        <p><strong>Estado:</strong> ${talla.Estado ? "Activo" : "Inactivo"}</p>
-                    </div>
-                    `,
-				icon: "info",
-				confirmButtonText: "Cerrar",
-				padding: "1rem",
-				confirmButtonColor: "#3085d6",
-				background: "#000",
-				color: "#fff",
+				type: "info",
+				showConfirmButton: true,
+				swalOptions: {
+					confirmButtonText: "Cerrar",
+					padding: "1rem",
+				}
 			});
 		} catch (error) {
 			console.error("Error al obtener la talla:", error);
-			Swal.fire(
-				"Error",
-				"No se pudieron cargar los detalles de la talla",
-				"error",
-			);
+			showAlert(`No se pudieron cargar los detalles de la talla:${error}`, {
+				type: "error",
+				title: "Error",
+			});
 		}
 	};
+
+	/* ──────────────────────────────────── */
+
+	/* ──────────── Ir a Editar ─────────── */
 
 	const handleEdit = (talla) => {
 		navigate(`/admin/tallas/editar/${talla.Id_Tallas}`);
 	};
 
+	/* ───────────────────────────────────── */
+
+	/* ───────────── Eliminar ───────────────*/
+
 	const handleDelete = async (talla) => {
-		const result = await Swal.fire({
-			title: "¿Estás seguro?",
-			text: `¿Deseas Eliminar la Talla "${talla.Nombre}"?`,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-			background: "#000",
-			color: "#fff",
-		});
+		const result = await window.showAlert(
+			`¿Deseas Eliminar la Talla <strong>${talla.Nombre}</strong>?`,
+			{
+				type: "warning",
+				title: "¿Estás seguro?",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, eliminar",
+				cancelButtonText: "Cancelar",
+			}
+		);
 
 		if (result.isConfirmed) {
 			try {
 				await tallasService.eliminarTalla(talla.Id_Tallas);
 
-				await Swal.fire({
-					title: "Eliminada",
-					text: "Talla eliminada correctamente",
-					icon: "success",
-					timer: 2000,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
+				await  window.showAlert("Talla eliminada correctamente",{
+					type: "success",
+					title: "Eliminado",
+					duration: 2000,
 				});
 
-				fetchData();
+				fetchTallas();
 			} catch (error) {
 				console.error("Error Eliminando Talla:", error);
-				const mensaje =
-					error.response?.data?.message || "Error al Eliminar la Talla";
-
-				Swal.fire({
+				const mensaje = error.response?.data?.message || "Error al Eliminar la Talla";
+				
+				window.showAlert(mensaje, {
+					type: "error",
 					title: "Error",
-					text: mensaje,
-					icon: "error",
-					timer: 2500,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
+					duration: 2500,
 				});
 			}
 		}
 	};
+	
+	/* ───────────────────────────────────── */
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
+	/* ───────── Volver a Productos ──────── */
 
 	const returnProductos = () => {
 		navigate("/admin/productos");
 	};
 
+	/* ───────────────────────────────────── */
+
 	return (
 		<GeneralTable
 			title="Tallas"
 			columns={columns}
-			data={paginatedData}
+			data={tallas}
 			onAdd={handleAdd}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
@@ -213,11 +183,6 @@ const Tallas = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Tallas"
 			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
 			return={returnProductos}
 		/>
 	);

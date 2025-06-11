@@ -32,9 +32,6 @@ export default function Usuario() {
 		}, []);
 
 	const [usuarios, setUsuarios] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
 
 	const obtenerUsuarios = useCallback(async () => {
 		try {
@@ -54,43 +51,6 @@ export default function Usuario() {
 		}
 	}, []);
 
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return usuarios;
-
-		const lowerSearch = searchTerm.toLowerCase();
-
-		return usuarios.filter((usuario) => {
-			const docMatch = usuario.Documento?.toLowerCase().includes(lowerSearch);
-			const correoMatch = usuario.Correo?.toLowerCase().includes(lowerSearch);
-			const rolMatch = usuario.Rol_Id?.toString().includes(lowerSearch);
-
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					usuario.Estado === true ||
-					usuario.Estado === 1 ||
-					usuario.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					usuario.Estado === false ||
-					usuario.Estado === 0 ||
-					usuario.Estado === "Inactivo";
-			}
-
-			return docMatch || correoMatch || estadoMatch || rolMatch;
-		});
-	}, [usuarios, searchTerm]);
-
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
-
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
 
 	const handleToggleEstado = async (id) => {
 		try {
@@ -172,19 +132,15 @@ export default function Usuario() {
 		navigate(`/admin/usuario/editar/${usuario.Id_Usuario}`);
 	};
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
-
 	useEffect(() => {
 		obtenerUsuarios();
 	}, [obtenerUsuarios]);
 
 	return (
 		<GeneralTable
-			title={title}
+			title="Gestion De Usuarios"
 			columns={columns}
-			data={paginatedData}
+			data={usuarios}
 			onAdd={() => navigate("/admin/usuario/agregar")}
 			onView={handleVerDetalles}
 			onEdit={handleEdit}
@@ -192,11 +148,6 @@ export default function Usuario() {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Usuario"
 			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
 			canEdit={canEdit}
 			canDelete={canDelete}
 		/>

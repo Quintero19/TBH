@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { FaEye, FaPencilAlt, FaPlus, FaTrash,FaKey  } from "react-icons/fa";
 import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
@@ -21,10 +21,54 @@ const GeneralTable = ({
 	totalPages,
 	onPageChange,
 	onAssignPermissions,
+	itemsPerPage = 6,
 	canEdit,
 	canDelete,
 	...rest
 }) => {
+	const [searchTerm, setSearchTerm] = useState("");
+	const [currentPage, setCurrentPage] = useState(1);
+
+	const lowerSearch = searchTerm.toLowerCase();
+
+	const matchEstado = (estado) => {
+		if (["1", "activo"].includes(lowerSearch))
+			return estado === true || estado === 1 || estado === "Activo";
+		if (["0", "inactivo"].includes(lowerSearch))
+			return estado === false || estado === 0 || estado === "Inactivo";
+		return false;
+	};
+
+	const filteredData = useMemo(() => {
+		if (!searchTerm) return data;
+
+		return data.filter((item) =>
+			columns.some((col) => {
+				const value = item[col.accessor];
+				if (col.accessor === stateAccessor) {
+					return matchEstado(value);
+				}
+				return value?.toString().toLowerCase().includes(lowerSearch);
+			})
+		);
+	}, [searchTerm, data, columns]);
+
+	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+	const paginatedData = useMemo(() => {
+		const start = (currentPage - 1) * itemsPerPage;
+		return filteredData.slice(start, start + itemsPerPage);
+	}, [filteredData, currentPage, itemsPerPage]);
+
+	const handleSearchChange = (e) => {
+		setSearchTerm(e.target.value);
+		setCurrentPage(1);
+	};
+
+	const handlePageChange = (event, value) => {
+		setCurrentPage(value);
+	};
+
 	return (
 		<div className="p-9 w-full">
 			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
@@ -40,7 +84,7 @@ const GeneralTable = ({
 							placeholder="Buscar..."
 							className="p-2 border-none focus:ring-0 outline-none flex-1 h-[30px]"
 							value={searchTerm}
-							onChange={onSearchChange}
+							onChange={handleSearchChange}
 						/>
 					</form>
 
@@ -51,29 +95,21 @@ const GeneralTable = ({
 						</div>
 					</Button>
 
+					{/* Botones específicos para ciertos títulos */}
 					{title === "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="green" onClick={rest.goTallas}>
-									{" "}
-									Tallas
-								</Button>
-								<Button className="green" onClick={rest.goTamanos}>
-									{" "}
-									Tamaños
-								</Button>
+								<Button className="green" onClick={rest.goTallas}>Tallas</Button>
+								<Button className="green" onClick={rest.goTamanos}>Tamaños</Button>
 							</div>
 						</div>
 					)}
 
 					{(title === "Tallas" || title === "Tamaños") && (
 						<div className="flex justify-end flex-1">
-							<div className="flex space-x-2">
-								<Button className="red" onClick={rest.return}>
-									{" "}
-									Volver a Productos
-								</Button>
-							</div>
+							<Button className="red" onClick={rest.return}>
+								Volver a Productos
+							</Button>
 						</div>
 					)}
 				</div>
@@ -87,20 +123,15 @@ const GeneralTable = ({
 										{col.header}
 									</th>
 								))}
-								<th className="p-2 border border-gray-300 text-center">
-									Acciones
-								</th>
+								<th className="p-2 border border-gray-300 text-center">Acciones</th>
 							</tr>
 						</thead>
 						<tbody>
-							{data.length > 0 ? (
-								data.map((row) => (
+							{paginatedData.length > 0 ? (
+								paginatedData.map((row) => (
 									<tr key={row[idAccessor]}>
 										{columns.map((col) => (
-											<td
-												key={col.accessor}
-												className="p-2 border border-gray-300"
-											>
+											<td key={col.accessor} className="p-2 border border-gray-300">
 												{col.accessor === stateAccessor ? (
 													<div className="flex justify-center">
 														<label className="switch">
@@ -122,16 +153,11 @@ const GeneralTable = ({
 												<Button className="blue_b" onClick={() => onView(row)}>
 													<FaEye />
 												</Button>
-
 												{(canEdit ? canEdit(row) : true) && (
-													<Button
-														className="orange_b"
-														onClick={() => onEdit(row)}
-													>
+													<Button className="orange_b" onClick={() => onEdit(row)}>
 														<FaPencilAlt />
 													</Button>
 												)}
-
 												{(canDelete ? canDelete(row) : true) && (
 													<Button className="red" onClick={() => onDelete(row)}>
 														<FaTrash />
@@ -161,14 +187,9 @@ const GeneralTable = ({
 				</div>
 			</div>
 
-			{/* Paginación funcional */}
 			<div className="pagination mt-4">
 				<center>
-					<BasicPagination
-						count={totalPages}
-						page={currentPage}
-						onChange={onPageChange}
-					/>
+					<BasicPagination count={totalPages} page={currentPage} onChange={handlePageChange} />
 				</center>
 			</div>
 		</div>
@@ -181,7 +202,7 @@ GeneralTable.propTypes = {
 		PropTypes.shape({
 			header: PropTypes.string.isRequired,
 			accessor: PropTypes.string.isRequired,
-		}),
+		})
 	).isRequired,
 	data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onAdd: PropTypes.func.isRequired,
@@ -191,11 +212,7 @@ GeneralTable.propTypes = {
 	onToggleEstado: PropTypes.func.isRequired,
 	idAccessor: PropTypes.string,
 	stateAccessor: PropTypes.string,
-	searchTerm: PropTypes.string,
-	onSearchChange: PropTypes.func.isRequired,
-	currentPage: PropTypes.number.isRequired,
-	totalPages: PropTypes.number.isRequired,
-	onPageChange: PropTypes.func.isRequired,
+	itemsPerPage: PropTypes.number,
 	canEdit: PropTypes.func,
 	canDelete: PropTypes.func,
 	onAssignPermissions: PropTypes.func,
@@ -206,6 +223,7 @@ GeneralTable.defaultProps = {
 	stateAccessor: "Estado",
 	searchTerm: "",
 	onAssignPermissions: () => {},
+	itemsPerPage: 5,
 };
 
 export default GeneralTable;

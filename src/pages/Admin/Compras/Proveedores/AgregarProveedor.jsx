@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaSave } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { showAlert } from "@/components/AlertProvider";
 import Button from "../../../../components/Buttons/Button";
 import { proveedorService } from "../../../../service/proveedores.service";
 
@@ -151,50 +151,41 @@ const AgregarProveedor = () => {
 		e.preventDefault();
 
 		if (Object.keys(errors).length > 0) {
-			Swal.fire({
+			showAlert("Por favor Corregir los errores en el formulario", {
+				type: "error",
 				title: "Error",
-				text: "Por favor, corrija los errores en el formulario",
-				icon: "error",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+				duration: 2000,
 			});
 			return;
 		}
 
 		try {
 			await proveedorService.crearProveedor(formData);
-			Swal.fire({
+			showAlert("El proveedor ha sido guardado correctamente.",{
 				title: "¡Éxito!",
-				text: "El proveedor ha sido guardado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+				type: "success",
+				duration: 2000,
 			}).then(() => {
 				navigate("/admin/proveedores");
 			});
-			navigate("/admin/proveedores");
 		} catch (error) {
 			console.error("Error al agregar proveedor:", error);
-			alert("Ocurrió un error al agregar el proveedor.");
+			showAlert("Error al agregar proveedor", {
+				type: "error",
+				title: "Error",
+				duration: 2000,
+			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
+		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
 			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los datos ingresados.",
-			icon: "warning",
+			type: "warning",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
 			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
+			cancelButtonText: "Continuar Registrando",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/proveedores");

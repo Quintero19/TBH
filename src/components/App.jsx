@@ -2,6 +2,8 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import "../styles/css/App.css";
 
+import AgregarCatInsumo from "../pages/Admin/Compras/CategoriaInsumos/AgregarCatInsumo";
+import EditarCatInsumo from "../pages/Admin/Compras/CategoriaInsumos/EditarCatInsumo";
 import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
 import AgregarCatProducto from "../pages/Admin/Compras/CategoriaProductos/AgregarCatProducto";
 import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarCatProducto";
@@ -106,7 +108,15 @@ function App() {
 				<Route path="tallas/agregar" element={<AgregarTalla />} />
 				<Route path="tallas/editar/:id" element={<EditarTalla />} />
 				<Route path="tamanos" element={<Tamanos />} />
+
+				{/*Cat.Insumo*/}
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
+				<Route path="categoriainsumo/agregar" element={<AgregarCatInsumo />} />
+				<Route
+					path="categoriainsumo/editar/:id"
+					element={<EditarCatInsumo />}
+				/>
+
 				<Route path="insumo" element={<InsumoAdmin />} />
 				<Route path="ventas" element={<VentaAdmin />} />
 				<Route path="clientes" element={<ClienteAdmin />} />
