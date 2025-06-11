@@ -18,6 +18,11 @@ export const rolPermisoService = {
     return res.data;
   },
 
+  listarPermisosPorRol: async (rolId) => {
+    const res = await api.get(`${ROL_PERMISO_URL}/rol/${rolId}`);
+    return res.data;
+ },
+
   actualizarRolPermiso: async (id, data) => {
     const res = await api.put(`${ROL_PERMISO_URL}/${id}`, data);
     return res.data;

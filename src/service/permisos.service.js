@@ -11,6 +11,6 @@ export const permisoService = {
 
     listarPermisosId: async (id) => {
         const res = await api.get(`${PERMISO_URL}/${id}`);
-        return res.data;
+        return res.data.data;
     },
 };
