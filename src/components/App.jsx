@@ -85,6 +85,7 @@ function App() {
 				<Route path="empleado" element={<EmpleadoAdmin />} />
 				<Route path="empleado/agregar" element={<AgregarEmpleado />} />
 				<Route path="empleado/editar/:id" element={<EditarEmpleado />} />
+				<Route path="devoluciones" element={<DevolucionesAdmin />} />
 				<Route path="servicios" element={<ServicioAdmin />} />
 				<Route path="servicios/agregar" element={<AgregarServicio />} />
 				<Route path="servicios/editar/:id" element={<EditarServicios />} />
