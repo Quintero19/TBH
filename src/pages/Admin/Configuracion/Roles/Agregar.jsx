@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
@@ -10,7 +10,7 @@ export default function AgregarRol() {
 	const [formData, setFormData] = useState({
 		Nombre: "",
 		Descripcion: "",
-		Estado: "",
+		Estado: true
 	});
 
 	const handleChange = (e) => {
@@ -114,30 +114,13 @@ export default function AgregarRol() {
 						/>
 					</div>
 
-					<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-						<h3 className="text-2xl text-black font-bold mb-2 block">
-							Estado <span className="text-red-500">*</span>
-						</h3>
-						<select
-							name="Estado"
-							value={formData.Estado}
-							onChange={handleChange}
-							className="w-full p-2 border rounded"
-							required
-						>
-							<option value="">Selecciona estado</option>
-							<option value={true}>Activo</option>
-							<option value={false}>Inactivo</option>
-						</select>
-					</div>
-
 					<div className="md:col-span-2 flex gap-2 ml-7">
 						<Button className="green" type="submit">
-							{" "}
+							
 							Guardar
 						</Button>
 						<Button className="red" onClick={handleCancel}>
-							{" "}
+							
 							Cancelar
 						</Button>
 					</div>

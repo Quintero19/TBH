@@ -14,6 +14,12 @@ const GeneralTable = ({
 	onToggleEstado,
 	idAccessor = "id",
 	stateAccessor = "Estado",
+	searchTerm = "",
+	onSearchChange,
+	currentPage,
+	totalPages,
+	onPageChange,
+	onAssignPermissions,
 	itemsPerPage = 6,
 	canEdit,
 	canDelete,
@@ -153,6 +159,14 @@ const GeneralTable = ({
 													<Button className="red" onClick={() => onDelete(row)} icon="fa-trash">
 													</Button>
 												)}
+												{title === "Roles" && row[stateAccessor] && (
+													<Button
+														className="green"
+														onClick={() => onAssignPermissions(row)}
+													>
+														<FaKey />
+													</Button>
+												)}
 											</div>
 										</td>
 									</tr>
@@ -197,11 +211,14 @@ GeneralTable.propTypes = {
 	itemsPerPage: PropTypes.number,
 	canEdit: PropTypes.func,
 	canDelete: PropTypes.func,
+	onAssignPermissions: PropTypes.func,
 };
 
 GeneralTable.defaultProps = {
 	idAccessor: "id",
 	stateAccessor: "Estado",
+	searchTerm: "",
+	onAssignPermissions: () => {},
 	itemsPerPage: 5,
 };
 

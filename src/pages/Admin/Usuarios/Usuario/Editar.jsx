@@ -97,6 +97,12 @@ const EditarUsuario = () => {
 			}
 		}
 
+		if (formData.Password || formData.confirmPassword) {
+			if (formData.Password.length < 8) {
+				return "Las contraseñas debe ser minimo 8 caracteres.";
+			}
+		}
+
 		return null;
 	};
 
