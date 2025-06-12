@@ -1,4 +1,4 @@
-import { React, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "../../../../../components/GeneralTable";
@@ -147,7 +147,7 @@ const Tallas = () => {
 					duration: 2000,
 				});
 
-				fetchTallas();
+				fetchTallas(categorias);
 			} catch (error) {
 				console.error("Error Eliminando Talla:", error);
 				const mensaje = error.response?.data?.message || "Error al Eliminar la Talla";

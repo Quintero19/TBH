@@ -125,10 +125,10 @@ const AgregarTalla = () => {
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green">
+					<Button type="submit" className="green" icon="fa-floppy-o">
 						Guardar
 					</Button>
-					<Button className="red" onClick={handleCancel}>
+					<Button className="red" onClick={handleCancel} icon="fa-times">
 						Cancelar
 					</Button>
 				</div>
