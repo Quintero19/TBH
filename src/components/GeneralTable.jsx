@@ -16,7 +16,6 @@ const GeneralTable = ({
 	stateAccessor = "Estado",
 	onAssignPermissions,
 	itemsPerPage = 6,
-	onAssignPermissions,
 	canEdit,
 	canDelete,
 	...rest
