@@ -16,6 +16,7 @@ const GeneralTable = ({
 	stateAccessor = "Estado",
 	onAssignPermissions,
 	itemsPerPage = 6,
+	onAssignPermissions,
 	canEdit,
 	canDelete,
 	...rest
@@ -204,17 +205,16 @@ GeneralTable.propTypes = {
 	idAccessor: PropTypes.string,
 	stateAccessor: PropTypes.string,
 	itemsPerPage: PropTypes.number,
+	onAssignPermissions: PropTypes.func,
 	canEdit: PropTypes.func,
 	canDelete: PropTypes.func,
-	onAssignPermissions: PropTypes.func,
 };
 
 GeneralTable.defaultProps = {
 	idAccessor: "id",
 	stateAccessor: "Estado",
-	searchTerm: "",
-	onAssignPermissions: () => {},
 	itemsPerPage: 5,
+	onAssignPermissions: () => {},
 };
 
 export default GeneralTable;
