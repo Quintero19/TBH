@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useMemo, useState } from "react";
-import { FaEye, FaPencilAlt, FaPlus, FaTrash } from "react-icons/fa";
 import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
 
@@ -82,9 +81,8 @@ const GeneralTable = ({
 						/>
 					</form>
 
-					<Button className="green" onClick={onAdd}>
+					<Button className="green" onClick={onAdd} icon="fa-plus">
 						<div className="flex items-center gap-2">
-							<FaPlus />
 							Agregar
 						</div>
 					</Button>
@@ -93,15 +91,15 @@ const GeneralTable = ({
 					{title === "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="green" onClick={rest.goTallas}>Tallas</Button>
-								<Button className="green" onClick={rest.goTamanos}>Tamaños</Button>
+								<Button className="green" onClick={rest.goTallas} icon="fa-chevron-right">Tallas</Button>
+								<Button className="green" onClick={rest.goTamanos} icon="fa-chevron-right">Tamaños</Button>
 							</div>
 						</div>
 					)}
 
 					{(title === "Tallas" || title === "Tamaños") && (
 						<div className="flex justify-end flex-1">
-							<Button className="red" onClick={rest.return}>
+							<Button className="red" onClick={rest.return} icon="fa-chevron-left">
 								Volver a Productos
 							</Button>
 						</div>
@@ -144,17 +142,15 @@ const GeneralTable = ({
 										))}
 										<td className="p-2 border border-gray-300 text-center">
 											<div className="flex justify-center gap-2">
-												<Button className="blue_b" onClick={() => onView(row)}>
-													<FaEye />
+												<Button className="blue" onClick={() => onView(row)} icon="fa-eye">
+
 												</Button>
 												{(canEdit ? canEdit(row) : true) && (
-													<Button className="orange_b" onClick={() => onEdit(row)}>
-														<FaPencilAlt />
+													<Button className="orange" onClick={() => onEdit(row)} icon="fa-pencil">
 													</Button>
 												)}
 												{(canDelete ? canDelete(row) : true) && (
-													<Button className="red" onClick={() => onDelete(row)}>
-														<FaTrash />
+													<Button className="red" onClick={() => onDelete(row)} icon="fa-trash">
 													</Button>
 												)}
 											</div>

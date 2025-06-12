@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { FaSave } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Button from "../../../../components/Buttons/Button";
-import Sidebar from "../../../../components/sideBar";
 import { servicioService } from "../../../../service/serviciosService";
 
 const AgregarServicio = () => {
@@ -165,24 +162,21 @@ const AgregarServicio = () => {
 					/>
 				</div>
 
-				<div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
-					<Button type="submit" className="green">
+				<div className="md:col-span-2 flex gap-2 ml-7">
+					<Button type="submit" className="green" icon="fa-floppy-o">
 						<div className="flex items-center gap-2">
-							<FaSave />
 							Guardar
 						</div>
 					</Button>
 
-					<Button type="button" className="red" onClick={handleCancel}>
+					<Button type="button" className="red" onClick={handleCancel} icon="fa-times">
 						<div className="flex items-center gap-2">
-							<IoClose />
 							Cancelar
 						</div>
 					</Button>
 				</div>
 			</form>
 
-			<Sidebar />
 		</>
 	);
 };

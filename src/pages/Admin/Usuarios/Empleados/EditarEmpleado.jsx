@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FaSave } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "../../../../components/Buttons/Button";
@@ -330,21 +328,20 @@ const EditarEmpleado = () => {
           />
         </div>
 
-        <div className="flex justify-end gap-4 md:col-span-2 px-7 mb-5">
+        <div className="md:col-span-2 flex gap-2 ml-7">
           <Button 
             type="submit" 
             className="green"
             disabled={Object.keys(errors).length > 0}
+            icon="fa-floppy-o"
           >
             <div className="flex items-center gap-2">
-              <FaSave />
               Guardar
             </div>
           </Button>
 
-          <Button type="button" className="red" onClick={handleCancel}>
+          <Button type="button" className="red" onClick={handleCancel} icon="fa-times">
             <div className="flex items-center gap-2">
-              <IoClose />
               Cancelar
             </div>
           </Button>

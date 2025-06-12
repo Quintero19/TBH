@@ -147,7 +147,7 @@ const Tallas = () => {
 					duration: 2000,
 				});
 
-				fetchTallas();
+				fetchTallas(categorias);
 			} catch (error) {
 				console.error("Error Eliminando Talla:", error);
 				const mensaje = error.response?.data?.message || "Error al Eliminar la Talla";

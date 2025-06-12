@@ -152,7 +152,7 @@ const Productos = () => {
 					duration: 2000,
 				});
 
-				fetchProductos();
+				fetchProductos(categorias);
 			} catch (error) {
 				console.error("Error Eliminando Producto:", error);
 				const mensaje = error.response?.data?.message || "Error al eliminar el producto";
