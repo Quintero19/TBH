@@ -14,11 +14,6 @@ const GeneralTable = ({
 	onToggleEstado,
 	idAccessor = "id",
 	stateAccessor = "Estado",
-	searchTerm = "",
-	onSearchChange,
-	currentPage,
-	totalPages,
-	onPageChange,
 	onAssignPermissions,
 	itemsPerPage = 6,
 	canEdit,
@@ -163,8 +158,8 @@ const GeneralTable = ({
 													<Button
 														className="green"
 														onClick={() => onAssignPermissions(row)}
+														icon="fa-key"
 													>
-														<FaKey />
 													</Button>
 												)}
 											</div>
