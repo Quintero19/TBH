@@ -140,9 +140,11 @@ const EditarUsuario = () => {
 	const handleCancel = () => {
 		showAlert("Si cancelas, perderás los cambios realizados.",{
 			type: "warning",
-      		showCancelButton: true,
-      		confirmButtonText: "Sí, salir",
-      		cancelButtonText: "No, continuar",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
+			showCancelButton: true,
+			confirmButtonText: "Sí, salir",
+			cancelButtonText: "No, continuar",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/usuario");
@@ -236,10 +238,10 @@ const EditarUsuario = () => {
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green">
+					<Button icon="fa-floppy-o" type="submit" className="green">
 						Guardar
 					</Button>
-					<Button className="red" onClick={handleCancel}>
+					<Button icon="fa-times" className="red" onClick={handleCancel}>
 						Cancelar
 					</Button>
 				</div>

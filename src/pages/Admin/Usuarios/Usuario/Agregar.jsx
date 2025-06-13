@@ -292,11 +292,11 @@ export default function AgregarUsuario() {
 					</div>
 
 					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button className="green" type="submit">
+						<Button icon="fa-floppy-o" className="green" type="submit">
 							{" "}
 							Guardar
 						</Button>
-						<Button className="red" onClick={handleCancel}>
+						<Button icon="fa-times" className="red" onClick={handleCancel}>
 							{" "}
 							Cancelar
 						</Button>
