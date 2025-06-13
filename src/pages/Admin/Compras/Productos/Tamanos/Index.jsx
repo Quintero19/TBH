@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import GeneralTable from "../../../../../components/GeneralTable";
-import { tamanosService } from "../../../../../service/tamanos.service";
+import GeneralTable from "@/components/GeneralTable";
+import { tamanosService } from "@/service/tamanos.service";
 
 const Tamanos = () => {
 

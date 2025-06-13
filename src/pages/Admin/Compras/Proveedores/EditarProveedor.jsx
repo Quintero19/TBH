@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FaSave } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import Button from "../../../../components/Buttons/Button";
-import { proveedorService } from "../../../../service/proveedores.service";
+import Button from "@/components/Buttons/Button";
+import { proveedorService } from "@/service/proveedores.service";
 
 const EditarProveedor = () => {
 	const { id } = useParams();

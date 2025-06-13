@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import Button from "../../../../components/Buttons/Button";
-import { catProductoService } from "../../../../service/categoriaProducto.service";
+import Button from "@/components/Buttons/Button";
+import { catProductoService } from "@/service/categoriaProducto.service";
 
 const AgregarCatProducto = () => {
 	const navigate = useNavigate();

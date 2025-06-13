@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 import { showAlert } from "@/components/AlertProvider";
-import Button from "../../../../components/Buttons/Button";
-import { catProductoService } from "../../../../service/categoriaProducto.service";
+import Button from "@/components/Buttons/Button";
+import { catProductoService } from "@/service/categoriaProducto.service";
 
 const EditarCatProducto = () => {
 	const { id } = useParams();
@@ -93,7 +92,7 @@ const EditarCatProducto = () => {
 
 		try {
 			await catProductoService.actualizarCategoria(id, formData);
-			showAlert("La Categoria ha sido actualizado correctamente.",{
+			showAlert("La Categoria ha sido actualizada correctamente.",{
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
