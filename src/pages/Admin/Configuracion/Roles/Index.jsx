@@ -139,7 +139,7 @@ const handleVerDetalles = async (rol) => {
 		`;
 
 		await showAlert(html, {
-		title: '',
+		title: 'Ver Detalle de Roles',
 		width: '640px',
 		background: '#111827',
 		color: '#ffffff',
