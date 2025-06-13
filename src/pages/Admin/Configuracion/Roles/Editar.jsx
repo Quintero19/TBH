@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
-import Button from "../../../../components/Buttons/Button";
-import { rolService } from "../../../../service/roles.service";
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { rolService } from "@/service/roles.service";
 
 const EditarRol = () => {
 	const { id } = useParams();
@@ -20,11 +20,10 @@ const EditarRol = () => {
 				const data = await rolService.listarRolesId(id);
 				setFormData(data.data);
 			} catch (error) {
-				console.error("Error al cargar Rol:", error);
-				Swal.fire({
+				console.error(error);
+				showAlert("Error al cargar Rol:", {
 					title: "Error",
 					text: "No se pudo cargar el Rol",
-					icon: "error",
 				});
 				navigate("/admin/roles");
 			}
@@ -41,44 +40,74 @@ const EditarRol = () => {
 		});
 	};
 
+	const validarCampos = () => {
+		const soloLetrasEspacios = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+		const { Nombre, Descripcion } = formData;
+
+		if (Nombre.length < 5 || Nombre.length > 30) {
+			showAlert("El nombre debe tener entre 5 y 30 caracteres.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		if (!soloLetrasEspacios.test(Nombre)) {
+			showAlert("El nombre solo debe contener letras y espacios.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		if (!soloLetrasEspacios.test(Descripcion)) {
+			showAlert("La descripción solo debe contener letras y espacios.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		if (Nombre.startsWith(" ") || Descripcion.startsWith(" ")) {
+			showAlert("Los campos no deben comenzar con un espacio.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		return true;
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
+		if (!validarCampos()) return;
+
 		try {
 			await rolService.actualizarRoles(id, formData);
-			Swal.fire({
-				title: "¡Éxito!",
-				text: "El rol ha sido actualizado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
-			}).then(() => {
-				navigate("/admin/roles");
+			showAlert("El rol ha sido actualizado correctamente.", {
+				type: "success",
+				duration: 1500,
 			});
+			navigate("/admin/roles");
 		} catch (error) {
-			console.error("Error al actualizar rol:", error);
-			Swal.fire({
+			console.error(error);
+			showAlert("Error al actualizar rol:", {
 				title: "Error",
 				text: "No se pudo actualizar el rol.",
-				icon: "error",
 			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
-			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los cambios realizados.",
-			icon: "warning",
+		showAlert("Si cancelas, perderás los cambios realizados.", {
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, cancelar",
+			confirmButtonText: "Sí, salir",
 			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/roles");
@@ -90,7 +119,7 @@ const EditarRol = () => {
 		<div className="flex">
 			<div className="grow p-6">
 				<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-					Agregar Roles
+					Editar Roles
 				</h1>
 
 				<form
@@ -143,12 +172,10 @@ const EditarRol = () => {
 					</div>
 
 					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button className="green" type="submit">
-							{" "}
+						<Button  icon="fa-floppy-o" className="green" type="submit">
 							Guardar
 						</Button>
-						<Button className="red" onClick={handleCancel}>
-							{" "}
+						<Button icon="fa-times" className="red" onClick={handleCancel}>
 							Cancelar
 						</Button>
 					</div>

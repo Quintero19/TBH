@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
-import Button from "../../../../components/Buttons/Button";
-import { rolService } from "../../../../service/roles.service";
-import { userService } from "../../../../service/usuario.service";
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { rolService } from "@/service/roles.service";
+import { userService } from "@/service/usuario.service";
 
 const EditarUsuario = () => {
 	const { id } = useParams();
@@ -15,12 +15,10 @@ const EditarUsuario = () => {
 	useEffect(() => {
 		const cargarUsuarioYRoles = async () => {
 			if (!id) {
-				Swal.fire({
-					title: "Error",
-					text: "ID de usuario no proporcionado.",
-					icon: "error",
-					background: "#000",
-					color: "#fff",
+				showAlert("ID de usuario no proporcionado.",{
+					type: "error",
+					title: "Datos inválidos",
+					duration: 2000,
 				});
 				navigate("/admin/usuario");
 				return;
@@ -46,12 +44,10 @@ const EditarUsuario = () => {
 				}
 			} catch (error) {
 				console.error("Error al cargar datos:", error);
-				Swal.fire({
-					title: "Error",
-					text: "No se pudo cargar el usuario o los roles.",
-					icon: "error",
-					background: "#000",
-					color: "#fff",
+				showAlert("No se pudo cargar el usuario o los roles.",{
+					type: "error",
+					title: "Datos inválidos",
+					duration: 2000,
 				});
 				navigate("/admin/usuario");
 			}
@@ -113,12 +109,9 @@ const EditarUsuario = () => {
 			const usuarios = await userService.listarUsuarios();
 			const error = validarFormulario(usuarios);
 			if (error) {
-				Swal.fire({
+				showAlert({
 					title: "Error",
-					text: error,
-					icon: "error",
-					background: "#000",
-					color: "#fff",
+					type: "error",
 				});
 				return;
 			}
@@ -129,41 +122,29 @@ const EditarUsuario = () => {
 
 			await userService.actualizarUsuario(id, dataToSend);
 
-			Swal.fire({
-				title: "¡Éxito!",
-				text: "El usuario ha sido actualizado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+			showAlert("El usuario ha sido actualizado correctamente.",{
+				type: "success",
+        		duration: 1500,
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
 		} catch (error) {
-			console.error("Error al actualizar usuario:", error);
-			Swal.fire({
+			console.error(err);
+				showAlert(`Error al guardar: ${err.message}`, {
+				type: "error",
 				title: "Error",
-				text: "No se pudo actualizar el usuario.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
 			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
-			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los cambios realizados.",
-			icon: "warning",
+		showAlert("Si cancelas, perderás los cambios realizados.",{
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, cancelar",
+			confirmButtonText: "Sí, salir",
 			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/usuario");
@@ -257,10 +238,10 @@ const EditarUsuario = () => {
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green">
+					<Button icon="fa-floppy-o" type="submit" className="green">
 						Guardar
 					</Button>
-					<Button className="red" onClick={handleCancel}>
+					<Button icon="fa-times" className="red" onClick={handleCancel}>
 						Cancelar
 					</Button>
 				</div>

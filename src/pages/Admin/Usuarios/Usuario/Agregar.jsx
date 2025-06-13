@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import Button from "../../../../components/Buttons/Button";
-import { rolService } from "../../../../service/roles.service";
-import { userService } from "../../../../service/usuario.service";
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { rolService } from "@/service/roles.service";
+import { userService } from "@/service/usuario.service";
 
 export default function AgregarUsuario() {
 	const navigate = useNavigate();
@@ -62,101 +62,83 @@ export default function AgregarUsuario() {
 		e.preventDefault();
 
 		if (!formData.Documento) {
-			Swal.fire({
-				title: "Error",
-				text: "Debe Completar el campo documento.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Debe Completar el campo documento.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (formData.Documento.length < 7 || formData.Documento.length > 15) {
-			Swal.fire({
-				title: "Error",
-				text: "El documento debe tener entre 7 y 15 dígitos.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("El documento debe tener entre 7 y 15 dígitos.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (!formData.Correo) {
-			Swal.fire({
-				title: "Error",
-				text: "Debe Completar el campo correo.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Debe Completar el campo correo.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!correoRegex.test(formData.Correo)) {
-			Swal.fire({
-				title: "Error",
-				text: "El correo ingresado no es válido.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("El correo ingresado no es válido.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (!formData.Password) {
-			Swal.fire({
-				title: "Error",
-				text: "Debe Completar el campo contraseña.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Debe Completar el campo contraseña.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (formData.Password.length < 8) {
-			Swal.fire({
-				title: "Error",
-				text: "La contraseña debe tener al menos 8 caracteres.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("La contraseña debe tener al menos 8 caracteres.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (!formData.confirmPassword) {
-			Swal.fire({
-				title: "Error",
-				text: "Debe Completar el campo confirmar contraseña.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Debe Completar el campo confirmar contraseña.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (formData.Password !== formData.confirmPassword) {
-			Swal.fire({
-				title: "Error",
-				text: "Las contraseñas no coinciden.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Las contraseñas no coinciden.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
 
 		if (!formData.Rol_Id) {
-			Swal.fire({
-				title: "Error",
-				text: "Debe seleccionar un rol.",
-				icon: "error",
-				background: "#000",
-				color: "#fff",
+			showAlert("Debe seleccionar un rol.",{
+				type: "error",
+				title: "Datos inválidos",
+				duration: 2000,
 			});
 			return;
 		}
@@ -168,12 +150,10 @@ export default function AgregarUsuario() {
 				(u) => u.Documento.toString() === formData.Documento.toString(),
 			);
 			if (existeDocumento) {
-				Swal.fire({
-					title: "Error",
-					text: "El documento ya está registrado.",
-					icon: "error",
-					background: "#000",
-					color: "#fff",
+				showAlert("El documento ya está registrado.",{
+					type: "error",
+					title: "Datos inválidos",
+					duration: 2000,
 				});
 				return;
 			}
@@ -182,12 +162,10 @@ export default function AgregarUsuario() {
 				(u) => u.Correo.toLowerCase() === formData.Correo.toLowerCase(),
 			);
 			if (existeCorreo) {
-				Swal.fire({
-					title: "Error",
-					text: "El correo ya está registrado.",
-					icon: "error",
-					background: "#000",
-					color: "#fff",
+				showAlert("El correo ya está registrado.",{
+					type: "error",
+					title: "Datos inválidos",
+					duration: 2000,
 				});
 				return;
 			}
@@ -200,41 +178,29 @@ export default function AgregarUsuario() {
 
 			await userService.crearUsuario(usuarioFinal);
 
-			Swal.fire({
-				title: "¡Éxito!",
-				text: "El usuario ha sido guardado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+			showAlert("El usuario ha sido guardado correctamente.",{
+				type: "success",
+				duration: 1500,
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
 		} catch (error) {
-			Swal.fire({
-				title: "Error",
-				text: error.message || "Ocurrió un error al guardar el usuario.",
-				icon: "error",
-				confirmButtonText: "Aceptar",
-				background: "#000",
-				color: "#fff",
-			});
+			console.error(err);
+				showAlert(`Error al guardar: ${err.message}`, {
+					type: "error",
+					title: "Error",
+				});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
-			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los datos ingresados.",
-			icon: "warning",
+		showAlert( "Si cancelas, perderás los datos ingresados.",{
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, cancelar",
+			confirmButtonText: "Sí, salir",
 			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/usuario");
@@ -271,7 +237,7 @@ export default function AgregarUsuario() {
 							Correo <span className="text-red-500">*</span>
 						</h3>
 						<input
-							type="email"
+							type="text"
 							name="Correo"
 							value={formData.Correo}
 							onChange={handleChange}
@@ -326,11 +292,11 @@ export default function AgregarUsuario() {
 					</div>
 
 					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button className="green" type="submit">
+						<Button icon="fa-floppy-o" className="green" type="submit">
 							{" "}
 							Guardar
 						</Button>
-						<Button className="red" onClick={handleCancel}>
+						<Button icon="fa-times" className="red" onClick={handleCancel}>
 							{" "}
 							Cancelar
 						</Button>
