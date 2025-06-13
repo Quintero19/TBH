@@ -1,8 +1,8 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import Button from "../../../../components/Buttons/Button";
-import { rolService } from "../../../../service/roles.service";
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { rolService } from "@/service/roles.service";
 
 export default function AgregarRol() {
 	const navigate = useNavigate();
@@ -10,64 +10,93 @@ export default function AgregarRol() {
 	const [formData, setFormData] = useState({
 		Nombre: "",
 		Descripcion: "",
-		Estado: true
+		Estado: true,
 	});
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-
 		let val = value;
 
 		if (name === "Estado") {
 			val = value === "true";
 		}
+
 		setFormData({
 			...formData,
 			[name]: val,
 		});
 	};
 
+	const validarCampos = () => {
+		const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+		const { Nombre, Descripcion } = formData;
+
+		if (Nombre.length < 5 || Nombre.length > 30) {
+			showAlert("El nombre debe tener entre 5 y 30 caracteres.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		if (!nombreRegex.test(Nombre)) {
+			showAlert("El nombre solo debe contener letras y espacios.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+		if (!nombreRegex.test(Descripcion)) {
+			showAlert("La descripción solo debe contener letras y espacios.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+		if (Nombre.startsWith(" ") || Descripcion.startsWith(" ")) {
+			showAlert("Los campos no deben comenzar con un espacio.", {
+				type: "error",
+				title: "Validación",
+			});
+			return false;
+		}
+
+
+		return true;
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		if (!validarCampos()) return;
 
 		try {
 			await rolService.crearRoles(formData);
 
-			Swal.fire({
-				title: "¡Éxito!",
-				text: "El Rol ha sido guardado correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+			showAlert("El Rol ha sido guardado correctamente.", {
+				type: "success",
+				duration: 1500,
 			}).then(() => {
 				navigate("/admin/roles");
 			});
-		} catch (error) {
-			Swal.fire({
+		} catch (err) {
+			console.error(err);
+			showAlert(`Error al guardar: ${err.message}`, {
+				type: "error",
 				title: "Error",
-				text: error.message || "Ocurrió un error al guardar el rol.",
-				icon: "error",
-				confirmButtonText: "Aceptar",
-				background: "#000",
-				color: "#fff",
 			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
-			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los datos ingresados.",
-			icon: "warning",
+		showAlert("Si cancelas, perderás los datos ingresados.", {
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, cancelar",
+			confirmButtonText: "Sí, salir",
 			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/roles");
@@ -115,12 +144,10 @@ export default function AgregarRol() {
 					</div>
 
 					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button className="green" type="submit">
-							
+						<Button icon="fa-floppy-o" className="green" type="submit">
 							Guardar
 						</Button>
-						<Button className="red" onClick={handleCancel}>
-							
+						<Button icon="fa-times" className="red" onClick={handleCancel}>
 							Cancelar
 						</Button>
 					</div>

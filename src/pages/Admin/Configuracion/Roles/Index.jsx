@@ -1,8 +1,8 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import GeneralTable from "../../../../components/GeneralTable";
-import { rolService } from "../../../../service/roles.service";
+import { showAlert } from "@/components/AlertProvider";
+import GeneralTable from "@/components/GeneralTable";
+import { rolService } from "@/service/roles.service";
 
 export default function Rol() {
 	const navigate = useNavigate();
@@ -46,65 +46,123 @@ export default function Rol() {
 	};
 
 	const handleDelete = async (rol) => {
-		const result = await Swal.fire({
-			title: "¿Estás seguro?",
-			text: `¿Deseas eliminar el rol "${rol.Nombre}"?`,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-			background: "#000",
-			color: "#fff",
-		});
+		const result = await showAlert(
+				`¿Estás seguro que quieres eliminar la rol "<strong>${rol.Nombre}</strong>"? Esta acción no se puede deshacer.`,
+				{
+					type: "warning",
+					title: "Confirmar eliminación",
+					showConfirmButton: true,
+					showCancelButton: true,
+					confirmButtonText: "Sí, eliminar",
+					cancelButtonText: "Cancelar",
+				}
+				);
 
 		if (result.isConfirmed) {
 			try {
 				await rolService.eliminarRoles(rol.Id);
-				await Swal.fire({
-					title: "Eliminado",
-					text: "Rol eliminado correctamente",
-					icon: "success",
-					timer: 2000,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
+				await showAlert("Rol eliminado correctamente.", {
+						type: "success",
+						title: "Éxito",
+						duration: 2000,
+					});
 				await obtenerRoles();
 			} catch (error) {
-				console.error("Error al eliminar el rol:", error);
-				Swal.fire({
+				const mensaje =
+					error?.response?.data?.message ||
+					"No se pudo eliminar el rol.";
+				await showAlert(mensaje, {
+					type: "error",
 					title: "Error",
-					text: "No se pudo eliminar el rol",
-					icon: "error",
-					timer: 2500,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
+					showConfirmButton: true,
+					confirmButtonText: "Cerrar",
 				});
 			}
 		}
 	};
 
-	const handleVerDetalles = (rol) => {
-		Swal.fire({
-			title: "Detalles del Rol",
-			html: `
-        <div class="text-left">
-          <p><strong>ID:</strong> ${rol.Id}</p>
-          <p><strong>Nombre:</strong> ${rol.Nombre}</p>
-          <p><strong>Descripción:</strong> ${rol.Descripcion}</p>
-          <p><strong>Estado:</strong> ${rol.Estado ? "Activo" : "Inactivo"}</p>
-        </div>
-      `,
-			icon: "info",
-			confirmButtonText: "Cerrar",
-			padding: "1rem",
-			confirmButtonColor: "#3085d6",
-			background: "#000",
-			color: "#fff",
+const handleVerDetalles = async (rol) => {
+	try {
+		const html = `
+		<div class="space-y-7 text-gray-100">
+			<!-- Encabezado -->
+			<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
+			<h3 class="text-xl font-bold text-white">Detalles de Rol</h3>
+			<span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+				ID: ${rol.Id ?? "N/A"}
+			</span>
+			</div>
+
+			<!-- Campos -->
+			<div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+			<!-- Nombre -->
+			<div class="relative">
+				<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+				Nombre
+				</label>
+				<div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+				<div class="font-medium text-white">${rol.Nombre ?? "-"}</div>
+				</div>
+			</div>
+
+			<!-- Estado -->
+			<div class="relative">
+				<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+				Estado
+				</label>
+				<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
+				rol.Estado
+					? 'bg-[#112d25] border-emerald-500/30'
+					: 'bg-[#2c1a1d] border-rose-500/30'
+				}">
+				<div class="font-medium ${
+					rol.Estado ? 'text-emerald-300' : 'text-rose-300'
+				}">
+					${rol.Estado ? "Activo" : "Inactivo"}
+				</div>
+				</div>
+			</div>
+
+			<!-- Descripción -->
+			<div class="relative md:col-span-2">
+				<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+				Descripción
+				</label>
+				<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
+				<div class="text-gray-200 ${!rol.Descripcion ? 'italic text-gray-400' : ''}">
+					${rol.Descripcion || "No hay descripción disponible"}
+				</div>
+				</div>
+			</div>
+			</div>
+		</div>
+		`;
+
+		await showAlert(html, {
+		title: '',
+		width: '640px',
+		background: '#111827',
+		color: '#ffffff',
+		padding: '1.5rem',
+		confirmButtonText: 'Cerrar',
+		confirmButtonColor: '#4f46e5',
+		customClass: {
+			popup: 'rounded-xl shadow-2xl border border-gray-700/50',
+			confirmButton: 'px-6 py-2 font-medium rounded-lg mt-4'
+		}
 		});
+
+	} catch (error) {
+		console.error(error);
+		await showAlert(`Error: ${error.message || error}`, {
+		title: 'Error',
+		icon: 'error',
+		background: '#1f2937',
+		color: '#ffffff',
+		width: '500px',
+		confirmButtonColor: '#dc2626'
+		});
+	}
 	};
 
 	const handleEdit = (rol) => {

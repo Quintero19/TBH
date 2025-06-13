@@ -1,39 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
-import Button from "../../../../components/Buttons/Button";
-import { rolService } from "../../../../service/roles.service";
-import { permisoService } from '../../../../service/permisos.service';
-import { rolPermisoService } from '../../../../service/asignacionPermiso';
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { rolService } from "@/service/roles.service";
+import { permisoService } from '@/service/permisos.service';
+import { rolPermisoService } from '@/service/asignacionPermiso';
 
 const AsignarRol = () => {
     const { id } = useParams(); 
     const navigate = useNavigate();
+    const [busqueda, setBusqueda] = useState("");
+
 
     const [rol, setRol] = useState({});
     const [permisos, setPermisos] = useState([]);
     const [permisosSeleccionados, setPermisosSeleccionados] = useState([]);
 
     useEffect(() => {
-  const cargarDatos = async () => {
-    try {
-      const permisosData = await permisoService.listarPermisos();
-      const permisosAsignadosData = await rolPermisoService.listarPermisosPorRol(id);
+        const cargarDatos = async () => {
+            try {
+            const permisosData = await permisoService.listarPermisos();
+            const permisosAsignadosData = await rolPermisoService.listarPermisosPorRol(id);
+            const rolData = await rolService.listarRolesId(id);
 
-      setPermisos(
-        Array.isArray(permisosData) ? permisosData :
-        Array.isArray(permisosData.permisos) ? permisosData.permisos : []
-      );
+            setPermisos(
+                Array.isArray(permisosData) ? permisosData :
+                Array.isArray(permisosData.permisos) ? permisosData.permisos : []
+            );
 
-      const permisosAsignados = permisosAsignadosData.data.map(p => p.Permiso_Id);
-      setPermisosSeleccionados(permisosAsignados);
-    } catch (error) {
-      console.error("Error al cargar permisos:", error);
-    }
-  };
+            const permisosAsignados = permisosAsignadosData.data.map(p => p.Permiso_Id);
+            setPermisosSeleccionados(permisosAsignados);
+            setRol(rolData); 
+            } catch (error) {
+            console.error("Error al cargar datos:", error);
+            }
+        };
 
-  cargarDatos();
-}, [id]);
+        cargarDatos();
+        }, [id]);
 
 
    const togglePermiso = (permisoId) => {
@@ -46,6 +50,13 @@ const AsignarRol = () => {
 
     const handleSubmit = async (e) => {
             e.preventDefault();
+
+             if (permisosSeleccionados.length === 0) {
+                showAlert("Advertencia Debe seleccionar al menos un permiso", {
+                    type: "warning"
+                });
+                return;
+            }
     
             try {
                 const payload = {
@@ -53,74 +64,89 @@ const AsignarRol = () => {
                     Permisos: permisosSeleccionados,
                 };
 
-                console.log(payload)
-
                 await rolPermisoService.crearRolPermiso(payload);
 
-                Swal.fire("¡Éxito!", "Permisos asignados correctamente", "success").then(() =>
+                showAlert("¡Éxito! Permisos asignados correctamente", {
+                    type: "success",
+				    duration: 1500,
+                });
                     navigate("/admin/roles")
-                );
             } catch (error) {
                 console.error("Error al asignar permisos:", error);
-                Swal.fire("Error", "No se pudieron asignar los permisos", "error");
+                showAlert("Error", "No se pudieron asignar los permisos", "error");
             }
 };
 
 
     const handleCancel = () => {
-        Swal.fire({
-            title: "¿Cancelar?",
-            text: "Los cambios no se guardarán.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, salir",
-            cancelButtonText: "No",
-            background: "#000",
-			color: "#fff",
+        showAlert("Si cancelas, perderás los datos ingresados.", {
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
+			showCancelButton: true,
+			confirmButtonText: "Sí, salir",
+			cancelButtonText: "No, continuar",
         }).then((result) => {
             if (result.isConfirmed) navigate("/admin/roles");
         });
     };
 
-    return (
-        <div className="flex">
-            <div className="grow p-6">
-                <h1 className="text-4xl font-bold mb-6 text-black">
-                    Asignar Permisos a Rol: <span className="text-red-600">{rol.Nombre}</span>
-                </h1>
-
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
-                    <div className="md:col-span-2 m-7 bg-white shadow border-2 border-gray-200 rounded-lg p-5">
-							<h3 className="text-2xl text-black font-bold mb-4">
-								Seleccionar Permisos
-							</h3>
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-								{permisos.map((permisos) => (
-									<label key={permisos.Id} className="...">
-										<input
-										type="checkbox"
-										checked={permisosSeleccionados.includes(permisos.Id)}
-										onChange={() => togglePermiso(permisos.Id)}
-										/>
-										<span className="text-black">{permisos.Nombre}</span>
-									</label>
-									))}
-							</div>
-						</div>
-					
-
-                    <div className="flex gap-3">
-                        <Button className="green" type="submit">
-                            Guardar
-                        </Button>
-                        <Button className="red" onClick={handleCancel}>
-                            Cancelar
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    const permisosFiltrados = permisos.filter((permiso) =>
+	    permiso.Nombre.toLowerCase().includes(busqueda.toLowerCase())
     );
+
+
+   return (
+	<div>
+		<div className="w-full  p-8">
+			<h1 className="text-4xl font-bold text-gray-800 mb-6">
+				Asignar Permisos a Rol: <span className="text-blue-600">{rol?.data?.Nombre || "Cargando..."}</span>
+			</h1>
+
+            <div className="mb-8">
+                <input
+                    type="text"
+                    placeholder="Buscar permiso..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-400"
+                />
+            </div>
+
+
+			<form onSubmit={handleSubmit} className="space-y-8">
+				<div>
+					<h3 className="text-4 font-semibold mb-4">Seleccionar Permisos</h3>
+					<div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 gap-4">
+						{permisosFiltrados.map((permiso) => (
+                            <label
+                                key={permiso.Id}
+                                className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-300 transition"
+                            >
+                                <input
+                                    type="checkbox"
+                                    className="accent-blue-600 w-5 h-5"
+                                    checked={permisosSeleccionados.includes(permiso.Id)}
+                                    onChange={() => togglePermiso(permiso.Id)}
+                                />
+                                <span className="text-gray-800 ">{permiso.Nombre}</span>
+                            </label>
+                        ))}
+					</div>
+				</div>
+
+				<div className="md:col-span-2 flex gap-4">
+                    <Button icon="fa-floppy-o" className="green" type="submit">
+                        Guardar
+                    </Button>
+                    <Button icon="fa-times" className="red" onClick={handleCancel}>
+                        Cancelar
+                    </Button>
+                </div>
+			</form>
+		</div>
+	</div>
+);
 };
 
 export default AsignarRol;
