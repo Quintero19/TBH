@@ -1,9 +1,9 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import GeneralTable from "../../../../components/GeneralTable";
-import { userService } from "../../../../service/usuario.service";
-import { rolService } from "../../../../service/roles.service.js"
+import GeneralTable from "@/components/GeneralTable";
+import { userService } from "@/service/usuario.service";
+import { rolService } from "@/service/roles.service.js"
 
 export default function Usuario() {
 	const navigate = useNavigate();
