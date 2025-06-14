@@ -2,39 +2,34 @@ import api from "../utils/api";
 
 const USER_URL = "/compras";
 
-export const proveedorService = {
-    crearProveedor: async (data) => {
+export const compraService = {
+    crearCompra: async (data) => {
         const res = await api.post(USER_URL, data);
         return res.data;
     },
 
-    obtenerProveedores: async () => {
+    obtenerCompras: async () => {
         const res = await api.get(USER_URL);
         return res.data;
     },
 
-    obtenerProveedoresActivos: async () => {
-        const res = await api.get(`${USER_URL}/activos`);
-        return res.data;
-    },
-
-    obtenerProveedorPorId: async (id) => {
+    obtenerCompraPorId: async (id) => {
         const res = await api.get(`${USER_URL}/${id}`);
         return res.data;
     },
 
-    actualizarProveedor: async (id, proveedor) => {
-        const res = await api.put(`${USER_URL}/${id}`, proveedor);
+    obtenerCompraConDetalles: async (id) => {
+        const res = await api.get(`${USER_URL}/detalles/${id}`);
         return res.data;
     },
 
-    actualizarEstadoProveedor: async (id) => {
+    crearDetallesCompra: async (data) => {
+        const res = await api.post(`${USER_URL}/detalles-compra`, data);
+        return res.data;
+    },
+
+    cambiarEstadoCompra: async (id) => {
         const res = await api.put(`${USER_URL}/estado/${id}`);
-        return res.data;
-    },
-
-    eliminarProveedor: async (id) => {
-        const res = await api.delete(`${USER_URL}/${id}`);
         return res.data;
     },
 };

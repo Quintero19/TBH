@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import GeneralTable from "../../../../../components/GeneralTable";
-import { catProductoService } from "../../../../../service/categoriaProducto.service";
-import { tallasService } from "../../../../../service/tallas.service";
+import GeneralTable from "@/components/GeneralTable";
+import { catProductoService } from "@/service/categoriaProducto.service";
+import { tallasService } from "@/service/tallas.service";
 
 const Tallas = () => {
 

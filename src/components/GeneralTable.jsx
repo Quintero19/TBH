@@ -26,10 +26,10 @@ const GeneralTable = ({
 	const lowerSearch = searchTerm.toLowerCase();
 
 	const matchEstado = (estado) => {
-		if (["1", "activo"].includes(lowerSearch))
-			return estado === true || estado === 1 || estado === "Activo";
-		if (["0", "inactivo"].includes(lowerSearch))
-			return estado === false || estado === 0 || estado === "Inactivo";
+		if (["1", "activo", "completada"].includes(lowerSearch))
+			return estado === true || estado === 1 || estado === "Activo" || estado === "Completada";
+		if (["0", "inactivo", "anulada"].includes(lowerSearch))
+			return estado === false || estado === 0 || estado === "Inactivo" || estado === "Anulada";
 		return false;
 	};
 
@@ -65,7 +65,7 @@ const GeneralTable = ({
 
 	return (
 		<div className="p-9 w-full">
-			<h1 className="text-5xl font-bold mb-4 text-black">{title}</h1>
+			<h1 className="text-5xl font-bold mb-4 text-black">Gestion de {title}</h1>
 
 			<div className="p-4 bg-white rounded-lg mb-4 shadow-md">
 				<div className="flex items-center w-full gap-2">
@@ -125,7 +125,7 @@ const GeneralTable = ({
 									<tr key={row[idAccessor]}>
 										{columns.map((col) => (
 											<td key={col.accessor} className="p-2 border border-gray-300">
-												{col.accessor === stateAccessor ? (
+												{col.accessor === stateAccessor ? ( title !== "Compras" && title !== "Ventas" ? (
 													<div className="flex justify-center">
 														<label className="switch">
 															<input
@@ -137,31 +137,44 @@ const GeneralTable = ({
 														</label>
 													</div>
 												) : (
+													<div className="text-center font-semibold">
+														<span className={row[stateAccessor] ? 'text-green-600' : 'text-red-600'}>
+															{row[stateAccessor] ? 'Completada' : 'Anulada'}
+														</span>
+													</div>
+													)
+												) : (
 													row[col.accessor]
 												)}
+
 											</td>
 										))}
 										<td className="p-2 border border-gray-300 text-center">
 											<div className="flex justify-center gap-2">
-												<Button className="blue" onClick={() => onView(row)} icon="fa-eye">
-
-												</Button>
-												{(canEdit ? canEdit(row) : true) && (
-													<Button className="orange" onClick={() => onEdit(row)} icon="fa-pencil">
-													</Button>
+												{/* Siempre visible */}
+												<Button className="blue" onClick={() => onView(row)} icon="fa-eye" />
+													
+												{title !== "Compras" && title !== "Ventas" && (canEdit ? canEdit(row) : true) && (
+													<Button className="orange" onClick={() => onEdit(row)} icon="fa-pencil" />
 												)}
-												{(canDelete ? canDelete(row) : true) && (
-													<Button className="red" onClick={() => onDelete(row)} icon="fa-trash">
-													</Button>
+												{title !== "Compras" && title !== "Ventas" && (canDelete ? canDelete(row) : true) && (
+													<Button className="red" onClick={() => onDelete(row)} icon="fa-trash" />
 												)}
 												{title === "Roles" && row[stateAccessor] && (
 													<Button
 														className="green"
 														onClick={() => onAssignPermissions(row)}
 														icon="fa-key"
-													>
-													</Button>
+													/>
 												)}
+												{(title === "Compras" || title === "Ventas") &&
+													(row[stateAccessor] === true) && (
+														<Button
+															className="red"
+															onClick={() => rest.onCancel(row[idAccessor])}
+															icon="fa-times"
+														/>
+													)}
 											</div>
 										</td>
 									</tr>

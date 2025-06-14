@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import Button from "../../../../components/Buttons/Button";
-import { proveedorService } from "../../../../service/proveedores.service";
+import Button from "@/components/Buttons/Button";
+import { proveedorService } from "@/service/proveedores.service";
 
 const AgregarProveedor = () => {
 	const navigate = useNavigate();

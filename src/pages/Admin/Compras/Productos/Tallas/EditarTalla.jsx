@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import Button from "../../../../../components/Buttons/Button";
-import { catProductoService } from "../../../../../service/categoriaProducto.service";
-import { tallasService } from "../../../../../service/tallas.service";
+import { showAlert } from "@/components/AlertProvider";
+import Button from "@/components/Buttons/Button";
+import { catProductoService } from "@/service/categoriaProducto.service";
+import { tallasService } from "@/service/tallas.service";
 
 const EditarTalla = () => {
 	const [categorias, setCategorias] = useState([]);
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [errors, setErrors] = useState({});
 
 	const [formData, setFormData] = useState({
 		Id_Tallas: "",
@@ -24,10 +26,10 @@ const EditarTalla = () => {
 				setFormData(data.data);
 			} catch (error) {
 				console.error("Error al cargar la talla:", error);
-				Swal.fire({
+				showAlert("Error al cargar la Talla", {
+					type: "error",
 					title: "Error",
-					text: "No se pudo cargar la talla",
-					icon: "error",
+					duration: 2000,
 				});
 				navigate("/admin/tallas");
 			}
@@ -46,52 +48,85 @@ const EditarTalla = () => {
 		cargarTalla();
 	}, [id, navigate]);
 
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+
+		switch (name) {
+			case "Nombre":
+				newErrors[name] = value.length < 1
+						? "Debe tener al menos 1 caracter, sin caracteres especiales"
+						: "";
+				break;
+			default:
+				break;
+		}
+
+		if (newErrors[name] === "") {
+			delete newErrors[name];
+		}
+
+		setErrors(newErrors);
+	};
+
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 
-		setFormData({
-			...formData,
-			[name]: type === "checkbox" ? checked : value,
-		});
+		let updatedValue = type === "checkbox" ? checked : value;
+
+		if (name === "Nombre") {
+			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]*$/;
+			if (!regex.test(value)) {
+				return; 
+			}
+		}
+
+		setFormData((prev) => ({
+			...prev,
+			[name]: updatedValue,
+		}));
+
+		validateField(name, updatedValue);
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		if (Object.keys(errors).length > 0) {
+			showAlert("Por favor Corregir los errores en el formulario", {
+				type: "error",
+				title: "Error",
+				duration: 2000,
+			});
+			return;
+		}
+
 		try {
 			await tallasService.actualizarTalla(id, formData);
-			Swal.fire({
+			showAlert("La Talla ha sido actualizada correctamente.",{
 				title: "¡Éxito!",
-				text: "La Talla ha sido actualizada correctamente.",
-				icon: "success",
-				timer: 2000,
-				showConfirmButton: false,
-				background: "#000",
-				color: "#fff",
+				type: "success",
+				duration: 2000,
 			}).then(() => {
 				navigate("/admin/tallas");
 			});
 		} catch (error) {
 			console.error("Error al actualizar la talla:", error);
-			Swal.fire({
+			showAlert("No se pudo actualizar la Talla", {
+				type: "error",
 				title: "Error",
-				text: "No se pudo actualizar la categoria.",
-				icon: "error",
+				duration: 2000,
 			});
 		}
 	};
 
 	const handleCancel = () => {
-		Swal.fire({
+		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
 			title: "¿Estás seguro?",
-			text: "Si cancelas, perderás los cambios realizados.",
-			icon: "warning",
+			type: "warning",
+			showConfirmButton: true,
 			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
 			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "No, continuar",
-			background: "#000",
-			color: "#fff",
+			cancelButtonText: "Continuar Editando",
 		}).then((result) => {
 			if (result.isConfirmed) {
 				navigate("/admin/tallas");
@@ -119,6 +154,9 @@ const EditarTalla = () => {
 						required
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
+						{errors.Nombre && (
+							<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+						)}
 				</div>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">

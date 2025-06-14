@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
-import GeneralTable from "../../../../components/GeneralTable";
-import { catProductoService } from "../../../../service/categoriaProducto.service";
+import GeneralTable from "@/components/GeneralTable";
+import { catProductoService } from "@/service/categoriaProducto.service";
 
 const CategoriasProducto = () => {
 	const [catsproducto, setCatsProducto] = useState([]);
