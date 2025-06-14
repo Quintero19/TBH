@@ -4,18 +4,13 @@ import { categoriaInsumoService } from "@/service/categoriaInsumo.service";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+// ---------------------- COMPONENTE PRINCIPAL ----------------------
 const EditarCatInsumo = () => {
-  /**
-   * Inicialización de hooks useNavigate y useParams para navegación y obtener parámetro ID
-   */
+  // --- Navegación y obtención del ID desde la URL ---
   const navigate = useNavigate();
   const { id } = useParams();
-  //-----------------------------
 
-  /**
-   * Estado local para los datos del formulario (Nombre, Descripción, Estado)
-   * y para los errores de validación
-   */
+  // --- Estado del formulario y errores de validación ---
   const [formData, setFormData] = useState({
     Nombre: "",
     Descripcion: "",
@@ -23,12 +18,8 @@ const EditarCatInsumo = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
-  //-----------------------------
 
-  /**
-   * Función para validar campos del formulario individualmente,
-   * recibe nombre del campo, valor, y errores actuales para actualizar
-   */
+  // ---------------------- VALIDACIÓN DE CAMPOS ----------------------
   const validateField = (name, value, currentErrors = {}) => {
     const newErrors = { ...currentErrors };
     const val = value.toString().trim();
@@ -64,12 +55,8 @@ const EditarCatInsumo = () => {
 
     return newErrors;
   };
-  //-----------------------------
 
-  /**
-   * useEffect que se ejecuta al montar el componente para cargar
-   * los datos de la categoría desde el backend por el ID
-   */
+  // ---------------------- CARGA DE DATOS ----------------------
   useEffect(() => {
     const cargarCategoria = async () => {
       try {
@@ -94,27 +81,17 @@ const EditarCatInsumo = () => {
 
     cargarCategoria();
   }, [id, navigate]);
-  //-----------------------------
 
-  /**
-   * Maneja cambios en los inputs del formulario,
-   * actualiza el estado de formData y valida el campo modificado
-   */
+  // ---------------------- MANEJO DE CAMBIOS EN INPUTS ----------------------
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === "checkbox" ? checked : value;
 
     setFormData((prev) => ({ ...prev, [name]: val }));
-
     setErrors((prevErrors) => validateField(name, val, prevErrors));
   };
-  //-----------------------------
 
-  /**
-   * Maneja el envío del formulario,
-   * valida todos los campos y si no hay errores,
-   * envía la actualización al backend y navega de regreso
-   */
+  // ---------------------- ENVÍO DEL FORMULARIO ----------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -147,12 +124,8 @@ const EditarCatInsumo = () => {
       });
     }
   };
-  //-----------------------------
 
-  /**
-   * Maneja la acción de cancelar la edición,
-   * muestra confirmación antes de navegar fuera del formulario
-   */
+  // ---------------------- CANCELAR EDICIÓN ----------------------
   const handleCancel = () => {
     showAlert("¿Estás seguro de cancelar los cambios?", {
       type: "warning",
@@ -162,7 +135,8 @@ const EditarCatInsumo = () => {
       cancelButtonText: "No, continuar",
     }).then((r) => r.isConfirmed && navigate("/admin/categoriainsumo"));
   };
-  //-----------------------------
+
+  // ---------------------- CARGANDO DATOS ----------------------
   if (loading) {
     return (
       <p className="text-center text-gray-500 text-xl py-20">
@@ -170,9 +144,8 @@ const EditarCatInsumo = () => {
       </p>
     );
   }
-  /**
-   * Render del componente
-   */
+
+  // ---------------------- RENDER DEL FORMULARIO ----------------------
   return (
     <>
       <h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -184,6 +157,7 @@ const EditarCatInsumo = () => {
         className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
         noValidate
       >
+        {/* Campo: Nombre */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg min-h-[120px]">
           <h3 className="text-2xl text-black font-bold mb-2">
             Nombre <span className="text-red-500">*</span>
@@ -203,6 +177,7 @@ const EditarCatInsumo = () => {
           )}
         </div>
 
+        {/* Campo: Descripción */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg">
           <h3 className="text-2xl text-black font-bold mb-2">
             Descripción <span className="text-red-500">*</span>
@@ -223,15 +198,16 @@ const EditarCatInsumo = () => {
           )}
         </div>
 
+        {/* Campo oculto: Estado */}
         <input
           type="checkbox"
           name="Estado"
           checked={formData.Estado}
           disabled
-          id="estado-checkbox"
           className="hidden"
         />
 
+        {/* Botones de acción */}
         <div className="md:col-span-2 flex gap-4">
           <Button icon="fa fa-save" className="green" type="submit">
             Guardar Cambios
@@ -244,6 +220,5 @@ const EditarCatInsumo = () => {
     </>
   );
 };
- //-----------------------------
 
 export default EditarCatInsumo;

@@ -63,7 +63,8 @@ const AgregarCatInsumo = () => {
 		try {
 			await categoriaInsumoService.crearCategoria(formData);
 			await showAlert("La categoría fue creada exitosamente", {
-				
+				type: "success",
+				duration: 1500,
 			});
 			navigate("/admin/categoriainsumo");
 		} catch (err) {

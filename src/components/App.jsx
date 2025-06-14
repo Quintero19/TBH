@@ -10,6 +10,8 @@ import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarC
 import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
 import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
+import AgregarInsumo from "../pages/Admin/Compras/Insumos/AgregarInsumos";
+import EditarInsumo from "../pages/Admin/Compras/Insumos/EditarInsumos";
 import Productos from "../pages/Admin/Compras/Productos/Index";
 import AgregarTalla from "../pages/Admin/Compras/Productos/Tallas/AgregarTalla";
 import EditarTalla from "../pages/Admin/Compras/Productos/Tallas/EditarTalla";
@@ -119,6 +121,11 @@ function App() {
 				/>
 
 				<Route path="insumo" element={<InsumoAdmin />} />
+				<Route path="insumo/agregar" element={<AgregarInsumo />} />
+				<Route path="insumo/editar/:id" element={<EditarInsumo />} />
+
+				{/* Rutas de ventas */}
+
 				<Route path="ventas" element={<VentaAdmin />} />
 				<Route path="clientes" element={<ClienteAdmin />} />
 				<Route path="devoluciones" element={<DevolucionesAdmin />} />
