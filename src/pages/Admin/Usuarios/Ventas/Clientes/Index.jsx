@@ -1,6 +1,6 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import GeneralTable from "../../../../../components/GeneralTable";
 import { clienteService } from "../../../../../service/clientes.service";
 
@@ -50,9 +50,15 @@ export default function Clientes() {
 
 			let estadoMatch = false;
 			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch = cliente.Estado === true || cliente.Estado === 1 || cliente.Estado === "Activo";
+				estadoMatch =
+					cliente.Estado === true ||
+					cliente.Estado === 1 ||
+					cliente.Estado === "Activo";
 			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch = cliente.Estado === false || cliente.Estado === 0 || cliente.Estado === "Inactivo";
+				estadoMatch =
+					cliente.Estado === false ||
+					cliente.Estado === 0 ||
+					cliente.Estado === "Inactivo";
 			}
 
 			return docMatch || correoMatch || nombreMatch || estadoMatch;
@@ -75,7 +81,10 @@ export default function Clientes() {
 			await clienteService.actualizarEstadoCliente(id);
 			await obtenerClientes();
 		} catch (error) {
-			console.error("Error cambiando estado del cliente:", error.response?.data || error);
+			console.error(
+				"Error cambiando estado del cliente:",
+				error.response?.data || error,
+			);
 			alert("Error cambiando estado");
 		}
 	};

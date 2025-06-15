@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { productoService } from "@/service/productos.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Productos = () => {
 	const [productos, setProductos] = useState([]);
@@ -26,7 +26,10 @@ const Productos = () => {
 			const response = await productoService.obtenerProductoss();
 			setProductos(transformData(response.data, categoriasData));
 		} catch (error) {
-			console.error("Error al obtener productos:", error.response?.data || error);
+			console.error(
+				"Error al obtener productos:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -49,17 +52,19 @@ const Productos = () => {
 	/* ───── Transformación de Datos ───── */
 
 	const transformData = useCallback(
-		(lista, listacategorias) => lista.map((item) => {
-			const categoria = listacategorias.find(
-				(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto
-			);
-			return {
-				...item,
-				NombreCategoria: categoria?.Nombre || "Desconocido",
-				Precio_Venta: Number(item.Precio_Venta).toFixed(0),
-				Precio_Compra: Number(item.Precio_Compra).toFixed(0),
-			};
-		}),[],
+		(lista, listacategorias) =>
+			lista.map((item) => {
+				const categoria = listacategorias.find(
+					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
+				);
+				return {
+					...item,
+					NombreCategoria: categoria?.Nombre || "Desconocido",
+					Precio_Venta: Number(item.Precio_Venta).toFixed(0),
+					Precio_Compra: Number(item.Precio_Compra).toFixed(0),
+				};
+			}),
+		[],
 	);
 
 	/* ─────────────────────────────────── */
@@ -98,19 +103,19 @@ const Productos = () => {
 						<p><strong>Precio de Compra:</strong> ${producto.Precio_Compra || "-"}</p>
 						<p><strong>Stock:</strong> ${producto.Stock || "-"}</p>
 						<p><strong>Estado:</strong> ${producto.Estado ? "Activo" : "Inactivo"}</p>
-							</div>`
-			await showAlert(html,{
+							</div>`;
+			await showAlert(html, {
 				title: `Detalles Producto ID: ${producto.Id_Productos}`,
 				type: "info",
 				showConfirmButton: true,
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			console.error("Error al obtener el producto:", error);
-			showAlert(`No se pudieron cargar los detalles del producto: ${error}`,{
+			showAlert(`No se pudieron cargar los detalles del producto: ${error}`, {
 				type: "error",
 				title: "Error",
 			});
@@ -130,7 +135,7 @@ const Productos = () => {
 	/* ───────────── Eliminar ───────────────*/
 
 	const handleDelete = async (producto) => {
-		const result = await  window.showAlert(
+		const result = await window.showAlert(
 			`¿Deseas eliminar al producto <strong>${producto.Nombre}</strong>?`,
 			{
 				type: "warning",
@@ -139,14 +144,14 @@ const Productos = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
 			try {
 				await productoService.eliminarProducto(producto.Id_Productos);
 
-				await window.showAlert("Producto eliminado correctamente",{
+				await window.showAlert("Producto eliminado correctamente", {
 					type: "success",
 					title: "Eliminado",
 					duration: 2000,
@@ -155,7 +160,8 @@ const Productos = () => {
 				fetchProductos(categorias);
 			} catch (error) {
 				console.error("Error Eliminando Producto:", error);
-				const mensaje = error.response?.data?.message || "Error al eliminar el producto";
+				const mensaje =
+					error.response?.data?.message || "Error al eliminar el producto";
 
 				window.showAlert(mensaje, {
 					type: "error",

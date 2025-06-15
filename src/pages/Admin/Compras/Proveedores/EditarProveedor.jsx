@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { proveedorService } from "@/service/proveedores.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditarProveedor = () => {
 	const { id } = useParams();
@@ -187,7 +187,7 @@ const EditarProveedor = () => {
 
 		try {
 			await proveedorService.actualizarProveedor(id, datosLimpios);
-			showAlert("El proveedor ha sido actualizado correctamente.",{
+			showAlert("El proveedor ha sido actualizado correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
@@ -205,18 +205,20 @@ const EditarProveedor = () => {
 	};
 
 	const handleCancel = () => {
-		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar Editando",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/proveedores");
-			}
-		});
+		window
+			.showAlert("Si cancelas, perderás los datos ingresados.", {
+				title: "¿Estás seguro?",
+				type: "warning",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, cancelar",
+				cancelButtonText: "Continuar Editando",
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					navigate("/admin/proveedores");
+				}
+			});
 	};
 
 	return (
@@ -455,15 +457,16 @@ const EditarProveedor = () => {
 						disabled={Object.keys(errors).length > 0}
 						icon="fa-floppy-o"
 					>
-						<div className="flex items-center gap-2">
-							Guardar
-						</div>
+						<div className="flex items-center gap-2">Guardar</div>
 					</Button>
 
-					<Button type="button" className="red" onClick={handleCancel} icon="fa-times">
-						<div className="flex items-center gap-2">
-							Cancelar
-						</div>
+					<Button
+						type="button"
+						className="red"
+						onClick={handleCancel}
+						icon="fa-times"
+					>
+						<div className="flex items-center gap-2">Cancelar</div>
 					</Button>
 				</div>
 			</form>

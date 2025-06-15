@@ -37,9 +37,9 @@ export const clienteService = {
 		const res = await api.put(`${USER_URL}/${id}`, cliente);
 		return res.data;
 	},
-	
-	actualizarEstadoCliente: async(documento) => {
+
+	actualizarEstadoCliente: async (documento) => {
 		const res = await api.put(`${USER_URL}/estado/${documento}`);
 		return res.data;
-	}
+	},
 };

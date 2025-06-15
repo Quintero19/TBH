@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Tallas = () => {
-
 	const [categorias, setCategorias] = useState([]);
 	const [tallas, setTallas] = useState([]);
 	const navigate = useNavigate();
@@ -25,7 +24,10 @@ const Tallas = () => {
 			const response = await tallasService.obtenerTallas();
 			setTallas(transformData(response.data, categoriasData));
 		} catch (error) {
-			console.error( "Error al obtener las tallas:", error.response?.data || error);
+			console.error(
+				"Error al obtener las tallas:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -36,7 +38,10 @@ const Tallas = () => {
 				setCategorias(response.data);
 				await fetchTallas(response.data);
 			} catch (error) {
-				console.error("Error al obtener categorías:", error.response?.data || error);
+				console.error(
+					"Error al obtener categorías:",
+					error.response?.data || error,
+				);
 			}
 		};
 		fetchCategorias();
@@ -47,15 +52,17 @@ const Tallas = () => {
 	/* ───── Transformación de Datos ───── */
 
 	const transformData = useCallback(
-		(lista, listacategorias) => lista.map((item) => {
-			const categoria = listacategorias.find(
-				(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
-			);
-			return {
-				...item,
-				NombreCategoria: categoria?.Nombre || "Desconocido",
-			};
-		}), [],
+		(lista, listacategorias) =>
+			lista.map((item) => {
+				const categoria = listacategorias.find(
+					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
+				);
+				return {
+					...item,
+					NombreCategoria: categoria?.Nombre || "Desconocido",
+				};
+			}),
+		[],
 	);
 
 	/* ─────────────────────────────────── */
@@ -80,7 +87,6 @@ const Tallas = () => {
 		navigate("/admin/tallas/agregar");
 	};
 
-	
 	/* ──────────────────────────────────── */
 
 	/* ────────── Ver Detalles ──────────── */
@@ -93,7 +99,7 @@ const Tallas = () => {
 								<p><strong>Nombre:</strong> ${talla.Nombre || "-"}</p>
 								<p><strong>Estado:</strong> ${talla.Estado ? "Activo" : "Inactivo"}</p>
 							</div>
-			`
+			`;
 			await showAlert(html, {
 				title: `Detalles Talla ID: ${talla.Id_Tallas}`,
 				type: "info",
@@ -101,7 +107,7 @@ const Tallas = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			console.error("Error al obtener la talla:", error);
@@ -134,14 +140,14 @@ const Tallas = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
 			try {
 				await tallasService.eliminarTalla(talla.Id_Tallas);
 
-				await  window.showAlert("Talla eliminada correctamente",{
+				await window.showAlert("Talla eliminada correctamente", {
 					type: "success",
 					title: "Eliminado",
 					duration: 2000,
@@ -150,8 +156,9 @@ const Tallas = () => {
 				fetchTallas(categorias);
 			} catch (error) {
 				console.error("Error Eliminando Talla:", error);
-				const mensaje = error.response?.data?.message || "Error al Eliminar la Talla";
-				
+				const mensaje =
+					error.response?.data?.message || "Error al Eliminar la Talla";
+
 				window.showAlert(mensaje, {
 					type: "error",
 					title: "Error",
@@ -160,7 +167,7 @@ const Tallas = () => {
 			}
 		}
 	};
-	
+
 	/* ───────────────────────────────────── */
 
 	/* ───────── Volver a Productos ──────── */

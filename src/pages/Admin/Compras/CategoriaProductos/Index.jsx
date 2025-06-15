@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { catProductoService } from "@/service/categoriaProducto.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CategoriasProducto = () => {
 	const [catsproducto, setCatsProducto] = useState([]);
 	const navigate = useNavigate();
 	const canEdit = (categoria) => categoria.Estado === true;
-	const canDelete = (categoria) => categoria.Estado === true;	
+	const canDelete = (categoria) => categoria.Estado === true;
 
-	
 	const columns = [
 		{ header: "ID", accessor: "Id_Categoria_Producto" },
 		{ header: "Nombre", accessor: "Nombre" },
@@ -78,7 +77,7 @@ const CategoriasProducto = () => {
 
 	const handleVerDetalles = async (categoria) => {
 		try {
-			const html =`
+			const html = `
 							<div class="text-left">
 								<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
 								<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
@@ -93,14 +92,17 @@ const CategoriasProducto = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			console.error("Error al obtener la categoria:", error);
-			showAlert(`No se pudieron cargar los detalles de la categoria: ${error}`, {
-				type: "error",
-				title: "Error",
-			});
+			showAlert(
+				`No se pudieron cargar los detalles de la categoria: ${error}`,
+				{
+					type: "error",
+					title: "Error",
+				},
+			);
 		}
 	};
 
@@ -128,14 +130,16 @@ const CategoriasProducto = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
 			try {
-				await catProductoService.eliminarCategoria(categoria.Id_Categoria_Producto);
+				await catProductoService.eliminarCategoria(
+					categoria.Id_Categoria_Producto,
+				);
 
-				await window.showAlert("Categoria eliminada correctamente",{
+				await window.showAlert("Categoria eliminada correctamente", {
 					title: "Eliminada",
 					type: "success",
 					duration: 2000,
@@ -144,7 +148,8 @@ const CategoriasProducto = () => {
 				fetchCatsProducto();
 			} catch (error) {
 				console.error("Error Eliminando Categoria:", error);
-				const mensaje = error.response?.data?.message || "Error al Eliminar la Categoria";
+				const mensaje =
+					error.response?.data?.message || "Error al Eliminar la Categoria";
 
 				window.showAlert(mensaje, {
 					type: "error",
@@ -170,7 +175,7 @@ const CategoriasProducto = () => {
 			idAccessor="Id_Categoria_Producto"
 			stateAccessor="Estado"
 			canEdit={canEdit}
-			canDelete={canDelete}	
+			canDelete={canDelete}
 		/>
 	);
 };

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { proveedorService } from "@/service/proveedores.service";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AgregarProveedor = () => {
 	const navigate = useNavigate();
@@ -159,7 +159,7 @@ const AgregarProveedor = () => {
 
 		try {
 			await proveedorService.crearProveedor(formData);
-			showAlert("El proveedor ha sido guardado correctamente.",{
+			showAlert("El proveedor ha sido guardado correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
@@ -177,18 +177,20 @@ const AgregarProveedor = () => {
 	};
 
 	const handleCancel = () => {
-		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar Registrando",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/proveedores");
-			}
-		});
+		window
+			.showAlert("Si cancelas, perderás los datos ingresados.", {
+				title: "¿Estás seguro?",
+				type: "warning",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, cancelar",
+				cancelButtonText: "Continuar Registrando",
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					navigate("/admin/proveedores");
+				}
+			});
 	};
 
 	return (
@@ -422,16 +424,17 @@ const AgregarProveedor = () => {
 				)}
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" disabled={Object.keys(errors).length > 0} icon="fa-floppy-o">
-						<div className="flex items-center gap-2">
-							Guardar
-						</div>
+					<Button
+						type="submit"
+						className="green"
+						disabled={Object.keys(errors).length > 0}
+						icon="fa-floppy-o"
+					>
+						<div className="flex items-center gap-2">Guardar</div>
 					</Button>
 
 					<Button className="red" onClick={handleCancel} icon="fa-times">
-						<div className="flex items-center gap-2">
-							Cancelar
-						</div>
+						<div className="flex items-center gap-2">Cancelar</div>
 					</Button>
 				</div>
 			</form>

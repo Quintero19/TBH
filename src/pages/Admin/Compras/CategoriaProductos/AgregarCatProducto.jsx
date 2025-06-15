@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AgregarCatProducto = () => {
 	const navigate = useNavigate();
@@ -40,12 +40,12 @@ const AgregarCatProducto = () => {
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 
-		let updatedValue = type === "checkbox" ? checked : value;
+		const updatedValue = type === "checkbox" ? checked : value;
 
 		if (name === "Nombre") {
 			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
 			if (!regex.test(value)) {
-				return; 
+				return;
 			}
 		}
 
@@ -71,7 +71,7 @@ const AgregarCatProducto = () => {
 
 		try {
 			await catProductoService.crearCategoria(formData);
-			showAlert("La Categoria ha sido guardada correctamente.",{
+			showAlert("La Categoria ha sido guardada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
@@ -84,23 +84,25 @@ const AgregarCatProducto = () => {
 				type: "error",
 				title: "Error",
 				duration: 2000,
-			})
+			});
 		}
 	};
 
 	const handleCancel = () => {
-		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar Registrando"
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/categoriaproducto");
-			}
-		});
+		window
+			.showAlert("Si cancelas, perderás los datos ingresados.", {
+				title: "¿Estás seguro?",
+				type: "warning",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, cancelar",
+				cancelButtonText: "Continuar Registrando",
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					navigate("/admin/categoriaproducto");
+				}
+			});
 	};
 
 	return (
@@ -125,9 +127,9 @@ const AgregarCatProducto = () => {
 						required
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
-						{errors.Nombre && (
-							<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-						)}
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
 				</div>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">Descripción</h3>
@@ -139,9 +141,9 @@ const AgregarCatProducto = () => {
 						maxLength={100}
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
-						{errors.Descripcion && (
-							<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
-						)}
+					{errors.Descripcion && (
+						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					)}
 				</div>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex items-center">
 					<h3 className="text-2xl text-black font-bold mb-2">Es Ropa?</h3>
@@ -156,16 +158,22 @@ const AgregarCatProducto = () => {
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" disabled={Object.keys(errors).length > 0} icon="fa-floppy-o">
-						<div className="flex items-center gap-2" >
-							Guardar
-						</div>
+					<Button
+						type="submit"
+						className="green"
+						disabled={Object.keys(errors).length > 0}
+						icon="fa-floppy-o"
+					>
+						<div className="flex items-center gap-2">Guardar</div>
 					</Button>
 
-					<Button type="button" className="red" onClick={handleCancel} icon="fa-times">
-						<div className="flex items-center gap-2">
-							Cancelar
-						</div>
+					<Button
+						type="button"
+						className="red"
+						onClick={handleCancel}
+						icon="fa-times"
+					>
+						<div className="flex items-center gap-2">Cancelar</div>
 					</Button>
 				</div>
 			</form>
