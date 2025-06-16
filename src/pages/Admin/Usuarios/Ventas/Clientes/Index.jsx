@@ -1,186 +1,292 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { showAlert } from "@/components/AlertProvider";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import GeneralTable from "../../../../../components/GeneralTable";
-import { clienteService } from "../../../../../service/clientes.service";
+import GeneralTable from "@/components/GeneralTable";
+import { clienteService } from "@/service/clientes.service";
 
 export default function Clientes() {
-	const navigate = useNavigate();
-	const title = "Clientes";
+    const navigate = useNavigate();
+    const title = "Clientes";
 
-	const columns = [
-		{ header: "Documento", accessor: "Documento" },
-		{ header: "Nombre", accessor: "Nombre" },
-		{ header: "Correo", accessor: "Correo" },
-		{ header: "Estado", accessor: "Estado" },
-	];
+    const columns = [
+        { header: "Documento", accessor: "Documento" },
+        { header: "Nombre", accessor: "Nombre" },
+        { header: "Correo", accessor: "Correo" },
+        { header: "Estado", accessor: "Estado" },
+    ];
 
-	const [clientes, setClientes] = useState([]);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
+    const [clientes, setClientes] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-	const obtenerClientes = useCallback(async () => {
-		try {
-			const response = await clienteService.listarClientes();
+    const canEdit = (cliente) => cliente.Estado === true;
+    const canDelete = (cliente) => cliente.Estado === true;
 
-			const normalizado = response.data.map((cliente) => ({
-				Id_Cliente: cliente.Id_Cliente,
-				Documento: cliente.Documento,
-				Nombre: cliente.Nombre,
-				Correo: cliente.Correo,
-				Estado: cliente.Estado,
-			}));
+    const obtenerClientes = useCallback(async () => {
+        try {
+            const response = await clienteService.listarClientes();
 
-			setClientes(normalizado);
-		} catch (error) {
-			console.error("Error al obtener los clientes:", error);
-		}
-	}, []);
+            const normalizado = response.data.map((cliente) => ({
+                Id_Cliente: cliente.Id_Cliente,
+                Tipo_Documento: cliente.Tipo_Documento,
+                Documento: cliente.Documento,
+                Nombre: cliente.Nombre,
+                Correo: cliente.Correo,
+                Celular: cliente.Celular,
+                Direccion: cliente.Direccion,
+                F_Nacimiento: cliente.F_Nacimiento,
+                Estado: cliente.Estado,
+            }));
 
-	const filteredData = useMemo(() => {
-		if (!searchTerm) return clientes;
+            setClientes(normalizado);
+        } catch (error) {
+            console.error("Error al obtener los clientes:", error);
+            showAlert("Error al cargar los clientes.", {
+                type: "error",
+                title: "Error de Carga",
+                duration: 2500,
+            });
+        }
+    }, []);
 
-		const lowerSearch = searchTerm.toLowerCase();
+    const filteredData = useMemo(() => {
+        if (!searchTerm) return clientes;
 
-		return clientes.filter((cliente) => {
-			const docMatch = cliente.Documento?.toString().includes(lowerSearch);
-			const correoMatch = cliente.Correo?.toLowerCase().includes(lowerSearch);
-			const nombreMatch = cliente.Nombre?.toLowerCase().includes(lowerSearch);
+        const lowerSearch = searchTerm.toLowerCase();
 
-			let estadoMatch = false;
-			if (lowerSearch === "1" || lowerSearch === "activo") {
-				estadoMatch =
-					cliente.Estado === true ||
-					cliente.Estado === 1 ||
-					cliente.Estado === "Activo";
-			} else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-				estadoMatch =
-					cliente.Estado === false ||
-					cliente.Estado === 0 ||
-					cliente.Estado === "Inactivo";
-			}
+        return clientes.filter((cliente) => {
+            const docMatch = cliente.Documento?.toString().includes(lowerSearch);
+            const correoMatch = cliente.Correo?.toLowerCase().includes(lowerSearch);
+            const nombreMatch = cliente.Nombre?.toLowerCase().includes(lowerSearch);
 
-			return docMatch || correoMatch || nombreMatch || estadoMatch;
-		});
-	}, [clientes, searchTerm]);
+            let estadoMatch = false;
+            if (lowerSearch === "1" || lowerSearch === "activo") {
+                estadoMatch = cliente.Estado === true || cliente.Estado === 1 || cliente.Estado === "Activo";
+            } else if (lowerSearch === "0" || lowerSearch === "inactivo") {
+                estadoMatch = cliente.Estado === false || cliente.Estado === 0 || cliente.Estado === "Inactivo";
+            }
 
-	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-	const paginatedData = filteredData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
+            return docMatch || correoMatch || nombreMatch || estadoMatch;
+        });
+    }, [clientes, searchTerm]);
 
-	const handleSearchChange = (e) => {
-		setSearchTerm(e.target.value);
-		setCurrentPage(1);
-	};
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage,
+    );
 
-	const handleToggleEstado = async (id) => {
-		try {
-			await clienteService.actualizarEstadoCliente(id);
-			await obtenerClientes();
-		} catch (error) {
-			console.error(
-				"Error cambiando estado del cliente:",
-				error.response?.data || error,
-			);
-			alert("Error cambiando estado");
-		}
-	};
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+    };
 
-	const handleDelete = async (cliente) => {
-		const result = await Swal.fire({
-			title: "¿Estás seguro?",
-			text: `¿Deseas eliminar al cliente con documento "${cliente.Documento}"?`,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-			background: "#000",
-			color: "#fff",
-		});
+    const handleToggleEstado = async (id) => {
+        try {
+            await clienteService.actualizarEstadoCliente(id);
+            await obtenerClientes();
+        } catch (error) {
+            console.error("Error cambiando estado del cliente:", error.response?.data || error);
+            showAlert("Error cambiando estado del cliente.", {
+                type: "error",
+                title: "Error",
+                duration: 2500,
+            });
+        }
+    };
 
-		if (result.isConfirmed) {
-			try {
-				await clienteService.eliminarCliente(cliente.Id_Cliente);
-				await Swal.fire({
-					title: "Eliminado",
-					text: "Cliente eliminado correctamente",
-					icon: "success",
-					timer: 2000,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
-				await obtenerClientes();
-			} catch (error) {
-				console.error("Error al eliminar el cliente:", error);
-				Swal.fire({
-					title: "Error",
-					text: "No se pudo eliminar el cliente",
-					icon: "error",
-					timer: 2500,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
-			}
-		}
-	};
+    const handleDelete = async (cliente) => {
+        const result = await showAlert(`¿Deseas eliminar al cliente con documento "${cliente.Documento}"?`, {
+            type: "warning",
+            title: "Confirmar eliminación",
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        });
 
-	const handleVerDetalles = (cliente) => {
-		Swal.fire({
-			title: "Detalles del Cliente",
-			html: `
-        <div class="text-left">
-          <p><strong>ID:</strong> ${cliente.Id_Cliente}</p>
-          <p><strong>Documento:</strong> ${cliente.Documento}</p>
-          <p><strong>Nombre:</strong> ${cliente.Nombre}</p>
-          <p><strong>Correo:</strong> ${cliente.Correo}</p>
-          <p><strong>Estado:</strong> ${cliente.Estado ? "Activo" : "Inactivo"}</p>
-        </div>
-      `,
-			icon: "info",
-			confirmButtonText: "Cerrar",
-			padding: "1rem",
-			confirmButtonColor: "#3085d6",
-			background: "#000",
-			color: "#fff",
-		});
-	};
+        if (result.isConfirmed) {
+            try {
+                await clienteService.eliminarCliente(cliente.Id_Cliente);
+                await showAlert("Cliente eliminado correctamente", {
+                    type: "success",
+                    title: "Éxito",
+                    duration: 2000,
+                });
+                await obtenerClientes();
+            } catch (error) {
+                const mensaje =
+                    error?.response?.data?.message ||
+                    "No se pudo eliminar el cliente.";
+                await showAlert(mensaje, {
+                    type: "error",
+                    title: "Error",
+                    showConfirmButton: true,
+                    confirmButtonText: "Cerrar",
+                });
+            }
+        }
+    };
 
-	const handleEdit = (cliente) => {
-		navigate(`/admin/clientes/editar/${cliente.Id_Cliente}`);
-	};
+    const handleVerDetalles = async (cliente) => {
+        try {
+            const html = `
+            <div class="space-y-7 text-gray-100">
+                <!-- Encabezado -->
+                <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
+                    <h3 class="text-xl font-bold text-white">Detalles de Cliente</h3>
+                    <span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+                        ID: ${cliente.Id_Cliente ?? "N/A"}
+                    </span>
+                </div>
 
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
-	};
+                <!-- Campos -->
+                <div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+                    <!-- Tipo Documento -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Tipo Documento
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.Tipo_Documento ?? "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Documento -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Documento
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.Documento ?? "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Nombre -->
+                    <div class="relative md:col-span-2">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Nombre
+                        </label>
+                        <div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
+                            <div class="text-gray-200">${cliente.Nombre || "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Correo -->
+                    <div class="relative md:col-span-2">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Correo
+                        </label>
+                        <div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
+                            <div class="text-gray-200 ${!cliente.Correo ? 'italic text-gray-400' : ''}">
+                                ${cliente.Correo || "No hay correo disponible"}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Celular -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Celular
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.Celular ?? "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Dirección -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Dirección
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.Direccion ?? "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Fecha Nacimiento -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            F. Nacimiento
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.F_Nacimiento ?? "-"}</div>
+                        </div>
+                    </div>
+                    <!-- Estado -->
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Estado
+                        </label>
+                        <div class="rounded-lg border pt-4 pb-2.5 px-4 ${
+                        cliente.Estado
+                            ? 'bg-[#112d25] border-emerald-500/30'
+                            : 'bg-[#2c1a1d] border-rose-500/30'
+                        }">
+                        <div class="font-medium ${
+                        cliente.Estado ? "text-emerald-300" : "text-rose-300"
+                        }">
+                            ${cliente.Estado ? "Activo" : "Inactivo"}
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
 
-	useEffect(() => {
-		obtenerClientes();
-	}, [obtenerClientes]);
+            await showAlert(html, {
+                title: '',
+                width: '640px',
+                background: '#111827',
+                color: '#ffffff',
+                padding: '1.5rem',
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: '#4f46e5',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl border border-gray-700/50',
+                    confirmButton: 'px-6 py-2 font-medium rounded-lg mt-4'
+                }
+            });
 
-	return (
-		<GeneralTable
-			title={title}
-			columns={columns}
-			data={paginatedData}
-			onAdd={() => navigate("/admin/clientes/agregar")}
-			onView={handleVerDetalles}
-			onEdit={handleEdit}
-			onDelete={handleDelete}
-			onToggleEstado={handleToggleEstado}
-			idAccessor="Id_Cliente"
-			stateAccessor="Estado"
-			searchTerm={searchTerm}
-			onSearchChange={handleSearchChange}
-			currentPage={currentPage}
-			totalPages={totalPages}
-			onPageChange={handlePageChange}
-		/>
-	);
+        } catch (error) {
+            console.error(error);
+            await showAlert(`Error: ${error.message || error}`, {
+                title: 'Error',
+                icon: 'error',
+                background: '#1f2937',
+                color: '#ffffff',
+                width: '500px',
+                confirmButtonColor: '#dc2626'
+            });
+        }
+    };
+
+    const handleEdit = (cliente) => {
+        navigate(`/admin/clientes/editar/${cliente.Id_Cliente}`);
+    };
+
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };
+
+    useEffect(() => {
+        obtenerClientes();
+    }, [obtenerClientes]);
+
+    return (
+        <GeneralTable
+            title={title}
+            columns={columns}
+            data={paginatedData}
+            onAdd={() => navigate("/admin/clientes/agregar")}
+            onView={handleVerDetalles}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleEstado={handleToggleEstado}
+            idAccessor="Id_Cliente"
+            stateAccessor="Estado"
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            canEdit={canEdit}
+            canDelete={canDelete}
+        />
+    );
 }
