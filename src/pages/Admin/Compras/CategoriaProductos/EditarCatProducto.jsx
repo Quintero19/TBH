@@ -41,18 +41,28 @@ const EditarCatProducto = () => {
 
 		switch (name) {
 			case "Nombre":
-			case "Descripcion":
-				newErrors[name] =
-					value.trim().length > 0 && value.length < 3
-						? "Debe tener al menos 3 caracteres, sin números o caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "El nombre es obligatorio";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
+					newErrors[name] =
+						"Solo letras y espacios. Entre 3 y 25 caracteres";
+				} else {
+					delete newErrors[name];
+				}
 				break;
+
+			case "Descripcion":
+				if (!value.trim()) {
+					newErrors[name] = "La descripción es obligatoria";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{7,100}$/.test(value)) {
+					newErrors[name] = "Solo letras y espacios. Entre 7 y 100 caracteres";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
 			default:
 				break;
-		}
-
-		if (newErrors[name] === "") {
-			delete newErrors[name];
 		}
 
 		setErrors(newErrors);
@@ -145,7 +155,6 @@ const EditarCatProducto = () => {
 						name="Nombre"
 						value={formData.Nombre}
 						onChange={handleChange}
-						required
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
 					{errors.Nombre && (
@@ -159,7 +168,6 @@ const EditarCatProducto = () => {
 						name="Descripcion"
 						value={formData.Descripcion}
 						onChange={handleChange}
-						maxLength={100}
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
 					{errors.Descripcion && (

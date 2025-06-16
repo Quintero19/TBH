@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 const Productos = () => {
 	const [productos, setProductos] = useState([]);
 	const [categorias, setCategorias] = useState([]);
+	const canEdit = (productos) => productos.Estado === true;
+	const canDelete = (productos) => productos.Estado === true;
 	const navigate = useNavigate();
 
 	const columns = [
@@ -74,7 +76,7 @@ const Productos = () => {
 	const handleToggleEstado = async (id) => {
 		try {
 			await productoService.actualizarEstadoProducto(id);
-			await fetchProductos();
+			await fetchProductos(categorias);
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
@@ -198,8 +200,11 @@ const Productos = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Productos"
 			stateAccessor="Estado"
+			canEdit={canEdit}
+			canDelete={canDelete}
 			goTallas={handleTallas}
 			goTamanos={handleTamanos}
+
 		/>
 	);
 };

@@ -53,17 +53,24 @@ const EditarTalla = () => {
 
 		switch (name) {
 			case "Nombre":
-				newErrors[name] =
-					value.length < 1
-						? "Debe tener al menos 1 caracter, sin caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "El nombre es obligatorio";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]{1,25}$/.test(value)) {
+					newErrors[name] =
+						"Solo letras, números y espacios. Máximo 25 caracteres.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+			case "Id_Categoria_Producto":
+				if (!value) {
+					newErrors[name] = "Debe seleccionar una categoría";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 			default:
 				break;
-		}
-
-		if (newErrors[name] === "") {
-			delete newErrors[name];
 		}
 
 		setErrors(newErrors);
@@ -182,10 +189,13 @@ const EditarTalla = () => {
 							</option>
 						))}
 					</select>
+						{errors.Id_Categoria_Producto && (
+							<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Producto}</p>
+						)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" icon="fa-floppy-o">
+					<Button type="submit" className="green" icon="fa-floppy-o" disabled={Object.keys(errors).length > 0}>
 						Guardar
 					</Button>
 

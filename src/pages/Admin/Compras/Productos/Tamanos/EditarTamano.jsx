@@ -23,13 +23,50 @@ export default function EditarTamano() {
 
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
-		if (name === "Nombre" && value.trim().length > 0 && value.length < 3)
-			newErrors[name] = "Debe tener al menos 3 caracteres";
-		else if (name === "Precio_Venta" && value && !/^\d+$/.test(value))
-			newErrors[name] = "Solo números";
-		else if (name === "Cantidad_Maxima" && !value.trim())
-			newErrors[name] = "Requerido";
-		else delete newErrors[name];
+
+		switch (name) {
+			case "Nombre":
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 20) {
+					newErrors[name] = "Debe tener máximo 20 caracteres.";
+				} else if (value.length < 3) {
+					newErrors[name] = "Debe tener al menos 3 caracteres.";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9 ]+$/.test(value)) {
+					newErrors[name] = "Solo se permiten letras y números.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			case "Precio_Venta":
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 10) {
+					newErrors[name] = "Debe tener máximo 10 caracteres.";
+				} else if (!/^\d+$/.test(value)) {
+					newErrors[name] = "Solo se permiten números.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			case "Cantidad_Maxima":
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 10) {
+					newErrors[name] = "Debe tener máximo 10 caracteres.";
+				} else if (!/^\d+$/.test(value)) {
+					newErrors[name] = "Solo se permiten números.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			default:
+				break;
+		}
+
 		setErrors(newErrors);
 	};
 
@@ -190,7 +227,6 @@ export default function EditarTamano() {
 							name={campo}
 							type="text"
 							value={formData[campo]}
-							maxLength={campo === "Nombre" ? 20 : 10}
 							onChange={handleChange}
 							className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
 						/>

@@ -49,58 +49,116 @@ const EditarProveedor = () => {
 
 		switch (name) {
 			case "Nombre":
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/.test(value)) {
+					newErrors[name] = "Solo letras y espacios";
+				} else if (value.length < 3) {
+					newErrors[name] = "Debe tener al menos 3 caracteres";
+				} else if (value.length > 30) {
+					newErrors[name] = "Máximo 30 caracteres";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
 			case "Asesor":
-				newErrors[name] =
-					value.trim().length > 0 && value.length < 3
-						? "Debe tener al menos 3 caracteres, sin números o caracteres especiales"
-						: "";
+				if (value) {
+					if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/.test(value)) {
+						newErrors[name] = "Solo letras y espacios";
+					} else if (value.length < 3) {
+						newErrors[name] = "Debe tener al menos 3 caracteres";
+					} else if (value.length > 30) {
+						newErrors[name] = "Máximo 30 caracteres";
+					} else {
+						delete newErrors[name];
+					}
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			case "Nombre_Empresa":
-				newErrors[name] =
-					(value.trim().length > 0 && value.length < 3) ||
-					!/^[a-zA-Z0-9\s]*$/.test(value)
-						? "Debe tener al menos 3 caracteres, sin caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio";
+				} else if (!/^[a-zA-Z0-9\s]*$/.test(value)) {
+					newErrors[name] = "Solo letras, números y espacios";
+				} else if (value.length < 3) {
+					newErrors[name] = "Debe tener al menos 3 caracteres";
+				} else if (value.length > 30) {
+					newErrors[name] = "Máximo 30 caracteres";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			case "NIT":
-				newErrors[name] =
-					value.trim().length > 0 &&
-					(!/^[0-9-]+$/.test(value) || value.length < 9 || value.length > 15)
-						? "Solo números y guiones, debe tener entre 9 y 15 caracteres"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio";
+				} else if (!/^[0-9-]+$/.test(value)) {
+					newErrors[name] = "Solo números y guiones";
+				} else if (value.length < 9 || value.length > 15) {
+					newErrors[name] = "Debe tener entre 9 y 15 caracteres";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			case "Documento":
-				newErrors[name] =
-					value.trim().length > 0 && !/^\d{9,11}$/.test(value)
-						? "Debe ser un documento entre 9 y 11 digitos"
-						: "";
+				if (value && !/^\d{9,11}$/.test(value)) {
+					newErrors[name] = "Debe tener entre 9 y 11 dígitos";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			case "Celular":
 			case "Celular_Empresa":
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio";
+				} else if (!/^\d{9,11}$/.test(value)) {
+					newErrors[name] = "Debe tener entre 9 y 11 dígitos";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
 			case "Celular_Asesor":
-				newErrors[name] =
-					value.trim().length > 0 && !/^\d{9,11}$/.test(value)
-						? "Debe ser un numero entre 9 y 11 digitos"
-						: "";
+				if (value && !/^\d{9,11}$/.test(value)) {
+					newErrors[name] = "Debe tener entre 9 y 11 dígitos";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			case "Email":
-				newErrors[name] =
-					value.trim().length > 0 && value && !/^\S+@\S+\.\S+$/.test(value)
-						? "Correo inválido"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio";
+				} else if (!/^\S+@\S+\.\S+$/.test(value)) {
+					newErrors[name] = "Correo inválido";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			case "Direccion":
+				if (value.length > 30) {
+					newErrors[name] = "Máximo 30 caracteres";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			case "Tipo_Proveedor":
+				if (!value) {
+					newErrors[name] = "Debe seleccionar una opción";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 
 			default:
 				break;
-		}
-
-		if (newErrors[name] === "") {
-			delete newErrors[name];
 		}
 
 		setErrors(newErrors);
@@ -245,7 +303,6 @@ const EditarProveedor = () => {
 						name="Tipo_Proveedor"
 						value={formData.Tipo_Proveedor}
 						onChange={handleTipoProveedorChange}
-						required
 						className="w-full p-2 border rounded"
 					>
 						<option value="">Seleccione el Tipo</option>
@@ -282,7 +339,6 @@ const EditarProveedor = () => {
 								name="Documento"
 								value={formData.Documento}
 								onChange={handleChange}
-								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Documento && (
@@ -298,8 +354,6 @@ const EditarProveedor = () => {
 								name="Nombre"
 								value={formData.Nombre}
 								onChange={handleChange}
-								maxLength={30}
-								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Nombre && (
@@ -315,8 +369,6 @@ const EditarProveedor = () => {
 								name="Celular"
 								value={formData.Celular}
 								onChange={handleChange}
-								maxLength={11}
-								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Celular && (
@@ -338,7 +390,6 @@ const EditarProveedor = () => {
 								name="NIT"
 								value={formData.NIT}
 								onChange={handleChange}
-								maxLength={15}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.NIT && (
@@ -354,8 +405,6 @@ const EditarProveedor = () => {
 								name="Nombre_Empresa"
 								value={formData.Nombre_Empresa}
 								onChange={handleChange}
-								maxLength={30}
-								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Nombre_Empresa && (
@@ -371,7 +420,6 @@ const EditarProveedor = () => {
 								name="Asesor"
 								value={formData.Asesor}
 								onChange={handleChange}
-								maxLength={30}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Asesor && (
@@ -387,7 +435,6 @@ const EditarProveedor = () => {
 								name="Celular_Empresa"
 								value={formData.Celular_Empresa}
 								onChange={handleChange}
-								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Celular_Empresa && (
@@ -405,7 +452,6 @@ const EditarProveedor = () => {
 								name="Celular_Asesor"
 								value={formData.Celular_Asesor}
 								onChange={handleChange}
-								maxLength={11}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Celular_Asesor && (
@@ -429,7 +475,6 @@ const EditarProveedor = () => {
 								name="Email"
 								value={formData.Email}
 								onChange={handleChange}
-								required
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 							{errors.Email && (
@@ -443,7 +488,6 @@ const EditarProveedor = () => {
 								name="Direccion"
 								value={formData.Direccion}
 								onChange={handleChange}
-								maxLength={30}
 								className="w-full border border-gray-300 p-2 rounded"
 							/>
 						</div>

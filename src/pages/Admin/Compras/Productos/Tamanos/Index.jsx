@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 const Tamanos = () => {
 	const [tamanos, setTamanos] = useState([]);
+	const canEdit = (tamanos) => tamanos.Estado === true;
+	const canDelete = (tamanos) => tamanos.Estado === true;
 	const navigate = useNavigate();
 
 	const columns = [
@@ -22,7 +24,6 @@ const Tamanos = () => {
 		try {
 			const response = await tamanosService.obtenerTamanos();
 			setTamanos(transformData(response.data));
-			console.log(response)
 		} catch (error) {
 			console.error(
 				"Error al obtener los tamaños:",
@@ -177,6 +178,8 @@ const Tamanos = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Tamano"
 			stateAccessor="Estado"
+			canEdit={canEdit}
+			canDelete={canDelete}
 			return={returnProductos}
 		/>
 	);

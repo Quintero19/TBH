@@ -42,30 +42,53 @@ function AgregarTamano() {
 	// ---------------- VALIDACIÓN ----------------
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
+
 		switch (name) {
 			case "Nombre":
-				newErrors[name] =
-					value.trim().length > 0 && value.length < 3
-						? "Debe tener al menos 3 caracteres, sin caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 20) {
+					newErrors[name] = "Debe tener máximo 20 caracteres.";
+				} else if (value.length < 3) {
+					newErrors[name] = "Debe tener al menos 3 caracteres.";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9 ]+$/.test(value)) {
+					newErrors[name] = "Solo se permiten letras y números.";
+				} else {
+					delete newErrors[name];
+				}
 				break;
+
 			case "Precio_Venta":
-				newErrors[name] =
-					value.trim().length > 0 &&
-					(!/^[0-9-]+$/.test(value) || value.length < 3)
-						? "Solo números, debe tener más de 3 caracteres"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 10) {
+					newErrors[name] = "Debe tener máximo 10 caracteres.";
+				} else if (!/^\d+$/.test(value)) {
+					newErrors[name] = "Solo se permiten números.";
+				} else {
+					delete newErrors[name];
+				}
 				break;
+
 			case "Cantidad_Maxima":
-				newErrors[name] =
-					value.length < 1 ? "Debe contener al menos un caracter" : "";
+				if (!value.trim()) {
+					newErrors[name] = "Este campo es obligatorio.";
+				} else if (value.length > 10) {
+					newErrors[name] = "Debe tener máximo 10 caracteres.";
+				} else if (!/^\d+$/.test(value)) {
+					newErrors[name] = "Solo se permiten números.";
+				} else {
+					delete newErrors[name];
+				}
 				break;
+
 			default:
 				break;
 		}
-		if (!newErrors[name]) delete newErrors[name];
+
 		setErrors(newErrors);
 	};
+
 
 	const mostrarAlerta = (titulo, mensaje) => {
 		showAlert(mensaje, {
@@ -243,7 +266,6 @@ function AgregarTamano() {
 						<input
 							name={campo}
 							type="text"
-							maxLength={campo === "Nombre" ? 20 : 10}
 							value={formData[campo]}
 							onChange={handleChange}
 							className="w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"

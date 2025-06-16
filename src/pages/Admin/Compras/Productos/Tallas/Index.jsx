@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 const Tallas = () => {
 	const [categorias, setCategorias] = useState([]);
 	const [tallas, setTallas] = useState([]);
+	const canEdit = (tallas) => tallas.Estado === true;
+	const canDelete = (tallas) => tallas.Estado === true;
 	const navigate = useNavigate();
 
 	const columns = [
@@ -72,7 +74,7 @@ const Tallas = () => {
 	const handleToggleEstado = async (id) => {
 		try {
 			await tallasService.actualizarEstadoTalla(id);
-			await fetchTallas();
+			await fetchTallas(categorias);
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
@@ -190,6 +192,8 @@ const Tallas = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Tallas"
 			stateAccessor="Estado"
+			canEdit={canEdit}
+			canDelete={canDelete}
 			return={returnProductos}
 		/>
 	);
