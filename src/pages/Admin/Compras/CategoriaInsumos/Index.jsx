@@ -255,7 +255,7 @@ const CategoriaInsumoAdmin = () => {
 		<>
 			{error && <div className="text-red-600 font-semibold mb-4">{error}</div>}
 			<GeneralTable
-				title="Listado de Categorías"
+				title="Categorías de Insumos"
 				columns={columns}
 				data={categorias}
 				onView={handleVerDetalles}

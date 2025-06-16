@@ -148,7 +148,7 @@ const InsumoAdmin = () => {
     <>
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <GeneralTable
-        title="Gestión de Insumos"
+        title="Insumos"
         columns={columns}
         data={insumos}
         onView={handleVerDetalles}
