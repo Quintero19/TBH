@@ -38,6 +38,8 @@ import UsuarioAgregar from "../pages/Admin/Usuarios/Usuario/Agregar";
 import UsuarioEditar from "../pages/Admin/Usuarios/Usuario/Editar";
 import UsuarioAdmin from "../pages/Admin/Usuarios/Usuario/Index";
 import ClienteAdmin from "../pages/Admin/Usuarios/Ventas/Clientes/Index";
+import ClientesAgregar from "../pages/Admin/Usuarios/Ventas/Clientes/Agregar";
+import ClientesEditar from "../pages/Admin/Usuarios/Ventas/Clientes/Editar";
 import DevolucionesAdmin from "../pages/Admin/Usuarios/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Usuarios/Ventas/Venta/Index";
 
@@ -128,6 +130,8 @@ function App() {
 
 				<Route path="ventas" element={<VentaAdmin />} />
 				<Route path="clientes" element={<ClienteAdmin />} />
+				<Route path="clientes/agregar" element={<ClientesAgregar />} />
+				<Route path="clientes/editar/:id" element={<ClientesEditar />} />
 				<Route path="devoluciones" element={<DevolucionesAdmin />} />
 			</Route>
 		</Routes>
