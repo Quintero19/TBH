@@ -143,25 +143,26 @@ const InsumoAdmin = () => {
 	const canEdit = (i) => i.Estado === true;
 	const canDelete = (i) => i.Estado === false;
 
-	// --- Renderizado del componente ---
-	return (
-		<>
-			{error && <div className="text-red-500 mb-4">{error}</div>}
-			<GeneralTable
-				title="Gestión de Insumos"
-				columns={columns}
-				data={insumos}
-				onView={handleVerDetalles}
-				onToggleEstado={handleToggleEstado}
-				onAdd={handleAdd}
-				onEdit={handleEdit}
-				onDelete={handleDelete}
-				canEdit={canEdit}
-				canDelete={canDelete}
-				idAccessor="Id_Insumos"
-			/>
-		</>
-	);
+  // --- Renderizado del componente ---
+  return (
+    <>
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      <GeneralTable
+        title="Insumos"
+        columns={columns}
+        data={insumos}
+        onView={handleVerDetalles}
+        onToggleEstado={handleToggleEstado}
+        onAdd={handleAdd}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        canEdit={canEdit}
+        canDelete={canDelete}
+        idAccessor="Id_Insumos"
+      />
+    </>
+  );
+
 };
 
 export default InsumoAdmin;
