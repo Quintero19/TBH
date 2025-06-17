@@ -1,9 +1,9 @@
-import { React, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
+import { rolService } from "@/service/roles.service.js";
 import { userService } from "@/service/usuario.service";
-import { rolService } from "@/service/roles.service.js"
+import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Usuario() {
 	const navigate = useNavigate();
@@ -21,15 +21,15 @@ export default function Usuario() {
 	useEffect(() => {
 		const fetchRoles = async () => {
 			try {
-			const response = await rolService.listarRoles(); 
-			setRoles(response.data); 
+				const response = await rolService.listarRoles();
+				setRoles(response.data);
 			} catch (error) {
-			console.error("Error al cargar roles:", error);
+				console.error("Error al cargar roles:", error);
 			}
 		};
 
 		fetchRoles();
-		}, []);
+	}, []);
 
 	const [usuarios, setUsuarios] = useState([]);
 
@@ -51,7 +51,6 @@ export default function Usuario() {
 		}
 	}, []);
 
-
 	const handleToggleEstado = async (id) => {
 		try {
 			await userService.actualizarEstadoUsuario(id);
@@ -63,19 +62,22 @@ export default function Usuario() {
 	};
 
 	const handleDelete = async (usuario) => {
-		const result = await showAlert(`¿Deseas eliminar al usuario con documento "${usuario.Documento}"?`,{
-			type: "warning",
-			title: "Confirmar eliminación",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-		});
+		const result = await showAlert(
+			`¿Deseas eliminar al usuario con documento "${usuario.Documento}"?`,
+			{
+				type: "warning",
+				title: "Confirmar eliminación",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, eliminar",
+				cancelButtonText: "Cancelar",
+			},
+		);
 
 		if (result.isConfirmed) {
 			try {
 				await userService.eliminarUsuario(usuario.Id_Usuario);
-				await showAlert("Usuario eliminado correctamente",{
+				await showAlert("Usuario eliminado correctamente", {
 					type: "success",
 					title: "Éxito",
 					duration: 2000,
@@ -83,8 +85,7 @@ export default function Usuario() {
 				await obtenerUsuarios();
 			} catch (error) {
 				const mensaje =
-					error?.response?.data?.message ||
-					"No se pudo eliminar el Usuario.";
+					error?.response?.data?.message || "No se pudo eliminar el Usuario.";
 				await showAlert(mensaje, {
 					type: "error",
 					title: "Error",
@@ -96,7 +97,8 @@ export default function Usuario() {
 	};
 
 	const handleVerDetalles = async (usuario) => {
-		const rolNombre = roles.find((r) => r.Id === usuario.Rol_Id)?.Nombre || "Desconocido";
+		const rolNombre =
+			roles.find((r) => r.Id === usuario.Rol_Id)?.Nombre || "Desconocido";
 		try {
 			const html = `
 			<div class="space-y-7 text-gray-100">
@@ -125,12 +127,12 @@ export default function Usuario() {
 					Estado
 					</label>
 					<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-					usuario.Estado
-						? 'bg-[#112d25] border-emerald-500/30'
-						: 'bg-[#2c1a1d] border-rose-500/30'
+						usuario.Estado
+							? "bg-[#112d25] border-emerald-500/30"
+							: "bg-[#2c1a1d] border-rose-500/30"
 					}">
 					<div class="font-medium ${
-						usuario.Estado ? 'text-emerald-300' : 'text-rose-300'
+						usuario.Estado ? "text-emerald-300" : "text-rose-300"
 					}">
 						${usuario.Estado ? "Activo" : "Inactivo"}
 					</div>
@@ -143,8 +145,8 @@ export default function Usuario() {
 					Rol
 					</label>
 					<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
-					<div class="text-gray-200 ${!rolNombre ? 'italic text-gray-400' : ''}">
-						${rolNombre|| "No hay descripción disponible"}
+					<div class="text-gray-200 ${!rolNombre ? "italic text-gray-400" : ""}">
+						${rolNombre || "No hay descripción disponible"}
 					</div>
 					</div>
 				</div>
@@ -153,7 +155,7 @@ export default function Usuario() {
 					Correo
 					</label>
 					<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
-					<div class="text-gray-200 ${!usuario.Correo ? 'italic text-gray-400' : ''}">
+					<div class="text-gray-200 ${!usuario.Correo ? "italic text-gray-400" : ""}">
 						${usuario.Correo || "No hay descripción disponible"}
 					</div>
 					</div>
@@ -161,34 +163,32 @@ export default function Usuario() {
 				</div>
 			</div>
 			`;
-	
+
 			await showAlert(html, {
-			title: '',
-			width: '640px',
-			background: '#111827',
-			color: '#ffffff',
-			padding: '1.5rem',
-			confirmButtonText: 'Cerrar',
-			confirmButtonColor: '#4f46e5',
-			customClass: {
-				popup: 'rounded-xl shadow-2xl border border-gray-700/50',
-				confirmButton: 'px-6 py-2 font-medium rounded-lg mt-4'
-			}
+				title: "",
+				width: "640px",
+				background: "#111827",
+				color: "#ffffff",
+				padding: "1.5rem",
+				confirmButtonText: "Cerrar",
+				confirmButtonColor: "#4f46e5",
+				customClass: {
+					popup: "rounded-xl shadow-2xl border border-gray-700/50",
+					confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
+				},
 			});
-	
 		} catch (error) {
 			console.error(error);
 			await showAlert(`Error: ${error.message || error}`, {
-			title: 'Error',
-			icon: 'error',
-			background: '#1f2937',
-			color: '#ffffff',
-			width: '500px',
-			confirmButtonColor: '#dc2626'
+				title: "Error",
+				icon: "error",
+				background: "#1f2937",
+				color: "#ffffff",
+				width: "500px",
+				confirmButtonColor: "#dc2626",
 			});
 		}
-		};
-
+	};
 
 	const handleEdit = (usuario) => {
 		navigate(`/admin/usuario/editar/${usuario.Id_Usuario}`);

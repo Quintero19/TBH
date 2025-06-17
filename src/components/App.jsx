@@ -2,6 +2,8 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import "../styles/css/App.css";
 
+import AgregarTamano from "@/pages/Admin/Compras/Productos/Tamanos/AgregarTamano";
+import EditarTamano from "@/pages/Admin/Compras/Productos/Tamanos/EditarTamano";
 import AgregarCatInsumo from "../pages/Admin/Compras/CategoriaInsumos/AgregarCatInsumo";
 import EditarCatInsumo from "../pages/Admin/Compras/CategoriaInsumos/EditarCatInsumo";
 import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index";
@@ -9,9 +11,9 @@ import AgregarCatProducto from "../pages/Admin/Compras/CategoriaProductos/Agrega
 import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarCatProducto";
 import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
 import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
-import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import AgregarInsumo from "../pages/Admin/Compras/Insumos/AgregarInsumos";
 import EditarInsumo from "../pages/Admin/Compras/Insumos/EditarInsumos";
+import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import Productos from "../pages/Admin/Compras/Productos/Index";
 import AgregarTalla from "../pages/Admin/Compras/Productos/Tallas/AgregarTalla";
 import EditarTalla from "../pages/Admin/Compras/Productos/Tallas/EditarTalla";
@@ -21,8 +23,8 @@ import AgregarProveedor from "../pages/Admin/Compras/Proveedores/AgregarProveedo
 import EditarProveedor from "../pages/Admin/Compras/Proveedores/EditarProveedor";
 import Proveedores from "../pages/Admin/Compras/Proveedores/Index";
 import RolesAdminAgregar from "../pages/Admin/Configuracion/Roles/Agregar";
-import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
 import RolesAdminAsignacion from "../pages/Admin/Configuracion/Roles/Asignacion";
+import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
 
 import Dashboard from "../pages/Admin/Dashboard";
@@ -113,6 +115,8 @@ function App() {
 				<Route path="tallas/agregar" element={<AgregarTalla />} />
 				<Route path="tallas/editar/:id" element={<EditarTalla />} />
 				<Route path="tamanos" element={<Tamanos />} />
+				<Route path="tamanos/agregar" element={<AgregarTamano />} />
+				<Route path="tamanos/editar/:id" element={<EditarTamano />} />
 
 				{/*Cat.Insumo*/}
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />

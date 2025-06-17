@@ -17,7 +17,7 @@ export const categoriaInsumoService = {
 		const res = await api.get(`${RESOURCE_URL}/${id}`);
 		return res.data;
 	},
-    actualizarCategoria: async (id, data) => {
+	actualizarCategoria: async (id, data) => {
 		const res = await api.put(`${RESOURCE_URL}/${id}`, data);
 		return res.data;
 	},
@@ -29,7 +29,7 @@ export const categoriaInsumoService = {
 		return res.data;
 	},
 
-    eliminarCategoria: async (id) => {
+	eliminarCategoria: async (id) => {
 		const res = await api.delete(`${RESOURCE_URL}/${id}`);
 		return res.data;
 	},

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { rolService } from "@/service/roles.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditarRol = () => {
 	const { id } = useParams();
@@ -172,7 +172,7 @@ const EditarRol = () => {
 					</div>
 
 					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button  icon="fa-floppy-o" className="green" type="submit">
+						<Button icon="fa-floppy-o" className="green" type="submit">
 							Guardar
 						</Button>
 						<Button icon="fa-times" className="red" onClick={handleCancel}>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { rolService } from "@/service/roles.service";
 import { userService } from "@/service/usuario.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditarUsuario = () => {
 	const { id } = useParams();
@@ -15,7 +15,7 @@ const EditarUsuario = () => {
 	useEffect(() => {
 		const cargarUsuarioYRoles = async () => {
 			if (!id) {
-				showAlert("ID de usuario no proporcionado.",{
+				showAlert("ID de usuario no proporcionado.", {
 					type: "error",
 					title: "Datos inválidos",
 					duration: 2000,
@@ -44,7 +44,7 @@ const EditarUsuario = () => {
 				}
 			} catch (error) {
 				console.error("Error al cargar datos:", error);
-				showAlert("No se pudo cargar el usuario o los roles.",{
+				showAlert("No se pudo cargar el usuario o los roles.", {
 					type: "error",
 					title: "Datos inválidos",
 					duration: 2000,
@@ -122,15 +122,15 @@ const EditarUsuario = () => {
 
 			await userService.actualizarUsuario(id, dataToSend);
 
-			showAlert("El usuario ha sido actualizado correctamente.",{
+			showAlert("El usuario ha sido actualizado correctamente.", {
 				type: "success",
-        		duration: 1500,
+				duration: 1500,
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
 		} catch (error) {
 			console.error(err);
-				showAlert(`Error al guardar: ${err.message}`, {
+			showAlert(`Error al guardar: ${err.message}`, {
 				type: "error",
 				title: "Error",
 			});
@@ -138,7 +138,7 @@ const EditarUsuario = () => {
 	};
 
 	const handleCancel = () => {
-		showAlert("Si cancelas, perderás los cambios realizados.",{
+		showAlert("Si cancelas, perderás los cambios realizados.", {
 			type: "warning",
 			title: "¿Cancelar?",
 			showConfirmButton: true,

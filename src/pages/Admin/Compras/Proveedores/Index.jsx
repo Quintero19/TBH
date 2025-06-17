@@ -1,11 +1,10 @@
-import { React, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { proveedorService } from "@/service/proveedores.service";
-import { showAlert } from "@/components/AlertProvider";
+import { React, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Proveedores = () => {
-
 	const [proveedores, setProveedores] = useState([]);
 	const navigate = useNavigate();
 	const canEdit = (proveedor) => proveedor.Estado === true;
@@ -69,7 +68,7 @@ const Proveedores = () => {
 			showAlert(`Error Cambiando Estado del proveedor: ${error}`, {
 				type: "error",
 				title: "Error",
-			})
+			});
 		}
 	};
 
@@ -119,7 +118,7 @@ const Proveedores = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			showAlert(`No se pudieron cargar los detalles del proveedor: ${error}`, {
@@ -136,7 +135,7 @@ const Proveedores = () => {
 	const handleEdit = (proveedor) => {
 		navigate(`/admin/proveedores/editar/${proveedor.Id_Proveedores}`);
 	};
-	
+
 	/* ───────────────────────────────────── */
 
 	/* ───────────── Eliminar ───────────────*/
@@ -151,7 +150,7 @@ const Proveedores = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
@@ -167,7 +166,8 @@ const Proveedores = () => {
 				fetchProveedores();
 			} catch (error) {
 				console.error("Error Eliminando Proveedor:", error);
-				const mensaje = error.response?.data?.message || "Error al eliminar el proveedor";
+				const mensaje =
+					error.response?.data?.message || "Error al eliminar el proveedor";
 
 				window.showAlert(mensaje, {
 					type: "error",
@@ -193,7 +193,7 @@ const Proveedores = () => {
 			idAccessor="Id_Proveedores"
 			stateAccessor="Estado"
 			canEdit={canEdit}
-			canDelete={canDelete}	
+			canDelete={canDelete}
 		/>
 	);
 };

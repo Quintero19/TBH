@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { compraService } from "@/service/compras.service";
 import { proveedorService } from "@/service/proveedores.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Compras = () => {
-
 	const [proveedores, setProveedores] = useState([]);
 	const [compras, setCompras] = useState([]);
 	const navigate = useNavigate();
@@ -26,7 +25,10 @@ const Compras = () => {
 			const response = await compraService.obtenerCompras();
 			setCompras(transformData(response.data, proveedoresData));
 		} catch (error) {
-			console.error( "Error al obtener las compras:", error.response?.data || error);
+			console.error(
+				"Error al obtener las compras:",
+				error.response?.data || error,
+			);
 		}
 	}, []);
 
@@ -37,7 +39,10 @@ const Compras = () => {
 				setProveedores(response.data);
 				await fetchCompras(response.data);
 			} catch (error) {
-				console.error("Error al obtener proveedores:", error.response?.data || error);
+				console.error(
+					"Error al obtener proveedores:",
+					error.response?.data || error,
+				);
 			}
 		};
 		fetchProveedores();
@@ -48,18 +53,21 @@ const Compras = () => {
 	/* ───── Transformación de Datos ───── */
 
 	const transformData = useCallback(
-		(lista, listaproveedores) => lista.map((item) => {
-			
-			const proveedor = listaproveedores.find(
-				(p) => p.Id_Proveedores === item.Id_Proveedores,
-			);
-			const isEmpresa = proveedor.Tipo_Proveedor === "Empresa";
-			return {
-				...item,
-				NombreProveedor: isEmpresa ? proveedor.Nombre_Empresa : proveedor.Nombre,
-				Total: item.Total != null ? Math.floor(item.Total) : "-",
-			};
-		}), [],
+		(lista, listaproveedores) =>
+			lista.map((item) => {
+				const proveedor = listaproveedores.find(
+					(p) => p.Id_Proveedores === item.Id_Proveedores,
+				);
+				const isEmpresa = proveedor.Tipo_Proveedor === "Empresa";
+				return {
+					...item,
+					NombreProveedor: isEmpresa
+						? proveedor.Nombre_Empresa
+						: proveedor.Nombre,
+					Total: item.Total != null ? Math.floor(item.Total) : "-",
+				};
+			}),
+		[],
 	);
 
 	/* ─────────────────────────────────── */
@@ -67,24 +75,22 @@ const Compras = () => {
 	/* ───────── Cambiar Estado ────────── */
 
 	const handleToggleEstado = async (id) => {
-		const result = await window.showAlert(
-			`¿Deseas anular esta Compra?`,
-			{
-				type: "warning",
-				title: "¿Estás seguro?",
-				showConfirmButton: true,
-				showCancelButton: true,
-				confirmButtonText: "Sí, eliminar",
-				cancelButtonText: "Cancelar",
-			}
-		);
+		const result = await window.showAlert("¿Deseas anular esta Compra?", {
+			type: "warning",
+			title: "¿Estás seguro?",
+			showConfirmButton: true,
+			showCancelButton: true,
+			confirmButtonText: "Sí, eliminar",
+			cancelButtonText: "Cancelar",
+		});
 		if (result.isConfirmed) {
 			try {
 				await compraService.cambiarEstadoCompra(id);
 				await fetchCompras(proveedores);
 			} catch (error) {
 				console.error("Error Anulando Compra:", error);
-				const mensaje = error.response?.data?.message || "Error al anular la compra";
+				const mensaje =
+					error.response?.data?.message || "Error al anular la compra";
 
 				window.showAlert(mensaje, {
 					type: "error",
@@ -103,7 +109,6 @@ const Compras = () => {
 		navigate("/admin/compras/agregar");
 	};
 
-	
 	/* ──────────────────────────────────── */
 
 	/* ────────── Ver Detalles ──────────── */
@@ -116,7 +121,7 @@ const Compras = () => {
 								<p><strong>Nombre:</strong> ${talla.Nombre || "-"}</p>
 								<p><strong>Estado:</strong> ${talla.Estado ? "Activo" : "Inactivo"}</p>
 							</div>
-			`
+			`;
 			await showAlert(html, {
 				title: `Detalles Talla ID: ${talla.Id_Tallas}`,
 				type: "info",
@@ -124,7 +129,7 @@ const Compras = () => {
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",
-				}
+				},
 			});
 		} catch (error) {
 			console.error("Error al obtener la talla:", error);

@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { tamanosService } from "@/service/tamanos.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Tamanos = () => {
-
 	const [tamanos, setTamanos] = useState([]);
+	const canEdit = (tamanos) => tamanos.Estado === true;
+	const canDelete = (tamanos) => tamanos.Estado === true;
 	const navigate = useNavigate();
 
 	const columns = [
@@ -62,10 +63,10 @@ const Tamanos = () => {
 			showAlert(`Error Cambiando Estado del Tamano: ${error}`, {
 				type: "error",
 				title: "Error",
-			})
+			});
 		}
 	};
-	
+
 	/* ─────────────────────────────────── */
 
 	/* ────────── Ir a Agregar ─────────── */
@@ -79,7 +80,7 @@ const Tamanos = () => {
 	/* ────────── Ver Detalles ──────────── */
 
 	const handleVerDetalles = async (tamano) => {
-		try{
+		try {
 			const html = `
 							<div class="text-left">
 								<p><strong>Nombre:</strong> ${tamano.Nombre || "-"}</p>
@@ -88,15 +89,15 @@ const Tamanos = () => {
 								<p><strong>Estado:</strong> ${tamano.Estado ? "Activo" : "Inactivo"}</p>
 							</div>
 			`;
-			await showAlert(html,{
+			await showAlert(html, {
 				title: `Detalles Tamaño ID: ${tamano.Id_Tamano}`,
 				type: "info",
-					showConfirmButton: true,
-					swalOptions: {
-						confirmButtonText: "Cerrar",
-						padding: "1rem",
-					}
-				});
+				showConfirmButton: true,
+				swalOptions: {
+					confirmButtonText: "Cerrar",
+					padding: "1rem",
+				},
+			});
 		} catch (error) {
 			showAlert(`No se pudieron cargar los detalles del tamaño: ${error}`, {
 				type: "error",
@@ -127,24 +128,25 @@ const Tamanos = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-		});
+			},
+		);
 
 		if (result.isConfirmed) {
 			try {
 				await tamanosService.eliminarTamano(tamano.Id_Tamano);
 
-				await window.showAlert("Tamaño eliminado correctamente",{
+				await window.showAlert("Tamaño eliminado correctamente", {
 					type: "success",
 					title: "Eliminado",
 					duration: 2000,
 				});
-				
-				fetchTamanos();
 
+				fetchTamanos();
 			} catch (error) {
 				console.error("Error eliminando tamaño:", error);
-				const mensaje = error.response?.data?.message || "Error al eliminar el tamaño";
-				
+				const mensaje =
+					error.response?.data?.message || "Error al eliminar el tamaño";
+
 				window.showAlert(mensaje, {
 					type: "error",
 					title: "Error",
@@ -176,6 +178,8 @@ const Tamanos = () => {
 			onToggleEstado={handleToggleEstado}
 			idAccessor="Id_Tamano"
 			stateAccessor="Estado"
+			canEdit={canEdit}
+			canDelete={canDelete}
 			return={returnProductos}
 		/>
 	);

@@ -18,6 +18,16 @@ export const insumoService = {
 		return res.data;
 	},
 
+	obtenerInsumosBase: async () => {
+		const res = await api.get(`${RESOURCE_URL}/base`);
+		return res.data;
+	},
+
+	obtenerInsumosFrascos: async () => {
+		const res = await api.get(`${RESOURCE_URL}/frascos`);
+		return res.data;
+	},
+
 	actualizarInsumo: async (id, data) => {
 		const res = await api.put(`${RESOURCE_URL}/${id}`, data);
 		return res.data;

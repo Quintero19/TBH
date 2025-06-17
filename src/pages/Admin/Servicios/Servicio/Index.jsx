@@ -11,8 +11,8 @@ const columns = [
 	{ header: "Duracion ", accessor: "Duracion" },
 	{ header: "Estado", accessor: "Estado" },
 ];
-		const canEdit = (servicios) => servicios.Estado === true;
-	const canDelete = (servicios) => servicios.Estado === true;
+const canEdit = (servicios) => servicios.Estado === true;
+const canDelete = (servicios) => servicios.Estado === true;
 
 const transformData = (data) => {
 	return data.map((item) => {
@@ -55,7 +55,7 @@ const Servicios = () => {
 	}, [fetchServicios]);
 
 	const handleAdd = () => {
-		navigate("/admin/servicios/agregar"); 
+		navigate("/admin/servicios/agregar");
 	};
 
 	const handleVerDetalles = async (Servicios) => {
@@ -89,7 +89,7 @@ const Servicios = () => {
 	};
 
 	const handleEdit = (Servicios) => {
-		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`); 
+		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`);
 	};
 
 	const handleDelete = async (Servicios) => {

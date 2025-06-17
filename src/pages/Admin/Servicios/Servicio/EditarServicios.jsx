@@ -172,15 +172,16 @@ const EditarServicios = () => {
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
 					<Button type="submit" className="green" icon="fa-floppy-o">
-						<div className="flex items-center gap-2">
-							Guardar
-						</div>
+						<div className="flex items-center gap-2">Guardar</div>
 					</Button>
 
-					<Button type="button" className="red" onClick={handleCancel} icon="fa-times">
-						<div className="flex items-center gap-2">
-							Cancelar
-						</div>
+					<Button
+						type="button"
+						className="red"
+						onClick={handleCancel}
+						icon="fa-times"
+					>
+						<div className="flex items-center gap-2">Cancelar</div>
 					</Button>
 				</div>
 			</form>

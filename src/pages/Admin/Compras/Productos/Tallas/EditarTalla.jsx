@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const EditarTalla = () => {
 	const [categorias, setCategorias] = useState([]);
@@ -53,16 +53,24 @@ const EditarTalla = () => {
 
 		switch (name) {
 			case "Nombre":
-				newErrors[name] = value.length < 1
-						? "Debe tener al menos 1 caracter, sin caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "El nombre es obligatorio";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]{1,25}$/.test(value)) {
+					newErrors[name] =
+						"Solo letras, números y espacios. Máximo 25 caracteres.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+			case "Id_Categoria_Producto":
+				if (!value) {
+					newErrors[name] = "Debe seleccionar una categoría";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 			default:
 				break;
-		}
-
-		if (newErrors[name] === "") {
-			delete newErrors[name];
 		}
 
 		setErrors(newErrors);
@@ -71,12 +79,12 @@ const EditarTalla = () => {
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 
-		let updatedValue = type === "checkbox" ? checked : value;
+		const updatedValue = type === "checkbox" ? checked : value;
 
 		if (name === "Nombre") {
 			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]*$/;
 			if (!regex.test(value)) {
-				return; 
+				return;
 			}
 		}
 
@@ -102,7 +110,7 @@ const EditarTalla = () => {
 
 		try {
 			await tallasService.actualizarTalla(id, formData);
-			showAlert("La Talla ha sido actualizada correctamente.",{
+			showAlert("La Talla ha sido actualizada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
@@ -120,18 +128,20 @@ const EditarTalla = () => {
 	};
 
 	const handleCancel = () => {
-		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar Editando",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/tallas");
-			}
-		});
+		window
+			.showAlert("Si cancelas, perderás los datos ingresados.", {
+				title: "¿Estás seguro?",
+				type: "warning",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, cancelar",
+				cancelButtonText: "Continuar Editando",
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					navigate("/admin/tallas");
+				}
+			});
 	};
 
 	return (
@@ -154,9 +164,9 @@ const EditarTalla = () => {
 						required
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
-						{errors.Nombre && (
-							<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-						)}
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
 				</div>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">
@@ -179,10 +189,13 @@ const EditarTalla = () => {
 							</option>
 						))}
 					</select>
+						{errors.Id_Categoria_Producto && (
+							<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Producto}</p>
+						)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" icon="fa-floppy-o">
+					<Button type="submit" className="green" icon="fa-floppy-o" disabled={Object.keys(errors).length > 0}>
 						Guardar
 					</Button>
 

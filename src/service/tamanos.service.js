@@ -8,6 +8,11 @@ export const tamanosService = {
 		return res.data;
 	},
 
+	crearRelaciones: async (data) => {
+		const res = await api.post(`${USER_URL}/relaciones`, data);
+		return res.data;
+	},
+
 	obtenerTamanos: async () => {
 		const res = await api.get(USER_URL);
 		return res.data;
