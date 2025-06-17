@@ -6,10 +6,6 @@ import { rolService } from "@/service/roles.service";
 import { permisoService } from '@/service/permisos.service';
 import { rolPermisoService } from '@/service/asignacionPermiso';
 
-
-
-
-
 export default function Rol() {
 	const navigate = useNavigate();
 	const title = "Roles";
@@ -169,7 +165,7 @@ export default function Rol() {
 			`;
 
 			await showAlert(html, {
-				title: 'Ver Detalle de Roles',
+				title: '',
 				width: '640px',
 				background: '#111827',
 				color: '#ffffff',
