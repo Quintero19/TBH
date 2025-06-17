@@ -9,6 +9,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import styles from "@/styles/css/AuthForm.module.css";
+import api from "@/utils/api";
 
 const ENDPOINTS = {
 	login: "/auth/login",
