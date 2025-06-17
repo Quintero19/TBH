@@ -94,9 +94,15 @@ const EditarUsuario = () => {
 		}
 
 		if (formData.Password || formData.confirmPassword) {
-			if (formData.Password.length < 8) {
-				return "Las contraseñas debe ser minimo 8 caracteres.";
-			}
+			const password = formData.Password;
+				if (password.length < 8 || !/[A-Z]/.test(password) ||  !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+					showAlert("La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.", {
+						type: "error",
+						title: "Datos inválidos",
+						duration: 2000,
+					});
+					return;
+					}
 		}
 
 		return null;

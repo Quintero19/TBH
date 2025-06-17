@@ -71,24 +71,27 @@ export default function AgregarRol() {
 
 		if (!validarCampos()) return;
 
-		try {
-			await rolService.crearRoles(formData);
+		 try {
+			const nuevoRol = await rolService.crearRoles(formData);
 
 			showAlert("El Rol ha sido guardado correctamente.", {
-				type: "success",
-				duration: 1500,
+			type: "success",
+			duration: 1500,
 			}).then(() => {
-				navigate("/admin/roles");
+			if (nuevoRol.data.Id) {
+				navigate(`/admin/roles/asignar/${nuevoRol.data.Id}`);
+			} else {
+				navigate("/admin/roles"); 
+			}
 			});
 		} catch (err) {
 			console.error(err);
 			showAlert(`Error al guardar: ${err.message}`, {
-				type: "error",
-				title: "Error",
+			type: "error",
+			title: "Error",
 			});
 		}
-	};
-
+		};
 	const handleCancel = () => {
 		showAlert("Si cancelas, perderás los datos ingresados.", {
 			type: "warning",
