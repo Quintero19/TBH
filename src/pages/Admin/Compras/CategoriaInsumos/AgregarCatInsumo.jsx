@@ -69,12 +69,17 @@ const AgregarCatInsumo = () => {
 			navigate("/admin/categoriainsumo");
 		} catch (err) {
 			console.error(err);
-			showAlert(`Error al guardar: ${err.message}`, {
+
+			const mensaje =
+				err.response?.data?.message || "Ocurrió un error al guardar";
+
+			showAlert(`Error al guardar: ${mensaje}`, {
 				type: "error",
 				title: "Error",
 			});
 		}
 	};
+
 
 	/* ---------- Cancelar ---------- */
 	const handleCancel = () => {
