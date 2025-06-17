@@ -5,57 +5,36 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const EditarCatInsumo = () => {
-	/**
-	 * Inicialización de hooks useNavigate y useParams para navegación y obtener parámetro ID
-	 */
 	const navigate = useNavigate();
 	const { id } = useParams();
-	//-----------------------------
 
-	/**
-	 * Estado local para los datos del formulario (Nombre, Descripción, Estado)
-	 * y para los errores de validación
-	 */
 	const [formData, setFormData] = useState({
 		Nombre: "",
 		Descripcion: "",
 		Estado: true,
 	});
+	const [categoriaOriginal, setCategoriaOriginal] = useState(null);
 	const [errors, setErrors] = useState({});
 	const [loading, setLoading] = useState(true);
-	//-----------------------------
 
-	/**
-	 * Función para validar campos del formulario individualmente,
-	 * recibe nombre del campo, valor, y errores actuales para actualizar
-	 */
 	const validateField = (name, value, currentErrors = {}) => {
 		const newErrors = { ...currentErrors };
 		const val = value.toString().trim();
 
 		switch (name) {
 			case "Nombre":
-				if (!val) {
-					newErrors.Nombre = "El nombre es obligatorio";
-				} else if (val.length < 3) {
-					newErrors.Nombre = "Mínimo 3 letras";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val)) {
+				if (!val) newErrors.Nombre = "El nombre es obligatorio";
+				else if (val.length < 3) newErrors.Nombre = "Mínimo 3 letras";
+				else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val))
 					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
-				} else {
-					newErrors.Nombre = undefined;
-				}
+				else newErrors.Nombre = undefined;
 				break;
 
 			case "Descripcion":
-				if (!val) {
-					newErrors.Descripcion = "La descripción es obligatoria";
-				} else if (val.length < 5) {
-					newErrors.Descripcion = "Mínimo 5 caracteres";
-				} else if (val.length > 100) {
-					newErrors.Descripcion = "Máximo 100 caracteres";
-				} else {
-					newErrors.Descripcion = undefined;
-				}
+				if (!val) newErrors.Descripcion = "La descripción es obligatoria";
+				else if (val.length < 5) newErrors.Descripcion = "Mínimo 5 caracteres";
+				else if (val.length > 100) newErrors.Descripcion = "Máximo 100 caracteres";
+				else newErrors.Descripcion = undefined;
 				break;
 
 			default:
@@ -64,23 +43,21 @@ const EditarCatInsumo = () => {
 
 		return newErrors;
 	};
-	//-----------------------------
 
-	/**
-	 * useEffect que se ejecuta al montar el componente para cargar
-	 * los datos de la categoría desde el backend por el ID
-	 */
 	useEffect(() => {
 		const cargarCategoria = async () => {
 			try {
 				const response = await categoriaInsumoService.obtenerCategoriaPorId(id);
 				const data = response.data;
 
-				setFormData({
+				const nuevaCategoria = {
 					Nombre: data.Nombre || "",
 					Descripcion: data.Descripcion || "",
 					Estado: data.Estado !== undefined ? data.Estado : true,
-				});
+				};
+
+				setFormData(nuevaCategoria);
+				setCategoriaOriginal(nuevaCategoria);
 				setLoading(false);
 			} catch (err) {
 				console.error(err);
@@ -94,41 +71,51 @@ const EditarCatInsumo = () => {
 
 		cargarCategoria();
 	}, [id, navigate]);
-	//-----------------------------
 
-	/**
-	 * Maneja cambios en los inputs del formulario,
-	 * actualiza el estado de formData y valida el campo modificado
-	 */
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 		const val = type === "checkbox" ? checked : value;
 
 		setFormData((prev) => ({ ...prev, [name]: val }));
-
 		setErrors((prevErrors) => validateField(name, val, prevErrors));
 	};
-	//-----------------------------
 
-	/**
-	 * Maneja el envío del formulario,
-	 * valida todos los campos y si no hay errores,
-	 * envía la actualización al backend y navega de regreso
-	 */
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		let newErrors = validateField("Nombre", formData.Nombre, {});
 		newErrors = validateField("Descripcion", formData.Descripcion, newErrors);
-
 		setErrors(newErrors);
 
-		if (Object.keys(newErrors).length > 0) {
+		if (Object.values(newErrors).some((error) => error !== undefined)) {
 			showAlert("Corrige los errores antes de guardar", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
 			});
+			return;
+		}
+
+		if (!categoriaOriginal) {
+			showAlert("Datos originales no cargados aún", {
+				type: "warning",
+				title: "Espera",
+			});
+			return;
+		}
+
+		const sinCambios =
+			formData.Nombre.trim() === categoriaOriginal.Nombre.trim() &&
+			formData.Descripcion.trim() === (categoriaOriginal.Descripcion || "").trim() &&
+			formData.Estado === categoriaOriginal.Estado;
+
+		if (sinCambios) {
+			showAlert("No se detectaron cambios para actualizar", {
+				type: "info",
+				title: "Sin cambios",
+				duration: 2000,
+			});
+			navigate("/admin/categoriainsumo");
 			return;
 		}
 
@@ -147,12 +134,7 @@ const EditarCatInsumo = () => {
 			});
 		}
 	};
-	//-----------------------------
 
-	/**
-	 * Maneja la acción de cancelar la edición,
-	 * muestra confirmación antes de navegar fuera del formulario
-	 */
 	const handleCancel = () => {
 		showAlert("¿Estás seguro de cancelar los cambios?", {
 			type: "warning",
@@ -162,17 +144,15 @@ const EditarCatInsumo = () => {
 			cancelButtonText: "No, continuar",
 		}).then((r) => r.isConfirmed && navigate("/admin/categoriainsumo"));
 	};
-	//-----------------------------
+
 	if (loading) {
 		return (
 			<p className="text-center text-gray-500 text-xl py-20">
-				Cargando datos del insumo...
+				Cargando datos de la categoría...
 			</p>
 		);
 	}
-	/**
-	 * Render del componente
-	 */
+
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -244,6 +224,5 @@ const EditarCatInsumo = () => {
 		</>
 	);
 };
-//-----------------------------
 
 export default EditarCatInsumo;

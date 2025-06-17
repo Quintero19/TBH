@@ -61,24 +61,39 @@ const AgregarCatInsumo = () => {
 		}
 
 		try {
+			// Verificar si ya existe una categoría con el mismo nombre
+			const categoriasExistentes = await categoriaInsumoService.obtenerCategorias();
+			const yaExiste = categoriasExistentes.data.some(
+				(c) => c.Nombre.toLowerCase().trim() === formData.Nombre.toLowerCase().trim()
+			);
+
+			if (yaExiste) {
+				showAlert("Ya existe una categoría con ese nombre", {
+					type: "warning",
+					title: "Categoría duplicada",
+					duration: 2500,
+				});
+				return;
+			}
+
+			// Si no existe, la crea
 			await categoriaInsumoService.crearCategoria(formData);
 			await showAlert("La categoría fue creada exitosamente", {
 				type: "success",
 				duration: 1500,
 			});
 			navigate("/admin/categoriainsumo");
+
 		} catch (err) {
 			console.error(err);
-
-			const mensaje =
-				err.response?.data?.message || "Ocurrió un error al guardar";
-
+			const mensaje = err.response?.data?.message || "Ocurrió un error al guardar";
 			showAlert(`Error al guardar: ${mensaje}`, {
 				type: "error",
 				title: "Error",
 			});
 		}
 	};
+
 
 
 	/* ---------- Cancelar ---------- */
