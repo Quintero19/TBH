@@ -8,8 +8,10 @@ import {
     FiUser,
 } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
+import api from "@/utils/api";
 
-// Sidebar ahora recibe 'onToggleSidebar' como prop para notificar su estado al padre
+const Logout = "/logout/";
+
 const Sidebar = ({ onToggleSidebar }) => {
     const [openMenus, setOpenMenus] = useState({
         configuracion: false,
@@ -19,37 +21,35 @@ const Sidebar = ({ onToggleSidebar }) => {
         ventas: false,
     });
 
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Estado interno del sidebar
+    const [sidebarOpen, setSidebarOpen] = useState(false);  
 
     const navigate = useNavigate();
 
-    // Notificar al componente padre sobre el cambio de estado de la barra lateral
     useEffect(() => {
         if (onToggleSidebar) {
             onToggleSidebar(sidebarOpen);
         }
-    }, [sidebarOpen, onToggleSidebar]); // Se ejecuta cuando 'sidebarOpen' o 'onToggleSidebar' cambian
+    }, [sidebarOpen, onToggleSidebar]); 
 
-    // Efecto para controlar el scroll del body cuando el sidebar está abierto en móvil
     useEffect(() => {
-        if (window.innerWidth < 768) { // Solo en pantallas pequeñas
+        if (window.innerWidth < 768) {
             if (sidebarOpen) {
-                document.body.style.overflow = 'hidden'; // Evita el scroll del fondo
+                document.body.style.overflow = 'hidden'; 
             } else {
-                document.body.style.overflow = ''; // Restaura el scroll
+                document.body.style.overflow = ''; 
             }
         }
         return () => {
-            document.body.style.overflow = ''; // Asegura que el scroll se restaure al desmontar
+            document.body.style.overflow = ''; 
         };
     }, [sidebarOpen]);
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:3000/api/logout/", {
+            await api.post(Logout), {
                 method: "POST",
                 credentials: "include",
-            });
+            };
             navigate("/login");
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
@@ -64,12 +64,11 @@ const Sidebar = ({ onToggleSidebar }) => {
     };
 
     return (
-        <> {/* Volvemos a usar Fragment aquí como contenedor del Sidebar */}
-            {/* Botón hamburguesa para móvil */}
+        <>
             <button
                 type="button"
                 className="md:hidden fixed top-5 left-5 z-50 p-2 rounded-md bg-black text-white shadow-lg"
-                onClick={() => setSidebarOpen(!sidebarOpen)} // Usa el setSidebarOpen interno
+                onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-label="Alternar barra lateral"
             >
                 <svg
@@ -96,15 +95,14 @@ const Sidebar = ({ onToggleSidebar }) => {
                 </svg>
             </button>
 
-            {/* Overlay para móvil cuando el sidebar está abierto */}
             {sidebarOpen && (
                 <div
                     className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-                    onClick={() => setSidebarOpen(false)} // Cierra el sidebar al hacer clic en el overlay
+                    onClick={() => setSidebarOpen(false)} 
                 ></div>
             )}
 
-            {/* Sidebar (Barra Lateral) - Posicionamiento fijo */}
+
             <div
                 className={`fixed top-0 left-0 h-full w-70 bg-[black] text-white shadow-2xl flex flex-col justify-between
           transform transition-transform duration-300
@@ -113,7 +111,6 @@ const Sidebar = ({ onToggleSidebar }) => {
           z-40 /* Asegura que esté por encima del contenido principal */
         `}
             >
-                {/* Encabezado del Sidebar */}
                 <div className="p-5">
                     <div className="flex items-center mb-12 space-x-4">
                         <img
@@ -126,7 +123,6 @@ const Sidebar = ({ onToggleSidebar }) => {
                         </h1>
                     </div>
 
-                    {/* Menú principal */}
                     <div className="uppercase text-base text-gray-400 mb-6 tracking-wide">
                         Menú
                     </div>
@@ -138,19 +134,18 @@ const Sidebar = ({ onToggleSidebar }) => {
                         }}
                     >
                         <ul className="space-y-4 font-semibold">
-                            {/* Dashboard */}
                             <li>
                                 <div className="flex items-center space-x-5 p-4 rounded-xl hover:bg-[#161b22] cursor-pointer">
                                     <FiHome className="w-7 h-7 text-blue-400" />
                                     <span>
-                                        <Link to="/admin/dashboard" onClick={() => setSidebarOpen(false)}> {/* Cierra sidebar al navegar */}
+                                        <Link to="/admin/dashboard" onClick={() => setSidebarOpen(false)}>
                                             <span className="hover:text-white">Dashboard</span>
                                         </Link>
                                     </span>
                                 </div>
                             </li>
 
-                            {/* Configuración */}
+                    
                             <li>
                                 <button
                                     type="button"

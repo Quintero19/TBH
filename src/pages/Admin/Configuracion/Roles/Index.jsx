@@ -6,10 +6,6 @@ import { rolService } from "@/service/roles.service";
 import { permisoService } from '@/service/permisos.service';
 import { rolPermisoService } from '@/service/asignacionPermiso';
 
-
-
-
-
 export default function Rol() {
 	const navigate = useNavigate();
 	const title = "Roles";
@@ -42,14 +38,33 @@ export default function Rol() {
 	}, []);
 
 	const handleToggleEstado = async (id) => {
-		try {
-			await rolService.cambiarEstadoRoles(id);
-			await obtenerRoles();
-		} catch (error) {
-			console.error("Error cambiando estado:", error);
-			alert("Error cambiando estado");
-		}
-	};
+	try {
+		const rolId = await rolService.cambiarEstadoRoles(id);
+		await obtenerRoles();
+
+		await showAlert(
+			`El rol ha sido ${rolId.Estado ? 'desactivado' : 'activado'} correctamente.`,
+			{
+				type: "success",
+				title: "Estado actualizado",
+				showConfirmButton: false,
+				timer: 2000,
+			}
+		);
+	} catch (error) {
+		console.error("Error cambiando estado:", error);
+
+		const errorMessage =
+			error.response?.data?.message || "Error al cambiar el estado del rol.";
+
+		await showAlert(errorMessage, {
+			type: "error",
+			title: "Error",
+			duration: 2500,
+		});
+	}
+};
+
 
 	const handleDelete = async (rol) => {
 		const result = await showAlert(
@@ -169,7 +184,7 @@ export default function Rol() {
 			`;
 
 			await showAlert(html, {
-				title: 'Ver Detalle de Roles',
+				title: '',
 				width: '640px',
 				background: '#111827',
 				color: '#ffffff',

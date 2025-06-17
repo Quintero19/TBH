@@ -8,8 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
-import styles from "../../styles/css/AuthForm.module.css";
-import api from "../../utils/api";
+import styles from "@/styles/css/AuthForm.module.css";
 
 const ENDPOINTS = {
 	login: "/auth/login",
