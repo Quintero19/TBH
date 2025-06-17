@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 // --- Columnas para la tabla ---
 const columns = [
 	{ header: "ID", accessor: "Id_Insumos" },
-	{ header: "Categoría", accessor: "Id_Categoria_Insumos" },
+	{ header: "Categoría", accessor: "CategoriaNombre" },
 	{ header: "Nombre", accessor: "Nombre" },
 	{ header: "Stock (Unidades)", accessor: "Stock" },
 	{ header: "Estado", accessor: "Estado" },
@@ -20,14 +20,19 @@ const InsumoAdmin = () => {
 
 	// --- Función para cargar los insumos ---
 	const cargarInsumos = useCallback(async () => {
-		try {
-			setError(null);
-			const response = await insumoService.obtenerInsumos();
-			setInsumos(response.data);
-		} catch (err) {
-			console.error("Error al cargar insumos:", err);
-			setError("Error al cargar insumos");
-		}
+	try {
+		setError(null);
+		const response = await insumoService.obtenerInsumos();
+		const datosProcesados = response.data.map((i) => ({
+		...i,
+		CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
+		}));
+		setInsumos(datosProcesados);
+		console.log("Insumos cargados:", datosProcesados);
+	} catch (err) {
+		console.error("Error al cargar insumos:", err);
+		setError("Error al cargar insumos");
+	}
 	}, []);
 
 	// --- Cargar los insumos al montar el componente ---
@@ -61,36 +66,36 @@ const InsumoAdmin = () => {
 	};
 
 	// --- Eliminar un insumo con confirmación ---
-	const handleDelete = async (insumo) => {
-		try {
-			const result = await showAlert(
-				`¿Deseas eliminar el insumo <strong>${insumo.Nombre}</strong>?`,
-				{
-					type: "warning",
-					title: "Confirmar",
-					showConfirmButton: true,
-					showCancelButton: true,
-					confirmButtonText: "Sí, eliminar",
-					cancelButtonText: "Cancelar",
-				},
-			);
+	// const handleDelete = async (insumo) => {
+	// 	try {
+	// 		const result = await showAlert(
+	// 			`¿Deseas eliminar el insumo <strong>${insumo.Nombre}</strong>?`,
+	// 			{
+	// 				type: "warning",
+	// 				title: "Confirmar",
+	// 				showConfirmButton: true,
+	// 				showCancelButton: true,
+	// 				confirmButtonText: "Sí, eliminar",
+	// 				cancelButtonText: "Cancelar",
+	// 			},
+	// 		);
 
-			if (result.isConfirmed) {
-				await insumoService.eliminarInsumo(insumo.Id_Insumos);
-				showAlert("Insumo eliminado correctamente", {
-					type: "success",
-					title: "Eliminado",
-				});
-				cargarInsumos();
-			}
-		} catch (err) {
-			console.error("No se pudo eliminar el insumo:", err);
-			showAlert("No se pudo eliminar el insumo", {
-				type: "error",
-				title: "Error",
-			});
-		}
-	};
+	// 		if (result.isConfirmed) {
+	// 			await insumoService.eliminarInsumo(insumo.Id_Insumos);
+	// 			showAlert("Insumo eliminado correctamente", {
+	// 				type: "success",
+	// 				title: "Eliminado",
+	// 			});
+	// 			cargarInsumos();
+	// 		}
+	// 	} catch (err) {
+	// 		console.error("No se pudo eliminar el insumo:", err);
+	// 		showAlert("No se pudo eliminar el insumo", {
+	// 			type: "error",
+	// 			title: "Error",
+	// 		});
+	// 	}
+	// };
 
 	// --- Ver detalles de un insumo ---
 	const handleVerDetalles = async (insumo) => {
@@ -106,7 +111,7 @@ const InsumoAdmin = () => {
 			</div>
 			<div class="flex justify-between">
 			<span class="font-medium text-gray-300">Categoría:</span>
-			<span class="text-right text-gray-100">${insumo.Id_Categoria_Insumos}</span>
+			<span class="text-right text-gray-100">${insumo.CategoriaNombre}</span>
 			</div>
 			<div class="flex justify-between">
 			<span class="font-medium text-gray-300">Nombre:</span>
@@ -141,7 +146,7 @@ const InsumoAdmin = () => {
 
 	// --- Validación para edición y eliminación ---
 	const canEdit = (i) => i.Estado === true;
-	const canDelete = (i) => i.Estado === false;
+	const canDelete = (i) => i === false; //corregido paraque no se puedan eliminar insumos	
 
   // --- Renderizado del componente ---
   return (
@@ -155,7 +160,7 @@ const InsumoAdmin = () => {
         onToggleEstado={handleToggleEstado}
         onAdd={handleAdd}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        // onDelete={handleDelete}
         canEdit={canEdit}
         canDelete={canDelete}
         idAccessor="Id_Insumos"
