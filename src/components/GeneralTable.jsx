@@ -75,7 +75,7 @@ const GeneralTable = ({
 
 	return (
 		<div className="p-9 w-full">
-			<h1 className="text-5xl font-bold mb-4 text-black">Gestion de {title}</h1>
+			<h1 className="text-5xl font-bold mb-4 text-black">Gestión de {title}</h1>
 
 			<div className="p-4 bg-white rounded-lg mb-4 shadow-md">
 				<div className="flex items-center w-full gap-2">

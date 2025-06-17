@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 
 export default function Usuario() {
 	const navigate = useNavigate();
-	const title = "Gestion De Usuarios";
 	const [roles, setRoles] = useState([]);
 	const canEdit = (usuario) => usuario.Estado === true;
 	const canDelete = (usuario) => usuario.Estado === true;
@@ -200,7 +199,7 @@ export default function Usuario() {
 
 	return (
 		<GeneralTable
-			title="Gestion De Usuarios"
+			title="Usuarios"
 			columns={columns}
 			data={usuarios}
 			onAdd={() => navigate("/admin/usuario/agregar")}
