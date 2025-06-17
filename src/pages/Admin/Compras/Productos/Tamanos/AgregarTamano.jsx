@@ -2,7 +2,7 @@ import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { insumoService } from "@/service/insumo.service";
 import { tamanosService } from "@/service/tamanos.service";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AgregarTamano() {
@@ -23,21 +23,23 @@ function AgregarTamano() {
 		Estado: 1,
 	});
 
-	useEffect(() => {
-		const obtenerDatos = async () => {
-			try {
-				const [resInsumos, resFrascos] = await Promise.all([
-					insumoService.obtenerInsumosBase(),
-					insumoService.obtenerInsumosFrascos(),
-				]);
-				setInsumos(resInsumos.data);
-				setFrascos(resFrascos.data);
-			} catch (error) {
-				console.error("Error al obtener insumos o frascos:", error);
-			}
-		};
-		obtenerDatos();
+	const obtenerDatos = useCallback(async () => {
+		try {
+			const [resInsumos, resFrascos] = await Promise.all([
+				insumoService.obtenerInsumosBase(),
+				insumoService.obtenerInsumosFrascos(),
+			]);
+			setInsumos(resInsumos.data);
+			setFrascos(resFrascos.data);
+		} catch (error) {
+			console.error("Error al obtener insumos o frascos:", error);
+		}
 	}, []);
+
+	useEffect(() => {
+		obtenerDatos();
+	}, [obtenerDatos]);
+
 
 	// ---------------- VALIDACIÓN ----------------
 	const validateField = (name, value) => {

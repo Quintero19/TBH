@@ -42,12 +42,19 @@ const Tamanos = () => {
 
 	const transformData = useCallback(
 		(lista) =>
-			lista.map((item) => ({
+			lista.map((item) => {
+			const precio = Math.round(Number(item.Precio_Venta)) || 0;
+			return {
 				...item,
-				Precio_Venta: Number(item.Precio_Venta).toFixed(0),
-			})),
-		[],
+				Precio_Venta: precio.toLocaleString("es-CO", {
+				minimumFractionDigits: 0,
+				maximumFractionDigits: 0,
+				}),
+			};
+			}),
+		[]
 	);
+
 
 	/* ─────────────────────────────────── */
 
