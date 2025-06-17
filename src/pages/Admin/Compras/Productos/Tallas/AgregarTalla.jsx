@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AgregarTalla = () => {
 	const navigate = useNavigate();
@@ -28,22 +28,30 @@ const AgregarTalla = () => {
 
 		fetchCategorias();
 	}, []);
-	
+
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
 		switch (name) {
 			case "Nombre":
-				newErrors[name] = value.length < 1
-						? "Debe tener al menos 1 caracter, sin caracteres especiales"
-						: "";
+				if (!value.trim()) {
+					newErrors[name] = "El nombre es obligatorio";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]{1,25}$/.test(value)) {
+					newErrors[name] =
+						"Solo letras, números y espacios. Máximo 25 caracteres.";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+			case "Id_Categoria_Producto":
+				if (!value) {
+					newErrors[name] = "Debe seleccionar una categoría";
+				} else {
+					delete newErrors[name];
+				}
 				break;
 			default:
 				break;
-		}
-
-		if (newErrors[name] === "") {
-			delete newErrors[name];
 		}
 
 		setErrors(newErrors);
@@ -52,12 +60,12 @@ const AgregarTalla = () => {
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 
-		let updatedValue = type === "checkbox" ? checked : value;
+		const updatedValue = type === "checkbox" ? checked : value;
 
 		if (name === "Nombre") {
 			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ0-9\s]*$/;
 			if (!regex.test(value)) {
-				return; 
+				return;
 			}
 		}
 
@@ -83,7 +91,7 @@ const AgregarTalla = () => {
 
 		try {
 			await tallasService.crearTalla(formData);
-			showAlert("La Talla ha sido guardada correctamente.",{
+			showAlert("La Talla ha sido guardada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
 				duration: 2000,
@@ -96,23 +104,25 @@ const AgregarTalla = () => {
 				type: "error",
 				title: "Error",
 				duration: 2000,
-			})
+			});
 		}
 	};
 
 	const handleCancel = () => {
-		window.showAlert( "Si cancelas, perderás los datos ingresados.",{
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar Registrando"
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/tallas");
-			}
-		});
+		window
+			.showAlert("Si cancelas, perderás los datos ingresados.", {
+				title: "¿Estás seguro?",
+				type: "warning",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, cancelar",
+				cancelButtonText: "Continuar Registrando",
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					navigate("/admin/tallas");
+				}
+			});
 	};
 
 	return (
@@ -137,9 +147,9 @@ const AgregarTalla = () => {
 						required
 						className="w-full border border-gray-300 p-2 rounded"
 					/>
-						{errors.Nombre && (
-							<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-						)}
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
 				</div>
 
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
@@ -150,7 +160,6 @@ const AgregarTalla = () => {
 						name="Id_Categoria_Producto"
 						value={formData.Id_Categoria_Producto}
 						onChange={handleChange}
-						required
 						className="w-full border border-gray-300 p-2 rounded"
 					>
 						<option value="">Seleccione una categoría</option>
@@ -163,10 +172,13 @@ const AgregarTalla = () => {
 							</option>
 						))}
 					</select>
+						{errors.Id_Categoria_Producto && (
+							<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Producto}</p>
+						)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" icon="fa-floppy-o">
+					<Button type="submit" className="green" icon="fa-floppy-o" disabled={Object.keys(errors).length > 0}>
 						Guardar
 					</Button>
 					<Button className="red" onClick={handleCancel} icon="fa-times">

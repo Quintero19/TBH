@@ -101,53 +101,54 @@ const CategoriaInsumoAdmin = () => {
 	 */
 
 	const handleDelete = async (categoria) => {
-	try {
-		const result = await showAlert(
-		`¿Estás seguro que quieres eliminar la categoría "<strong>${categoria.Nombre}</strong>"? Esta acción no se puede deshacer.`,
-		{
-			type: "warning",
-			title: "Confirmar eliminación",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
+		try {
+			const result = await showAlert(
+				`¿Estás seguro que quieres eliminar la categoría "<strong>${categoria.Nombre}</strong>"? Esta acción no se puede deshacer.`,
+				{
+					type: "warning",
+					title: "Confirmar eliminación",
+					showConfirmButton: true,
+					showCancelButton: true,
+					confirmButtonText: "Sí, eliminar",
+					cancelButtonText: "Cancelar",
+				},
+			);
+
+			if (result.isConfirmed) {
+				await categoriaInsumoService.eliminarCategoria(
+					categoria.Id_Categoria_Insumos,
+				);
+
+				await showAlert("Categoría eliminada correctamente.", {
+					type: "success",
+					title: "Éxito",
+					duration: 2000,
+				});
+
+				cargarCategorias();
+			}
+		} catch (error) {
+			const mensaje =
+				error?.response?.data?.message ||
+				"No se pudo eliminar la categoría. Puede que tenga insumos asociados.";
+
+			await showAlert(mensaje, {
+				type: "error",
+				title: "Error",
+				showConfirmButton: true,
+				confirmButtonText: "Cerrar",
+			});
 		}
-		);
-
-		if (result.isConfirmed) {
-		await categoriaInsumoService.eliminarCategoria(categoria.Id_Categoria_Insumos);
-
-		await showAlert("Categoría eliminada correctamente.", {
-			type: "success",
-			title: "Éxito",
-			duration: 2000,
-		});
-
-		cargarCategorias();
-		}
-	} catch (error) {
-		const mensaje =
-		error?.response?.data?.message ||
-		"No se pudo eliminar la categoría. Puede que tenga insumos asociados.";
-
-		await showAlert(mensaje, {
-		type: "error",
-		title: "Error",
-		showConfirmButton: true,
-		confirmButtonText: "Cerrar",
-		});
-	}
 	};
 
-	
 	/*----------------------------------------------------------------------------------*/
 
 	/**
 	 * Función para mostrar detalles de una categoría en un modal alerta.
 	 */
 	const handleVerDetalles = async (categoria) => {
-	try {
-		const html = `
+		try {
+			const html = `
 		<div class="space-y-7 text-gray-100">
 			<!-- Encabezado -->
 			<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
@@ -175,12 +176,12 @@ const CategoriaInsumoAdmin = () => {
 				Estado
 				</label>
 				<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-				categoria.Estado
-					? 'bg-[#112d25] border-emerald-500/30'
-					: 'bg-[#2c1a1d] border-rose-500/30'
+					categoria.Estado
+						? "bg-[#112d25] border-emerald-500/30"
+						: "bg-[#2c1a1d] border-rose-500/30"
 				}">
 				<div class="font-medium ${
-					categoria.Estado ? 'text-emerald-300' : 'text-rose-300'
+					categoria.Estado ? "text-emerald-300" : "text-rose-300"
 				}">
 					${categoria.Estado ? "Activo" : "Inactivo"}
 				</div>
@@ -193,7 +194,7 @@ const CategoriaInsumoAdmin = () => {
 				Descripción
 				</label>
 				<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
-				<div class="text-gray-200 ${!categoria.Descripcion ? 'italic text-gray-400' : ''}">
+				<div class="text-gray-200 ${!categoria.Descripcion ? "italic text-gray-400" : ""}">
 					${categoria.Descripcion || "No hay descripción disponible"}
 				</div>
 				</div>
@@ -202,31 +203,30 @@ const CategoriaInsumoAdmin = () => {
 		</div>
 		`;
 
-		await showAlert(html, {
-		title: '',
-		width: '640px',
-		background: '#111827',
-		color: '#ffffff',
-		padding: '1.5rem',
-		confirmButtonText: 'Cerrar',
-		confirmButtonColor: '#4f46e5',
-		customClass: {
-			popup: 'rounded-xl shadow-2xl border border-gray-700/50',
-			confirmButton: 'px-6 py-2 font-medium rounded-lg mt-4'
+			await showAlert(html, {
+				title: "",
+				width: "640px",
+				background: "#111827",
+				color: "#ffffff",
+				padding: "1.5rem",
+				confirmButtonText: "Cerrar",
+				confirmButtonColor: "#4f46e5",
+				customClass: {
+					popup: "rounded-xl shadow-2xl border border-gray-700/50",
+					confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
+				},
+			});
+		} catch (error) {
+			console.error(error);
+			await showAlert(`Error: ${error.message || error}`, {
+				title: "Error",
+				icon: "error",
+				background: "#1f2937",
+				color: "#ffffff",
+				width: "500px",
+				confirmButtonColor: "#dc2626",
+			});
 		}
-		});
-
-	} catch (error) {
-		console.error(error);
-		await showAlert(`Error: ${error.message || error}`, {
-		title: 'Error',
-		icon: 'error',
-		background: '#1f2937',
-		color: '#ffffff',
-		width: '500px',
-		confirmButtonColor: '#dc2626'
-		});
-	}
 	};
 
 	/**
@@ -246,7 +246,6 @@ const CategoriaInsumoAdmin = () => {
 		const estaDesactivada = categoria.Estado === false;
 		return !(tieneInsumos || estaDesactivada);
 	};
-
 
 	/**
 	 * Render del componente

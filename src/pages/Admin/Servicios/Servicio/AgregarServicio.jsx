@@ -1,6 +1,6 @@
+import { showAlert } from "@/components/AlertProvider";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { showAlert } from "@/components/AlertProvider";
 import Button from "../../../../components/Buttons/Button";
 import { servicioService } from "../../../../service/serviciosService";
 
@@ -20,38 +20,43 @@ const AgregarServicio = () => {
 		const newErrors = { ...errors };
 
 		switch (name) {
-		case "Nombre":
-			const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
-			
-			if (value.trim().length === 0) {
-				newErrors[name] = "El nombre es requerido";
-			} else if (!regex.test(value)) {
-				newErrors[name] = "No se permiten números ni caracteres especiales";
-			} else if (value.trim().length < 3) {
-				newErrors[name] = "Debe tener al menos 3 caracteres";
-			} else {
-				newErrors[name] = "";
+			case "Nombre": {
+				const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+
+				if (value.trim().length === 0) {
+					newErrors[name] = "El nombre es requerido";
+				} else if (!regex.test(value)) {
+					newErrors[name] = "No se permiten números ni caracteres especiales";
+				} else if (value.trim().length < 3) {
+					newErrors[name] = "Debe tener al menos 3 caracteres";
+				} else {
+					newErrors[name] = "";
+				}
+				break;
 			}
-			break;
 
 			case "Precio":
 				newErrors[name] =
 					value.trim().length > 0 && /[eE]/.test(value)
 						? "No se permite la notación científica (e)"
-						: value.trim().length > 0 && (isNaN(value) || Number(value) <= 0)
-						? "Debe ser un número mayor a 0"
-						: "";
-			    break;
+						: value.trim().length > 0 &&
+								(Number.isNaN(value) || Number(value) <= 0)
+							? "Debe ser un número mayor a 0"
+							: "";
+				break;
 
-			case "Duracion":
-				const isValid = /^[0-9]+$/.test(value) && 
-							parseInt(value) > 0 && 
-							parseInt(value) <= 120;
-				
-				newErrors[name] = value.trim().length > 0 && !isValid
-					? "Debe ser un número entero entre 1 y 120 minutos (2 horas)"
-					: "";
-		    break;
+			case "Duracion": {
+				const isValid =
+					/^[0-9]+$/.test(value) &&
+					Number.parseInt(value) > 0 &&
+					Number.parseInt(value) <= 120;
+
+				newErrors[name] =
+					value.trim().length > 0 && !isValid
+						? "Debe ser un número entero entre 1 y 120 minutos (2 horas)"
+						: "";
+				break;
+			}
 
 			case "Descripcion":
 				newErrors[name] =
@@ -76,7 +81,7 @@ const AgregarServicio = () => {
 
 		// Special handling for numeric fields
 		if (name === "Precio" || name === "Duracion") {
-			if (value !== "" && isNaN(value)) return;
+			if (value !== "" && Number.isNaN(value)) return;
 		}
 
 		const updatedValue = type === "checkbox" ? checked : value;
@@ -98,11 +103,14 @@ const AgregarServicio = () => {
 		);
 
 		if (missingFields.length > 0 || Object.keys(errors).length > 0) {
-			showAlert("Por favor complete todos los campos obligatorios y corrija los errores", {
-				type: "error",
-				title: "Error",
-				duration: 2000,
-			});
+			showAlert(
+				"Por favor complete todos los campos obligatorios y corrija los errores",
+				{
+					type: "error",
+					title: "Error",
+					duration: 2000,
+				},
+			);
 			return;
 		}
 
@@ -233,20 +241,20 @@ const AgregarServicio = () => {
 						type="submit"
 						className="green"
 						disabled={Object.keys(errors).length > 0}
-            icon="fa-floppy-o"
+						icon="fa-floppy-o"
 					>
-						<div className="flex items-center gap-2">
-							Guardar
-						</div>
+						<div className="flex items-center gap-2">Guardar</div>
 					</Button>
-					<Button type="button" className="red" onClick={handleCancel} icon="fa-times">
-						<div className="flex items-center gap-2">
-							Cancelar
-						</div>
+					<Button
+						type="button"
+						className="red"
+						onClick={handleCancel}
+						icon="fa-times"
+					>
+						<div className="flex items-center gap-2">Cancelar</div>
 					</Button>
 				</div>
 			</form>
-
 		</>
 	);
 };

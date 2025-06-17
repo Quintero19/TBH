@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { rolService } from "@/service/roles.service";
 import { userService } from "@/service/usuario.service";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AgregarUsuario() {
 	const navigate = useNavigate();
@@ -62,7 +62,7 @@ export default function AgregarUsuario() {
 		e.preventDefault();
 
 		if (!formData.Documento) {
-			showAlert("Debe Completar el campo documento.",{
+			showAlert("Debe Completar el campo documento.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -71,7 +71,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (formData.Documento.length < 7 || formData.Documento.length > 15) {
-			showAlert("El documento debe tener entre 7 y 15 dígitos.",{
+			showAlert("El documento debe tener entre 7 y 15 dígitos.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -80,7 +80,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (!formData.Correo) {
-			showAlert("Debe Completar el campo correo.",{
+			showAlert("Debe Completar el campo correo.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -90,7 +90,7 @@ export default function AgregarUsuario() {
 
 		const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!correoRegex.test(formData.Correo)) {
-			showAlert("El correo ingresado no es válido.",{
+			showAlert("El correo ingresado no es válido.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -99,7 +99,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (!formData.Password) {
-			showAlert("Debe Completar el campo contraseña.",{
+			showAlert("Debe Completar el campo contraseña.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -119,7 +119,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (!formData.confirmPassword) {
-			showAlert("Debe Completar el campo confirmar contraseña.",{
+			showAlert("Debe Completar el campo confirmar contraseña.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -128,7 +128,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (formData.Password !== formData.confirmPassword) {
-			showAlert("Las contraseñas no coinciden.",{
+			showAlert("Las contraseñas no coinciden.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -137,7 +137,7 @@ export default function AgregarUsuario() {
 		}
 
 		if (!formData.Rol_Id) {
-			showAlert("Debe seleccionar un rol.",{
+			showAlert("Debe seleccionar un rol.", {
 				type: "error",
 				title: "Datos inválidos",
 				duration: 2000,
@@ -152,7 +152,7 @@ export default function AgregarUsuario() {
 				(u) => u.Documento.toString() === formData.Documento.toString(),
 			);
 			if (existeDocumento) {
-				showAlert("El documento ya está registrado.",{
+				showAlert("El documento ya está registrado.", {
 					type: "error",
 					title: "Datos inválidos",
 					duration: 2000,
@@ -164,7 +164,7 @@ export default function AgregarUsuario() {
 				(u) => u.Correo.toLowerCase() === formData.Correo.toLowerCase(),
 			);
 			if (existeCorreo) {
-				showAlert("El correo ya está registrado.",{
+				showAlert("El correo ya está registrado.", {
 					type: "error",
 					title: "Datos inválidos",
 					duration: 2000,
@@ -180,7 +180,7 @@ export default function AgregarUsuario() {
 
 			await userService.crearUsuario(usuarioFinal);
 
-			showAlert("El usuario ha sido guardado correctamente.",{
+			showAlert("El usuario ha sido guardado correctamente.", {
 				type: "success",
 				duration: 1500,
 			}).then(() => {
@@ -188,15 +188,15 @@ export default function AgregarUsuario() {
 			});
 		} catch (error) {
 			console.error(err);
-				showAlert(`Error al guardar: ${err.message}`, {
-					type: "error",
-					title: "Error",
-				});
+			showAlert(`Error al guardar: ${err.message}`, {
+				type: "error",
+				title: "Error",
+			});
 		}
 	};
 
 	const handleCancel = () => {
-		showAlert( "Si cancelas, perderás los datos ingresados.",{
+		showAlert("Si cancelas, perderás los datos ingresados.", {
 			type: "warning",
 			title: "¿Cancelar?",
 			showConfirmButton: true,

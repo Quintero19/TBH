@@ -27,9 +27,19 @@ const GeneralTable = ({
 
 	const matchEstado = (estado) => {
 		if (["1", "activo", "completada"].includes(lowerSearch))
-			return estado === true || estado === 1 || estado === "Activo" || estado === "Completada";
+			return (
+				estado === true ||
+				estado === 1 ||
+				estado === "Activo" ||
+				estado === "Completada"
+			);
 		if (["0", "inactivo", "anulada"].includes(lowerSearch))
-			return estado === false || estado === 0 || estado === "Inactivo" || estado === "Anulada";
+			return (
+				estado === false ||
+				estado === 0 ||
+				estado === "Inactivo" ||
+				estado === "Anulada"
+			);
 		return false;
 	};
 
@@ -43,7 +53,7 @@ const GeneralTable = ({
 					return matchEstado(value);
 				}
 				return value?.toString().toLowerCase().includes(lowerSearch);
-			})
+			}),
 		);
 	}, [searchTerm, data, columns]);
 
@@ -83,24 +93,38 @@ const GeneralTable = ({
 					</form>
 
 					<Button className="green" onClick={onAdd} icon="fa-plus">
-						<div className="flex items-center gap-2">
-							Agregar
-						</div>
+						<div className="flex items-center gap-2">Agregar</div>
 					</Button>
 
 					{/* Botones específicos para ciertos títulos */}
 					{title === "Productos" && (
 						<div className="flex justify-end flex-1">
 							<div className="flex space-x-2">
-								<Button className="green" onClick={rest.goTallas} icon="fa-chevron-right">Tallas</Button>
-								<Button className="green" onClick={rest.goTamanos} icon="fa-chevron-right">Tamaños</Button>
+								<Button
+									className="green"
+									onClick={rest.goTallas}
+									icon="fa-chevron-right"
+								>
+									Tallas
+								</Button>
+								<Button
+									className="green"
+									onClick={rest.goTamanos}
+									icon="fa-chevron-right"
+								>
+									Tamaños
+								</Button>
 							</div>
 						</div>
 					)}
 
 					{(title === "Tallas" || title === "Tamaños") && (
 						<div className="flex justify-end flex-1">
-							<Button className="red" onClick={rest.return} icon="fa-chevron-left">
+							<Button
+								className="red"
+								onClick={rest.return}
+								icon="fa-chevron-left"
+							>
 								Volver a Productos
 							</Button>
 						</div>
@@ -116,7 +140,9 @@ const GeneralTable = ({
 										{col.header}
 									</th>
 								))}
-								<th className="p-2 border border-gray-300 text-center">Acciones</th>
+								<th className="p-2 border border-gray-300 text-center">
+									Acciones
+								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -124,42 +150,69 @@ const GeneralTable = ({
 								paginatedData.map((row) => (
 									<tr key={row[idAccessor]}>
 										{columns.map((col) => (
-											<td key={col.accessor} className="p-2 border border-gray-300">
-												{col.accessor === stateAccessor ? ( title !== "Compras" && title !== "Ventas" ? (
-													<div className="flex justify-center">
-														<label className="switch">
-															<input
-																type="checkbox"
-																checked={row[stateAccessor]}
-																onChange={() => onToggleEstado(row[idAccessor])}
-															/>
-															<span className="slider round" />
-														</label>
-													</div>
-												) : (
-													<div className="text-center font-semibold">
-														<span className={row[stateAccessor] ? 'text-green-600' : 'text-red-600'}>
-															{row[stateAccessor] ? 'Completada' : 'Anulada'}
-														</span>
-													</div>
+											<td
+												key={col.accessor}
+												className="p-2 border border-gray-300"
+											>
+												{col.accessor === stateAccessor ? (
+													title !== "Compras" && title !== "Ventas" ? (
+														<div className="flex justify-center">
+															<label className="switch">
+																<input
+																	type="checkbox"
+																	checked={row[stateAccessor]}
+																	onChange={() =>
+																		onToggleEstado(row[idAccessor])
+																	}
+																/>
+																<span className="slider round" />
+															</label>
+														</div>
+													) : (
+														<div className="text-center font-semibold">
+															<span
+																className={
+																	row[stateAccessor]
+																		? "text-green-600"
+																		: "text-red-600"
+																}
+															>
+																{row[stateAccessor] ? "Completada" : "Anulada"}
+															</span>
+														</div>
 													)
 												) : (
 													row[col.accessor]
 												)}
-
 											</td>
 										))}
 										<td className="p-2 border border-gray-300 text-center">
 											<div className="flex justify-center gap-2">
 												{/* Siempre visible */}
-												<Button className="blue" onClick={() => onView(row)} icon="fa-eye" />
-													
-												{title !== "Compras" && title !== "Ventas" && (canEdit ? canEdit(row) : true) && (
-													<Button className="orange" onClick={() => onEdit(row)} icon="fa-pencil" />
-												)}
-												{title !== "Compras" && title !== "Ventas" && (canDelete ? canDelete(row) : true) && (
-													<Button className="red" onClick={() => onDelete(row)} icon="fa-trash" />
-												)}
+												<Button
+													className="blue"
+													onClick={() => onView(row)}
+													icon="fa-eye"
+												/>
+
+												{title !== "Compras" &&
+													title !== "Ventas" &&
+													(canEdit ? canEdit(row) : true) && (
+														<Button
+															className="orange"
+															onClick={() => onEdit(row)}
+															icon="fa-pencil"
+														/>
+													)}
+												{title !== "Compras" &&
+													title !== "Ventas" &&
+													(canDelete ? canDelete(row) : true) && (
+														<Button
+															className="red"
+															onClick={() => onDelete(row)}
+															icon="fa-trash"
+														/>
+													)}
 												{title === "Roles" && row[stateAccessor] && (
 													<Button
 														className="green"
@@ -168,7 +221,7 @@ const GeneralTable = ({
 													/>
 												)}
 												{(title === "Compras" || title === "Ventas") &&
-													(row[stateAccessor] === true) && (
+													row[stateAccessor] === true && (
 														<Button
 															className="red"
 															onClick={() => rest.onCancel(row[idAccessor])}
@@ -193,7 +246,11 @@ const GeneralTable = ({
 
 			<div className="pagination mt-4">
 				<center>
-					<BasicPagination count={totalPages} page={currentPage} onChange={handlePageChange} />
+					<BasicPagination
+						count={totalPages}
+						page={currentPage}
+						onChange={handlePageChange}
+					/>
 				</center>
 			</div>
 		</div>
@@ -206,7 +263,7 @@ GeneralTable.propTypes = {
 		PropTypes.shape({
 			header: PropTypes.string.isRequired,
 			accessor: PropTypes.string.isRequired,
-		})
+		}),
 	).isRequired,
 	data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onAdd: PropTypes.func.isRequired,

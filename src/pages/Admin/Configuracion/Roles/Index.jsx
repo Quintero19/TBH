@@ -6,6 +6,10 @@ import { rolService } from "@/service/roles.service";
 import { permisoService } from '@/service/permisos.service';
 import { rolPermisoService } from '@/service/asignacionPermiso';
 
+
+
+
+
 export default function Rol() {
 	const navigate = useNavigate();
 	const title = "Roles";
@@ -49,30 +53,29 @@ export default function Rol() {
 
 	const handleDelete = async (rol) => {
 		const result = await showAlert(
-				`¿Estás seguro que quieres eliminar la rol "<strong>${rol.Nombre}</strong>"? Esta acción no se puede deshacer.`,
-				{
-					type: "warning",
-					title: "Confirmar eliminación",
-					showConfirmButton: true,
-					showCancelButton: true,
-					confirmButtonText: "Sí, eliminar",
-					cancelButtonText: "Cancelar",
-				}
-				);
+			`¿Estás seguro que quieres eliminar la rol "<strong>${rol.Nombre}</strong>"? Esta acción no se puede deshacer.`,
+			{
+				type: "warning",
+				title: "Confirmar eliminación",
+				showConfirmButton: true,
+				showCancelButton: true,
+				confirmButtonText: "Sí, eliminar",
+				cancelButtonText: "Cancelar",
+			},
+		);
 
 		if (result.isConfirmed) {
 			try {
 				await rolService.eliminarRoles(rol.Id);
 				await showAlert("Rol eliminado correctamente.", {
-						type: "success",
-						title: "Éxito",
-						duration: 2000,
-					});
+					type: "success",
+					title: "Éxito",
+					duration: 2000,
+				});
 				await obtenerRoles();
 			} catch (error) {
 				const mensaje =
-					error?.response?.data?.message ||
-					"No se pudo eliminar el rol.";
+					error?.response?.data?.message || "No se pudo eliminar el rol.";
 				await showAlert(mensaje, {
 					type: "error",
 					title: "Error",
@@ -180,11 +183,9 @@ export default function Rol() {
 			});
 			}
 
-
 	const handleEdit = (rol) => {
 		navigate(`/admin/roles/editar/${rol.Id}`);
 	};
-
 
 	const handlePageChange = (event, value) => {
 		setCurrentPage(value);

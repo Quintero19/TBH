@@ -12,8 +12,7 @@ const Button = ({
 	const baseClasses =
 		"px-5 py-3 rounded-full font-bold transition duration-300 text-white";
 	const colors = {
-		blue:
-			"bg-blue-500 hover:bg-blue-700 rounded-full flex items-center justify-center",
+		blue: "bg-blue-500 hover:bg-blue-700 rounded-full flex items-center justify-center",
 		green: "bg-green-500 border-green-700 hover:bg-green-700",
 		red: "bg-red-500 hover:bg-red-700 rounded-full flex items-center justify-center",
 		orange:

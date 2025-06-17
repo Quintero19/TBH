@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { rolService } from "@/service/roles.service";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AgregarRol() {
 	const navigate = useNavigate();
@@ -61,7 +61,6 @@ export default function AgregarRol() {
 			});
 			return false;
 		}
-
 
 		return true;
 	};

@@ -1,8 +1,8 @@
-import { React, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { empleadoService } from "@/service/empleado.service";
-import { showAlert } from "@/components/AlertProvider";
+import { React, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Empleados = () => {
 	const [empleados, setEmpleados] = useState([]);
@@ -23,7 +23,10 @@ const Empleados = () => {
 			const response = await empleadoService.obtenerEmpleados();
 			setEmpleados(response.data);
 		} catch (error) {
-			console.error("Error al obtener empleados:", error.response?.data || error);
+			console.error(
+				"Error al obtener empleados:",
+				error.response?.data || error,
+			);
 			showAlert("No se pudieron cargar los empleados", {
 				type: "error",
 				title: "Error",
@@ -65,7 +68,7 @@ const Empleados = () => {
 
 			await showAlert(html, {
 				type: "info",
-				title: `Detalles Empleado`,
+				title: "Detalles Empleado",
 				showConfirmButton: true,
 				swalOptions: {
 					confirmButtonText: "Cerrar",
@@ -94,7 +97,7 @@ const Empleados = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {
