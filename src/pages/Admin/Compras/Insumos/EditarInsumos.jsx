@@ -1,28 +1,27 @@
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
+import { insumoService } from "@/service/insumo.service";
 import { categoriaInsumoService } from "@/service/categoriaInsumo.service";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// ---------------------- COMPONENTE PRINCIPAL ----------------------
-const EditarCatInsumo = () => {
-	// --- Navegación y obtención del ID desde la URL ---
+const EditarInsumo = () => {
 	const navigate = useNavigate();
 	const { id } = useParams();
 
-	// --- Estado del formulario y errores de validación ---
 	const [formData, setFormData] = useState({
 		Nombre: "",
-		Descripcion: "",
+		Id_Categoria_Insumos: "",
 		Estado: true,
 	});
+	const [categorias, setCategorias] = useState([]);
+	const [insumosExistentes, setInsumosExistentes] = useState([]);
 	const [errors, setErrors] = useState({});
 	const [loading, setLoading] = useState(true);
 
-	// ---------------------- VALIDACIÓN DE CAMPOS ----------------------
 	const validateField = (name, value, currentErrors = {}) => {
 		const newErrors = { ...currentErrors };
-		const val = value.toString().trim();
+		const val = value?.toString().trim();
 
 		switch (name) {
 			case "Nombre":
@@ -32,20 +31,24 @@ const EditarCatInsumo = () => {
 					newErrors.Nombre = "Mínimo 3 letras";
 				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val)) {
 					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
+				} else if (
+					insumosExistentes.some(
+						(insumo) =>
+							insumo.Nombre.toLowerCase() === val.toLowerCase() &&
+							insumo.Id_Insumos.toString() !== id
+					)
+				) {
+					newErrors.Nombre = "Ya existe un insumo con este nombre";
 				} else {
 					newErrors.Nombre = undefined;
 				}
 				break;
 
-			case "Descripcion":
+			case "Id_Categoria_Insumos":
 				if (!val) {
-					newErrors.Descripcion = "La descripción es obligatoria";
-				} else if (val.length < 5) {
-					newErrors.Descripcion = "Mínimo 5 caracteres";
-				} else if (val.length > 100) {
-					newErrors.Descripcion = "Máximo 100 caracteres";
+					newErrors.Id_Categoria_Insumos = "Seleccione una categoría";
 				} else {
-					newErrors.Descripcion = undefined;
+					newErrors.Id_Categoria_Insumos = undefined;
 				}
 				break;
 
@@ -56,33 +59,39 @@ const EditarCatInsumo = () => {
 		return newErrors;
 	};
 
-	// ---------------------- CARGA DE DATOS ----------------------
 	useEffect(() => {
-		const cargarCategoria = async () => {
+		const cargarDatos = async () => {
 			try {
-				const response = await categoriaInsumoService.obtenerCategoriaPorId(id);
-				const data = response.data;
+				const [insumoRes, categoriasRes, insumosTodos] = await Promise.all([
+					insumoService.obtenerInsumoPorId(id),
+					categoriaInsumoService.obtenerCategorias(),
+					insumoService.obtenerInsumos(),
+				]);
+
+				const data = insumoRes.data;
+				setCategorias(categoriasRes.data || []);
+				setInsumosExistentes(insumosTodos.data || []);
 
 				setFormData({
 					Nombre: data.Nombre || "",
-					Descripcion: data.Descripcion || "",
+					Id_Categoria_Insumos: data.Id_Categoria_Insumos || "",
 					Estado: data.Estado !== undefined ? data.Estado : true,
 				});
-				setLoading(false);
 			} catch (err) {
 				console.error(err);
-				showAlert("No se pudo cargar la categoría", {
+				showAlert("No se pudo cargar el insumo", {
 					type: "error",
 					title: "Error",
 				});
-				navigate("/admin/categoriainsumo");
+				navigate("/admin/insumo");
+			} finally {
+				setLoading(false);
 			}
 		};
 
-		cargarCategoria();
+		cargarDatos();
 	}, [id, navigate]);
 
-	// ---------------------- MANEJO DE CAMBIOS EN INPUTS ----------------------
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 		const val = type === "checkbox" ? checked : value;
@@ -91,16 +100,15 @@ const EditarCatInsumo = () => {
 		setErrors((prevErrors) => validateField(name, val, prevErrors));
 	};
 
-	// ---------------------- ENVÍO DEL FORMULARIO ----------------------
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		let newErrors = validateField("Nombre", formData.Nombre, {});
-		newErrors = validateField("Descripcion", formData.Descripcion, newErrors);
+		newErrors = validateField("Id_Categoria_Insumos", formData.Id_Categoria_Insumos, newErrors);
 
 		setErrors(newErrors);
 
-		if (Object.keys(newErrors).length > 0) {
+		if (Object.values(newErrors).some((err) => err)) {
 			showAlert("Corrige los errores antes de guardar", {
 				type: "error",
 				title: "Datos inválidos",
@@ -110,12 +118,12 @@ const EditarCatInsumo = () => {
 		}
 
 		try {
-			await categoriaInsumoService.actualizarCategoria(id, formData);
-			await showAlert("Categoría actualizada correctamente", {
+			await insumoService.actualizarInsumo(id, formData);
+			await showAlert("Insumo actualizado correctamente", {
 				type: "success",
 				duration: 1500,
 			});
-			navigate("/admin/categoriainsumo");
+			navigate("/admin/insumo");
 		} catch (err) {
 			console.error(err);
 			showAlert(`Error al guardar: ${err.message}`, {
@@ -125,7 +133,6 @@ const EditarCatInsumo = () => {
 		}
 	};
 
-	// ---------------------- CANCELAR EDICIÓN ----------------------
 	const handleCancel = () => {
 		showAlert("¿Estás seguro de cancelar los cambios?", {
 			type: "warning",
@@ -133,10 +140,9 @@ const EditarCatInsumo = () => {
 			showConfirmButton: true,
 			confirmButtonText: "Sí, salir",
 			cancelButtonText: "No, continuar",
-		}).then((r) => r.isConfirmed && navigate("/admin/categoriainsumo"));
+		}).then((r) => r.isConfirmed && navigate("/admin/insumo"));
 	};
 
-	// ---------------------- CARGANDO DATOS ----------------------
 	if (loading) {
 		return (
 			<p className="text-center text-gray-500 text-xl py-20">
@@ -145,12 +151,9 @@ const EditarCatInsumo = () => {
 		);
 	}
 
-	// ---------------------- RENDER DEL FORMULARIO ----------------------
 	return (
 		<>
-			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-				Editar Categoría de Insumo
-			</h1>
+			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">Editar Insumo</h1>
 
 			<form
 				onSubmit={handleSubmit}
@@ -167,7 +170,6 @@ const EditarCatInsumo = () => {
 						name="Nombre"
 						value={formData.Nombre}
 						onChange={handleChange}
-						required
 						className={`w-full border p-2 rounded ${
 							errors.Nombre ? "border-red-500" : "border-gray-300"
 						}`}
@@ -177,24 +179,28 @@ const EditarCatInsumo = () => {
 					)}
 				</div>
 
-				{/* Campo: Descripción */}
+				{/* Campo: Categoría */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg">
 					<h3 className="text-2xl text-black font-bold mb-2">
-						Descripción <span className="text-red-500">*</span>
+						Categoría <span className="text-red-500">*</span>
 					</h3>
-					<textarea
-						name="Descripcion"
-						value={formData.Descripcion}
+					<select
+						name="Id_Categoria_Insumos"
+						value={formData.Id_Categoria_Insumos}
 						onChange={handleChange}
-						required
-						maxLength={100}
 						className={`w-full border p-2 rounded ${
-							errors.Descripcion ? "border-red-500" : "border-gray-300"
+							errors.Id_Categoria_Insumos ? "border-red-500" : "border-gray-300"
 						}`}
-						style={{ resize: "vertical" }}
-					/>
-					{errors.Descripcion && (
-						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					>
+						<option value="">Seleccione una categoría</option>
+						{categorias.map((cat) => (
+							<option key={cat.Id_Categoria_Insumos} value={cat.Id_Categoria_Insumos}>
+								{cat.Nombre}
+							</option>
+						))}
+					</select>
+					{errors.Id_Categoria_Insumos && (
+						<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Insumos}</p>
 					)}
 				</div>
 
@@ -207,7 +213,7 @@ const EditarCatInsumo = () => {
 					className="hidden"
 				/>
 
-				{/* Botones de acción */}
+				{/* Botones */}
 				<div className="md:col-span-2 flex gap-4">
 					<Button icon="fa fa-save" className="green" type="submit">
 						Guardar Cambios
@@ -221,4 +227,4 @@ const EditarCatInsumo = () => {
 	);
 };
 
-export default EditarCatInsumo;
+export default EditarInsumo;

@@ -29,7 +29,7 @@ const InsumoAdmin = () => {
 			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
 		}));
 		setInsumos(datosProcesados);
-		console.log("Insumos cargados:", datosProcesados);
+		// console.log("Insumos cargados:", datosProcesados);
 	} catch (err) {
 		console.error("Error al cargar insumos:", err);
 		setError("Error al cargar insumos");
@@ -63,7 +63,7 @@ const InsumoAdmin = () => {
 
 	// --- Navegar a editar un insumo existente ---
 	const handleEdit = (insumo) => {
-		navigate(`insumo/editar/${insumo.Id_Insumos}`);
+		navigate(`/admin/insumo/editar/${insumo.Id_Insumos}`);
 	};
 
 	// --- Eliminar un insumo con confirmación ---
