@@ -170,7 +170,7 @@ const AgregarProducto = () => {
                     <>
                         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
                             <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Tipo de Documento
+                                Fragancia
                             </h3>
                             <select
                                 type="text"
@@ -199,41 +199,11 @@ const AgregarProducto = () => {
                                 <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>
                             )}
                         </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Nombre <span className="text-red-500">*</span>
-                            </h3>
-                            <input
-                                type="text"
-                                name="Nombre"
-                                value={formData.Nombre}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Nombre && (
-                                <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-                            )}
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Celular <span className="text-red-500">*</span>
-                            </h3>
-                            <input
-                                type="text"
-                                name="Celular"
-                                value={formData.Celular}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Celular && (
-                                <p className="text-red-500 text-sm mt-1">{errors.Celular}</p>
-                            )}
-                        </div>
                     </>
                 )}
 
                 {/* Si es Empresa */}
-                {formData.Id_Categoria_Producto === "Empresa" && (
+                {formData.Id_Categoria_Producto != 16 && (
                     <>
                         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
                             <h3 className="text-2xl text-black font-bold mb-2 block">
@@ -264,53 +234,6 @@ const AgregarProducto = () => {
                             {errors.Nombre_Empresa && (
                                 <p className="text-red-500 text-sm mt-1">
                                     {errors.Nombre_Empresa}
-                                </p>
-                            )}
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2">Asesor</h3>
-                            <input
-                                type="text"
-                                name="Asesor"
-                                value={formData.Asesor}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Asesor && (
-                                <p className="text-red-500 text-sm mt-1">{errors.Asesor}</p>
-                            )}
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Celular Empresa <span className="text-red-500">*</span>
-                            </h3>
-                            <input
-                                type="text"
-                                name="Celular_Empresa"
-                                value={formData.Celular_Empresa}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Celular_Empresa && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors.Celular_Empresa}
-                                </p>
-                            )}
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2">
-                                Celular Asesor
-                            </h3>
-                            <input
-                                type="text"
-                                name="Celular_Asesor"
-                                value={formData.Celular_Asesor}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Celular_Asesor && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors.Celular_Asesor}
                                 </p>
                             )}
                         </div>
