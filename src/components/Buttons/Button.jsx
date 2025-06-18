@@ -19,10 +19,15 @@ const Button = ({
 			"bg-orange-400 border-orange-700 hover:bg-orange-700  rounded-full flex items-center justify-center",
 		gray: "bg-gray-500 border-gray-400 hover:bg-gray-600 cursor-not-allowed",
 	};
+	const colorKey = Object.keys(colors).find((key) =>
+    className.split(" ").includes(key)
+  	);
+	const colorClass = colors[colorKey] || colors.gray;
 
-	const buttonClasses = `${baseClasses} ${
-		colors[className] || "bg-gray-400 border-gray-400"
-	}`;
+	const buttonClasses = `${baseClasses} ${colorClass} ${className
+    .split(" ")
+    .filter((c) => c !== colorKey)
+    .join(" ")}`;
 
 	const content = (
 		<span className="flex items-center gap-x-3">
