@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import api from "@/utils/api";
+import { rolPermisoService } from "@/service/asignacionPermiso";
 
 const Logout = "/logout/";
 
@@ -24,6 +25,27 @@ const Sidebar = ({ onToggleSidebar }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);  
 
     const navigate = useNavigate();
+
+    const [nombresPermisos, setNombresPermisos] = useState([]);
+
+    useEffect(() => {
+        const obtenerPermisosNombre = async () => {
+        try {
+            const Info = await api.get("/me/");
+            const iID = Info.data.user.rol_id;
+
+            const relacionados = await rolPermisoService.listarPermisosPorRol(iID);
+
+            const nombres = relacionados.data.map((p) => p.Nombre);
+
+            setNombresPermisos(nombres);
+        } catch (error) {
+            console.error("Error al obtener los permisos:", error);
+        }
+        };
+
+        obtenerPermisosNombre();
+    }, []);
 
     useEffect(() => {
         if (onToggleSidebar) {
@@ -146,7 +168,8 @@ const Sidebar = ({ onToggleSidebar }) => {
                             </li>
 
                     
-                            <li>
+                           {nombresPermisos.includes("Roles") && (
+                             <li>
                                 <button
                                     type="button"
                                     onClick={() => toggleMenu("configuracion")}
@@ -183,14 +206,16 @@ const Sidebar = ({ onToggleSidebar }) => {
                                     </ul>
                                 )}
                             </li>
+                           )}
 
                             {/* Usuarios */}
-                            <li>
-                                <button
+                            {(nombresPermisos.includes("Usuarios") || nombresPermisos.includes("Empleados")) && (
+                                <li>
+                                    <button
                                     type="button"
                                     onClick={() => toggleMenu("usuarios")}
                                     className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
-                                >
+                                    >
                                     <div className="flex items-center space-x-5">
                                         <FiUser className="w-7 h-7 text-green-400" />
                                         <span>Usuarios</span>
@@ -203,36 +228,43 @@ const Sidebar = ({ onToggleSidebar }) => {
                                         viewBox="0 0 24 24"
                                     >
                                         <title id="usuariosIconTitle">Alternar Menú de Usuarios</title>
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M9 5l7 7-7 7"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
-                                </button>
-                                {openMenus.usuarios && (
+                                    </button>
+
+                                    {openMenus.usuarios && (
                                     <ul className="ml-8 mt-2 space-y-2 text-gray-300">
+                                        {nombresPermisos.includes("Usuarios") && (
                                         <Link to="/admin/usuario" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Usuarios
+                                            Usuarios
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Empleados") && (
                                         <Link to="/admin/empleado" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Empleados
+                                            Empleados
                                             </li>
                                         </Link>
+                                        )}
                                     </ul>
+                                    )}
+                                </li>
                                 )}
-                            </li>
 
                             {/* Servicios */}
-                            <li>
-                                <button
+                           {(
+                                nombresPermisos.includes("Servicios") ||
+                                nombresPermisos.includes("Agendamiento") ||
+                                nombresPermisos.includes("Novedades")
+                                ) && (
+                                <li>
+                                    <button
                                     type="button"
                                     onClick={() => toggleMenu("servicios")}
                                     className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
-                                >
+                                    >
                                     <div className="flex items-center space-x-5">
                                         <FiBox className="w-7 h-7 text-indigo-400" />
                                         <span>Servicios</span>
@@ -245,41 +277,54 @@ const Sidebar = ({ onToggleSidebar }) => {
                                         viewBox="0 0 24 24"
                                     >
                                         <title id="serviciosIconTitle">Alternar Menú de Servicios</title>
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M9 5l7 7-7 7"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
-                                </button>
-                                {openMenus.servicios && (
+                                    </button>
+
+                                    {openMenus.servicios && (
                                     <ul className="ml-8 mt-2 space-y-2 text-gray-300">
+                                        {nombresPermisos.includes("Servicios") && (
                                         <Link to="/admin/servicios" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Servicios
+                                            Servicios
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Agendamiento") && (
                                         <Link to="/admin/agendamiento" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Agendamiento
+                                            Agendamiento
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Novedades") && (
                                         <Link to="/admin/horarios" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Horarios
+                                            Novedades
                                             </li>
                                         </Link>
+                                        )}
                                     </ul>
+                                    )}
+                                </li>
                                 )}
-                            </li>
+
 
                             {/* Compras */}
-                            <li>
-                                <button
+                           {(
+                                nombresPermisos.includes("Compras") ||
+                                nombresPermisos.includes("Proveedores") ||
+                                nombresPermisos.includes("Categoria Productos") ||
+                                nombresPermisos.includes("Productos") ||
+                                nombresPermisos.includes("Categoria Insumos") ||
+                                nombresPermisos.includes("Insumos")
+                                ) && (
+                                <li>
+                                    <button
                                     type="button"
                                     onClick={() => toggleMenu("compras")}
                                     className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
-                                >
+                                    >
                                     <div className="flex items-center space-x-5">
                                         <FiShoppingCart className="w-7 h-7 text-purple-400" />
                                         <span>Compras</span>
@@ -292,56 +337,72 @@ const Sidebar = ({ onToggleSidebar }) => {
                                         viewBox="0 0 24 24"
                                     >
                                         <title id="comprasIconTitle">Alternar Menú de Compras</title>
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M9 5l7 7-7 7"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
-                                </button>
-                                {openMenus.compras && (
+                                    </button>
+
+                                    {openMenus.compras && (
                                     <ul className="ml-8 mt-2 space-y-2 text-gray-300">
+                                        {nombresPermisos.includes("Compras") && (
                                         <Link to="/admin/compras" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Compras
+                                            Compras
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Proveedores") && (
                                         <Link to="/admin/proveedores" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Proveedores
+                                            Proveedores
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Categoria Productos") && (
                                         <Link to="/admin/categoriaproducto" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Categoría productos
+                                            Categoría productos
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Productos") && (
                                         <Link to="/admin/productos" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Productos
+                                            Productos
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Categoria Insumos") && (
                                         <Link to="/admin/categoriainsumo" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Categoría insumos
+                                            Categoría insumos
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Insumos") && (
                                         <Link to="/admin/insumo" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Insumos
+                                            Insumos
                                             </li>
                                         </Link>
+                                        )}
                                     </ul>
+                                    )}
+                                </li>
                                 )}
-                            </li>
+
 
                             {/* Ventas */}
-                            <li>
-                                <button
+                            {(
+                                nombresPermisos.includes("Ventas") ||
+                                nombresPermisos.includes("Clientes") ||
+                                nombresPermisos.includes("Devoluciones")
+                                ) && (
+                                <li>
+                                    <button
                                     type="button"
                                     onClick={() => toggleMenu("ventas")}
                                     className="flex items-center justify-between w-full hover:bg-[#161b22] p-4 rounded-xl transition-all"
-                                >
+                                    >
                                     <div className="flex items-center space-x-5">
                                         <FiShoppingCart className="w-7 h-7 text-red-400" />
                                         <span>Ventas</span>
@@ -354,33 +415,38 @@ const Sidebar = ({ onToggleSidebar }) => {
                                         viewBox="0 0 24 24"
                                     >
                                         <title id="ventasIconTitle">Alternar Menú de Ventas</title>
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M9 5l7 7-7 7"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
-                                </button>
-                                {openMenus.ventas && (
+                                    </button>
+
+                                    {openMenus.ventas && (
                                     <ul className="ml-8 mt-2 space-y-2 text-gray-300">
+                                        {nombresPermisos.includes("Ventas") && (
                                         <Link to="/admin/ventas" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Ventas
+                                            Ventas
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Clientes") && (
                                         <Link to="/admin/clientes" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Clientes
+                                            Clientes
                                             </li>
                                         </Link>
+                                        )}
+                                        {nombresPermisos.includes("Devoluciones") && (
                                         <Link to="/admin/devoluciones" onClick={() => setSidebarOpen(false)}>
                                             <li className="hover:text-white cursor-pointer p-2 border-t border-[#2d333b]">
-                                                Devoluciones
+                                            Devoluciones
                                             </li>
                                         </Link>
+                                        )}
                                     </ul>
+                                    )}
+                                </li>
                                 )}
-                            </li>
+
                         </ul>
                     </div>
                 </div>

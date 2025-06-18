@@ -67,11 +67,11 @@ const AuthForm = () => {
 					const meResponse = await api.get(ENDPOINTS.me);
 					const { user } = meResponse.data;
 
-					const rolRoutes = {
-						1: "/admin/dashboard",
-						2: "/usuario/index",
-					};
-					window.location.href = rolRoutes[user.rol_id] || "/";
+					if (user.rol_id === 2) {
+						window.location.href = "/usuario/index";
+					} else if (user.rol_id) {
+						window.location.href = "/admin/dashboard";
+					} 
 				} else {
 					setMessage("¡Registro exitoso!");
 				}

@@ -75,6 +75,7 @@ const AsignarRol = () => {
 				duration: 1500,
 			});
 			navigate("/admin/roles");
+			location.reload()
 		} catch (error) {
 			console.error("Error al asignar permisos:", error);
 			showAlert("Error", "No se pudieron asignar los permisos", "error");
