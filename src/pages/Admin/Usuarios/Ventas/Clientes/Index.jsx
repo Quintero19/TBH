@@ -41,13 +41,11 @@ export default function Clientes() {
 
             setClientes(normalizado);
         } catch (error) {
-            console.error("Error al obtener los clientes:", error);
-            showAlert("Error al cargar los clientes.", {
-                type: "error",
-                title: "Error de Carga",
-                duration: 2500,
-            });
-        }
+                    const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+                        showAlert(`Error: ${mensaje || error}`, {
+                            title: "Error",
+                            icon: "error",})
+                    }
     }, []);
 
     const filteredData = useMemo(() => {

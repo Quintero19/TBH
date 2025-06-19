@@ -30,10 +30,12 @@ const InsumoAdmin = () => {
 		}));
 		setInsumos(datosProcesados);
 		// console.log("Insumos cargados:", datosProcesados);
-	} catch (err) {
-		console.error("Error al cargar insumos:", err);
-		setError("Error al cargar insumos");
-	}
+	} catch (error) {
+		const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",})
+		}
 }, []);
 
 	// --- Cargar los insumos al montar el componente ---

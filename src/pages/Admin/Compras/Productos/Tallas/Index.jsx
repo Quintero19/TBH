@@ -26,11 +26,11 @@ const Tallas = () => {
 			const response = await tallasService.obtenerTallas();
 			setTallas(transformData(response.data, categoriasData));
 		} catch (error) {
-			console.error(
-				"Error al obtener las tallas:",
-				error.response?.data || error,
-			);
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+							title: "Error",
+							icon: "error",})
+					}
 	}, []);
 
 	useEffect(() => {

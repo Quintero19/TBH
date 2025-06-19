@@ -29,12 +29,11 @@ const Empleados = () => {
 			const response = await empleadoService.obtenerEmpleados();
 			setEmpleados(transformData(response.data));
 		} catch (error) {
-			console.error("Error al obtener empleados:", error.response?.data || error);
-			showAlert("No se pudieron cargar los empleados", {
-				type: "error",
-				title: "Error",
-			});
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+					showAlert(`Error: ${mensaje || error}`, {
+						title: "Error",
+						icon: "error",})
+			}
 	}, [transformData]);
 
 	useEffect(() => {

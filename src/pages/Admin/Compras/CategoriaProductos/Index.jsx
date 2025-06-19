@@ -25,10 +25,10 @@ const CategoriasProducto = () => {
 			const response = await catProductoService.obtenerCategorias();
 			setCatsProducto(transformData(response.data));
 		} catch (error) {
-			console.error(
-				"Error al obtener las categorias:",
-				error.response?.data || error,
-			);
+			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",})
 		}
 	}, []);
 

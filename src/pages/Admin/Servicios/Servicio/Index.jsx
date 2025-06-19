@@ -33,11 +33,11 @@ const Servicios = () => {
 			console.log(response);
 			setServicios(transformData(response.data));
 		} catch (error) {
-			console.error(
-				"Error al obtener Servicios:",
-				error.response?.data || error,
-			);
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+							title: "Error",
+							icon: "error",})
+					}
 	}, []);
 
 	const handleToggleEstado = async (id) => {

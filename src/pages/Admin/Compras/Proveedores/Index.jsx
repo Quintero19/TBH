@@ -26,11 +26,11 @@ const Proveedores = () => {
 			const response = await proveedorService.obtenerProveedores();
 			setProveedores(transformData(response.data));
 		} catch (error) {
-			console.error(
-				"Error al obtener proveedores:",
-				error.response?.data || error,
-			);
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+							title: "Error",
+							icon: "error",})
+					}
 	}, []);
 
 	useEffect(() => {

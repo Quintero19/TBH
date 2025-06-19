@@ -32,4 +32,8 @@ export const rolPermisoService = {
 		const res = await api.delete(`${ROL_PERMISO_URL}/${id}`);
 		return res.data;
 	},
+	cambiarEstadoRolPermiso: async (id) => {
+			const res = await api.put(`${ROL_PERMISO_URL}/estado/${id}`);
+			return res.data;
+		},
 };
