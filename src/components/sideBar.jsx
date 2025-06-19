@@ -28,24 +28,26 @@ const Sidebar = ({ onToggleSidebar }) => {
 
     const [nombresPermisos, setNombresPermisos] = useState([]);
 
-    useEffect(() => {
-        const obtenerPermisosNombre = async () => {
+   useEffect(() => {
+    const obtenerPermisosNombre = async () => {
         try {
             const Info = await api.get("/me/");
             const iID = Info.data.user.rol_id;
 
             const relacionados = await rolPermisoService.listarPermisosPorRol(iID);
 
-            const nombres = relacionados.data.map((p) => p.Nombre);
+            const nombres = relacionados.data
+                .filter((p) => p.Estado === true)
+                .map((p) => p.Nombre);
 
             setNombresPermisos(nombres);
         } catch (error) {
             console.error("Error al obtener los permisos:", error);
         }
-        };
+    };
 
-        obtenerPermisosNombre();
-    }, []);
+    obtenerPermisosNombre();
+}, []);
 
     useEffect(() => {
         if (onToggleSidebar) {
