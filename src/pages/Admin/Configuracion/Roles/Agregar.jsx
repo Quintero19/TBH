@@ -13,56 +13,87 @@ export default function AgregarRol() {
 		Estado: true,
 	});
 
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		let val = value;
+	const [errors, setErrors] = useState({});
 
-		if (name === "Estado") {
-			val = value === "true";
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+		const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+		switch (name) {
+			case "Nombre":
+				if (!value.trim()) {
+					newErrors[name] = "El nombre es requerido";
+				} else if (!regex.test(value)) {
+					newErrors[name] = "El nombre solo debe contener letras y espacios";
+				} else if (value.trim().length < 5 || value.trim().length > 30) {
+					newErrors[name] = "Debe tener entre 5 y 30 caracteres";
+				} else {
+					newErrors[name] = "";
+				}
+				break;
+
+			case "Descripcion":
+				if (!value.trim()) {
+					newErrors[name] = "La descripción es requerida";
+				} else if (!regex.test(value)) {
+					newErrors[name] =
+						"La descripción solo debe contener letras y espacios";
+				} else if (value.trim().length < 5 || value.trim().length > 120) {
+					newErrors[name] = "Debe tener entre 5 y 120 caracteres";
+				} else {
+					newErrors[name] = "";
+				}
+				break;
+
+			default:
+				break;
 		}
 
-		setFormData({
-			...formData,
+		if (newErrors[name] === "") {
+			delete newErrors[name];
+		}
+
+		setErrors(newErrors);
+	};
+
+	const handleChange = (e) => {
+		const { name, value, type, checked } = e.target;
+		const val = type === "checkbox" ? checked : value;
+
+		setFormData((prev) => ({
+			...prev,
 			[name]: val,
-		});
+		}));
+
+		validateField(name, val);
 	};
 
 	const validarCampos = () => {
-		const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-		const { Nombre, Descripcion } = formData;
+		const requiredFields = ["Nombre", "Descripcion"];
+		let isValid = true;
 
-		if (Nombre.length < 5 || Nombre.length > 30) {
-			showAlert("El nombre debe tener entre 5 y 30 caracteres.", {
+		requiredFields.forEach((field) => {
+			const value = formData[field]?.trim();
+			if (!value) {
+				showAlert(`El campo ${field} es obligatorio.`, {
+					type: "error",
+					title: "Validación",
+				});
+				isValid = false;
+			} else {
+				validateField(field, value);
+			}
+		});
+
+		if (Object.keys(errors).length > 0) {
+			showAlert("Corrige los errores antes de guardar.", {
 				type: "error",
 				title: "Validación",
 			});
-			return false;
+			isValid = false;
 		}
 
-		if (!nombreRegex.test(Nombre)) {
-			showAlert("El nombre solo debe contener letras y espacios.", {
-				type: "error",
-				title: "Validación",
-			});
-			return false;
-		}
-
-		if (!nombreRegex.test(Descripcion)) {
-			showAlert("La descripción solo debe contener letras y espacios.", {
-				type: "error",
-				title: "Validación",
-			});
-			return false;
-		}
-		if (Nombre.startsWith(" ") || Descripcion.startsWith(" ")) {
-			showAlert("Los campos no deben comenzar con un espacio.", {
-				type: "error",
-				title: "Validación",
-			});
-			return false;
-		}
-
-		return true;
+		return isValid;
 	};
 
 	const handleSubmit = async (e) => {
@@ -70,27 +101,27 @@ export default function AgregarRol() {
 
 		if (!validarCampos()) return;
 
-		 try {
+		try {
 			const nuevoRol = await rolService.crearRoles(formData);
 
 			showAlert("El Rol ha sido guardado correctamente.", {
-			type: "success",
-			duration: 1500,
+				type: "success",
+				duration: 1500,
 			}).then(() => {
-			if (nuevoRol.data.Id) {
-				navigate(`/admin/roles/asignar/${nuevoRol.data.Id}`);
-			} else {
-				navigate("/admin/roles"); 
-			}
+				if (nuevoRol.data.Id) {
+					navigate(`/admin/roles/asignar/${nuevoRol.data.Id}`);
+				} else {
+					navigate("/admin/roles");
+				}
 			});
-		} catch (err) {
-			console.error(err);
-			showAlert(`Error al guardar: ${err.message}`, {
-			type: "error",
-			title: "Error",
-			});
-		}
-		};
+		} catch (error) {
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+							title: "Error",
+							icon: "error",})
+					}
+	};
+
 	const handleCancel = () => {
 		showAlert("Si cancelas, perderás los datos ingresados.", {
 			type: "warning",
@@ -107,54 +138,66 @@ export default function AgregarRol() {
 	};
 
 	return (
-		<div className="flex">
-			<div className="grow p-6">
-				<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-					Agregar Roles
-				</h1>
+		<>
+			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">Agregar Rol</h1>
 
-				<form
-					onSubmit={handleSubmit}
-					className="grid grid-cols-1 md:grid-cols-2 gap-6"
-				>
-					<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-						<h3 className="text-2xl text-black font-bold mb-2 block">
-							Nombre <span className="text-red-500">*</span>
-						</h3>
-						<input
-							type="text"
-							name="Nombre"
-							value={formData.Nombre}
-							onChange={handleChange}
-							className="w-full p-2 border rounded"
-							required
-						/>
-					</div>
+			<form
+				onSubmit={handleSubmit}
+				className="grid grid-cols-1 md:grid-cols-2 gap-6"
+			>
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Nombre <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="text"
+						name="Nombre"
+						value={formData.Nombre}
+						onChange={handleChange}
+						className="w-full p-2 border border-gray-300 rounded"
+						maxLength={50}
+					/>
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
+				</div>
 
-					<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-						<h3 className="text-2xl text-black font-bold mb-2 block">
-							Descripcion <span className="text-red-500">*</span>
-						</h3>
-						<input
-							type="text"
-							name="Descripcion"
-							value={formData.Descripcion}
-							onChange={handleChange}
-							className="w-full p-2 border rounded"
-							required
-						/>
-					</div>
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Descripción <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="text"
+						name="Descripcion"
+						value={formData.Descripcion}
+						onChange={handleChange}
+						className="w-full p-2 border border-gray-300 rounded"
+						maxLength={120}
+					/>
+					{errors.Descripcion && (
+						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					)}
+				</div>
 
-					<div className="md:col-span-2 flex gap-2 ml-7">
-						<Button icon="fa-floppy-o" className="green" type="submit">
-							Guardar
-						</Button>
-						<Button icon="fa-times" className="red" onClick={handleCancel}>
-							Cancelar
-						</Button>
-					</div>
-				</form>
-			</div>
-		</div>
+				<div className="md:col-span-2 flex gap-2 ml-7">
+					<Button
+						type="submit"
+						className="green"
+						disabled={Object.keys(errors).length > 0}
+						icon="fa-floppy-o"
+					>
+						<div className="flex items-center gap-2">Guardar</div>
+					</Button>
+					<Button
+						type="button"
+						className="red"
+						onClick={handleCancel}
+						icon="fa-times"
+					>
+						<div className="flex items-center gap-2">Cancelar</div>
+					</Button>
+				</div>
+			</form>
+		</>
 	);
 }

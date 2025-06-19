@@ -122,19 +122,19 @@ const AsignarRol = () => {
 				<form onSubmit={handleSubmit} className="space-y-8">
 					<div>
 						<h3 className="text-4 font-semibold mb-4">Seleccionar Permisos</h3>
-						<div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 							{permisosFiltrados.map((permiso) => (
 								<label
-									key={permiso.Id}
-									className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-300 transition"
+								key={permiso.Id}
+								className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition"
 								>
-									<input
-										type="checkbox"
-										className="accent-blue-600 w-5 h-5"
-										checked={permisosSeleccionados.includes(permiso.Id)}
-										onChange={() => togglePermiso(permiso.Id)}
-									/>
-									<span className="text-gray-800 ">{permiso.Nombre}</span>
+								<input
+									type="checkbox"
+									className="accent-blue-600 w-5 h-5"
+									checked={permisosSeleccionados.includes(permiso.Id)}
+									onChange={() => togglePermiso(permiso.Id)}
+								/>
+								<span className="text-gray-800 font-medium ">{permiso.Nombre}</span>
 								</label>
 							))}
 						</div>

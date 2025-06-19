@@ -4,10 +4,14 @@ import { rolService } from "@/service/roles.service";
 import { userService } from "@/service/usuario.service";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {faEye,faEyeSlash,} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const EditarUsuario = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const [mostrarPassword, setMostrarPassword] = useState(false);
+	const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
 
 	const [formData, setFormData] = useState(null);
 	const [roles, setRoles] = useState([]);
@@ -198,31 +202,50 @@ const EditarUsuario = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">Contraseña</h3>
-					<input
-						type="password"
-						name="Password"
-						value={formData.Password}
-						onChange={handleChange}
-						className="w-full p-2 border rounded"
-					/>
-				</div>
-
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">
-						Confirmar Contraseña
-					</h3>
-					<input
-						type="password"
-						name="confirmPassword"
-						value={formData.confirmPassword}
-						onChange={handleChange}
-						className="w-full p-2 border rounded"
-					/>
-				</div>
-
-				{/* Nuevo SELECT dinámico de roles */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+										<h3 className="text-2xl text-black font-bold mb-2 block">
+											Contraseña <span className="text-red-500">*</span>
+										</h3>
+										<div className="relative">
+											<input
+												type={mostrarPassword ? "text" : "password"}
+												name="Password"
+												value={formData.Password}
+												onChange={handleChange}
+												className="w-full p-2 border rounded pr-10"
+											/>
+											<button
+												type="button"
+												onClick={() => setMostrarPassword((prev) => !prev)}
+												className="absolute right-2 top-2 text-gray-600"
+											>
+												<FontAwesomeIcon icon={mostrarPassword ? faEyeSlash : faEye} />
+											</button>
+										</div>
+									</div>
+				
+									<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+										<h3 className="text-2xl text-black font-bold mb-2 block">
+											Confirmar Contraseña <span className="text-red-500">*</span>
+										</h3>
+										<div className="relative">
+											<input
+												type={mostrarConfirmPassword ? "text" : "password"}
+												name="confirmPassword"
+												value={formData.confirmPassword}
+												onChange={handleChange}
+												className="w-full p-2 border rounded pr-10"
+											/>
+											<button
+												type="button"
+												onClick={() => setMostrarConfirmPassword((prev) => !prev)}
+												className="absolute right-2 top-2 text-gray-600"
+											>
+												<FontAwesomeIcon icon={mostrarConfirmPassword ? faEyeSlash : faEye} />
+											</button>
+										</div>
+									</div>
+									
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
 						Rol <span className="text-red-500">*</span>
