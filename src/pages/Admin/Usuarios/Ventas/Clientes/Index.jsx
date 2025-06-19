@@ -82,7 +82,6 @@ export default function Clientes() {
         });
     }, [clientes, searchTerm]);
 
-
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
@@ -136,7 +135,18 @@ export default function Clientes() {
 
     const handleVerDetalles = async (cliente) => {
         try {
-            const fechaNacimientoFormateada = cliente.F_Nacimiento ? new Date(cliente.F_Nacimiento).toLocaleDateString() : "-";
+            let fechaNacimientoFormateada = "-";
+            if (cliente.F_Nacimiento) {
+                const [year, month, day] = cliente.F_Nacimiento.split('-').map(Number);
+                const fecha = new Date(year, month - 1, day);
+                
+                if (!isNaN(fecha.getTime())) {
+                    fechaNacimientoFormateada = fecha.toLocaleDateString();
+                } else {
+                    fechaNacimientoFormateada = "Fecha inválida";
+                }
+            }
+            
             const html = `
             <div class="space-y-7 text-gray-100">
                 <!-- Encabezado -->
