@@ -23,15 +23,11 @@ const Devolucion = () => {
 			const response = await devolucionService.obtenerDevolucion();
 			setDevolucion(response.data);
 		} catch (error) {
-			console.error(
-				"Error al obtener devolucion: ",
-				error.response?.data || error,
-			);
-			showAlert("No se pudieron cargar las devoluciones", {
-				type: "error",
-				title: "Error",
-			});
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+							title: "Error",
+							icon: "error",})
+					}
 	}, []);
 	useEffect(() => {
 		fetchDevolucion();

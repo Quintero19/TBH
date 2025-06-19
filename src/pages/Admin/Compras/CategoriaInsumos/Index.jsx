@@ -33,10 +33,12 @@ const CategoriaInsumoAdmin = () => {
 			setError(null);
 			const response = await categoriaInsumoService.obtenerCategorias();
 			setCategorias(response.data);
-		} catch (err) {
-			console.error(err);
-			setError("Error al cargar categorías.");
-		}
+		} catch (error) {
+			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",})
+	}
 	}, []);
 
 	/**

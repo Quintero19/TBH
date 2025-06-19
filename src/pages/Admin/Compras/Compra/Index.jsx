@@ -24,12 +24,12 @@ const Compras = () => {
 		try {
 			const response = await compraService.obtenerCompras();
 			setCompras(transformData(response.data, proveedoresData));
-		} catch (error) {
-			console.error(
-				"Error al obtener las compras:",
-				error.response?.data || error,
-			);
-		}
+		}catch (error) {
+			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+				showAlert(`Error: ${mensaje || error}`, {
+					title: "Error",
+					icon: "error",})
+				}
 	}, []);
 
 	useEffect(() => {
