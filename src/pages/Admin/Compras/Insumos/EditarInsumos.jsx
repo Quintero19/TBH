@@ -160,24 +160,6 @@ const EditarInsumo = () => {
 				className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
 				noValidate
 			>
-				{/* Campo: Nombre */}
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg min-h-[120px]">
-					<h3 className="text-2xl text-black font-bold mb-2">
-						Nombre <span className="text-red-500">*</span>
-					</h3>
-					<input
-						type="text"
-						name="Nombre"
-						value={formData.Nombre}
-						onChange={handleChange}
-						className={`w-full border p-2 rounded ${
-							errors.Nombre ? "border-red-500" : "border-gray-300"
-						}`}
-					/>
-					{errors.Nombre && (
-						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-					)}
-				</div>
 
 				{/* Campo: Categoría */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg">
@@ -201,6 +183,25 @@ const EditarInsumo = () => {
 					</select>
 					{errors.Id_Categoria_Insumos && (
 						<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Insumos}</p>
+					)}
+				</div>
+				
+				{/* Campo: Nombre */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg min-h-[120px]">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Nombre <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="text"
+						name="Nombre"
+						value={formData.Nombre}
+						onChange={handleChange}
+						className={`w-full border p-2 rounded ${
+							errors.Nombre ? "border-red-500" : "border-gray-300"
+						}`}
+					/>
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
 					)}
 				</div>
 

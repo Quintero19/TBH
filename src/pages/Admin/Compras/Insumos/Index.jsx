@@ -67,36 +67,36 @@ const InsumoAdmin = () => {
 	};
 
 	// --- Eliminar un insumo con confirmación ---
-	// const handleDelete = async (insumo) => {
-	// 	try {
-	// 		const result = await showAlert(
-	// 			`¿Deseas eliminar el insumo <strong>${insumo.Nombre}</strong>?`,
-	// 			{
-	// 				type: "warning",
-	// 				title: "Confirmar",
-	// 				showConfirmButton: true,
-	// 				showCancelButton: true,
-	// 				confirmButtonText: "Sí, eliminar",
-	// 				cancelButtonText: "Cancelar",
-	// 			},
-	// 		);
+	const handleDelete = async (insumo) => {
+		try {
+			const result = await showAlert(
+				`¿Deseas eliminar el insumo <strong>${insumo.Nombre}</strong>?`,
+				{
+					type: "warning",
+					title: "Confirmar",
+					showConfirmButton: true,
+					showCancelButton: true,
+					confirmButtonText: "Sí, eliminar",
+					cancelButtonText: "Cancelar",
+				},
+			);
 
-	// 		if (result.isConfirmed) {
-	// 			await insumoService.eliminarInsumo(insumo.Id_Insumos);
-	// 			showAlert("Insumo eliminado correctamente", {
-	// 				type: "success",
-	// 				title: "Eliminado",
-	// 			});
-	// 			cargarInsumos();
-	// 		}
-	// 	} catch (err) {
-	// 		console.error("No se pudo eliminar el insumo:", err);
-	// 		showAlert("No se pudo eliminar el insumo", {
-	// 			type: "error",
-	// 			title: "Error",
-	// 		});
-	// 	}
-	// };
+			if (result.isConfirmed) {
+				await insumoService.eliminarInsumo(insumo.Id_Insumos);
+				showAlert("Insumo eliminado correctamente", {
+					type: "success",
+					title: "Eliminado",
+				});
+				cargarInsumos();
+			}
+		} catch (err) {
+			console.error("No se pudo eliminar el insumo:", err);
+			showAlert("No se pudo eliminar el insumo", {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
 
 	// --- Ver detalles de un insumo ---
 	const handleVerDetalles = async (insumo) => {
@@ -195,7 +195,7 @@ const InsumoAdmin = () => {
 
 	// --- Validación para edición y eliminación ---
 	const canEdit = (i) => i.Estado === true;
-	const canDelete = (i) => i === false; //corregido paraque no se puedan eliminar insumos	
+	const canDelete = (insumo) => !insumo.TieneCompras;
 
   // --- Renderizado del componente ---
   return (
@@ -209,7 +209,7 @@ const InsumoAdmin = () => {
         onToggleEstado={handleToggleEstado}
         onAdd={handleAdd}
         onEdit={handleEdit}
-        // onDelete={handleDelete}
+        onDelete={handleDelete}
         canEdit={canEdit}
         canDelete={canDelete}
         idAccessor="Id_Insumos"

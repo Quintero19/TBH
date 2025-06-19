@@ -72,6 +72,20 @@ const AgregarInsumo = () => {
 		}
 
 		try {
+			const existentes = await insumoService.obtenerInsumos();
+			const yaExiste = existentes.data.some(i =>
+				i.Nombre.trim().toLowerCase() === formData.Nombre.trim().toLowerCase()
+			);
+
+			if (yaExiste) {
+				showAlert("Ya existe un insumo con ese nombre", {
+					type: "error",
+					title: "Duplicado",
+					duration: 2000,
+				});
+				return;
+			}
+
 			await insumoService.crearInsumo(formData);
 			await showAlert("El insumo fue creado exitosamente", {
 				type: "success",
