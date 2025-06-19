@@ -31,9 +31,9 @@ const AsignarRol = () => {
 							: [],
 				);
 
-				const permisosAsignados = permisosAsignadosData.data.map(
-					(p) => p.Permiso_Id,
-				);
+				const permisosAsignados = permisosAsignadosData.data
+					.filter(p => p.Estado) 
+					.map(p => p.Permiso_Id);
 				setPermisosSeleccionados(permisosAsignados);
 				setRol(rolData);
 			} catch (error) {
