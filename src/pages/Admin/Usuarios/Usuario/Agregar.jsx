@@ -4,11 +4,14 @@ import { rolService } from "@/service/roles.service";
 import { userService } from "@/service/usuario.service";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {faEye,faEyeSlash,} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function AgregarUsuario() {
 	const navigate = useNavigate();
-
 	const [roles, setRoles] = useState([]);
+	const [mostrarPassword, setMostrarPassword] = useState(false);
+	const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
 
 	const [formData, setFormData] = useState({
 		Documento: "",
@@ -23,25 +26,17 @@ export default function AgregarUsuario() {
 		const fetchRoles = async () => {
 			try {
 				const response = await rolService.listarRoles();
-				const rolesArray = response.data;
-
-				if (Array.isArray(rolesArray)) {
-					const rolesActivos = rolesArray.filter((rol) => rol.Estado === true);
-					setRoles(rolesActivos);
-				} else {
-					console.error("La propiedad data no es un array:", rolesArray);
-				}
+				const rolesActivos = response.data.filter((rol) => rol.Estado === true);
+				setRoles(rolesActivos);
 			} catch (error) {
 				console.error("Error al obtener roles:", error);
 			}
 		};
-
 		fetchRoles();
 	}, []);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
-
 		let val = value;
 
 		if (name === "Documento") {
@@ -52,131 +47,94 @@ export default function AgregarUsuario() {
 		if (name === "Estado") {
 			val = value === "true";
 		}
-		setFormData({
-			...formData,
-			[name]: val,
-		});
+
+		setFormData((prev) => ({ ...prev, [name]: val }));
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (!formData.Documento) {
-			showAlert("Debe Completar el campo documento.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		const {
+			Documento,
+			Correo,
+			Password,
+			confirmPassword,
+			Rol_Id
+		} = formData;
+
+		if (!Documento.trim()) {
+			return showAlert("Debe completar el campo documento.", { type: "error", title: "Datos inválidos" });
 		}
 
-		if (formData.Documento.length < 7 || formData.Documento.length > 15) {
-			showAlert("El documento debe tener entre 7 y 15 dígitos.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (Documento.length < 7 || Documento.length > 15) {
+			return showAlert("El documento debe tener entre 7 y 15 dígitos.", { type: "error", title: "Datos inválidos" });
 		}
 
-		if (!formData.Correo) {
-			showAlert("Debe Completar el campo correo.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (!Correo.trim()) {
+			return showAlert("Debe completar el campo correo.", { type: "error", title: "Datos inválidos" });
 		}
 
 		const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!correoRegex.test(formData.Correo)) {
-			showAlert("El correo ingresado no es válido.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (!correoRegex.test(Correo)) {
+			return showAlert("El correo ingresado no es válido.", { type: "error", title: "Datos inválidos" });
 		}
 
-		if (!formData.Password) {
-			showAlert("Debe Completar el campo contraseña.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (!Password.trim()) {
+			return showAlert("Debe completar el campo contraseña.", { type: "error", title: "Datos inválidos" });
 		}
 
-		const password = formData.Password;
-
-		if (password.length < 8 || !/[A-Z]/.test(password) ||  !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-			showAlert("La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.", {
+		if (
+			Password.length < 8 ||
+			!/[A-Z]/.test(Password) ||
+			!/[0-9]/.test(Password) ||
+			!/[!@#$%^&*(),.?":{}|<>]/.test(Password)
+		) {
+			return showAlert("La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.", {
 				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
+				title: "Datos inválidos"
 			});
-			return;
 		}
 
-		if (!formData.confirmPassword) {
-			showAlert("Debe Completar el campo confirmar contraseña.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (!confirmPassword.trim()) {
+			return showAlert("Debe confirmar la contraseña.", { type: "error", title: "Datos inválidos" });
 		}
 
-		if (formData.Password !== formData.confirmPassword) {
-			showAlert("Las contraseñas no coinciden.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (Password !== confirmPassword) {
+			return showAlert("Las contraseñas no coinciden.", { type: "error", title: "Datos inválidos" });
 		}
 
-		if (!formData.Rol_Id) {
-			showAlert("Debe seleccionar un rol.", {
-				type: "error",
-				title: "Datos inválidos",
-				duration: 2000,
-			});
-			return;
+		if (!Rol_Id) {
+			return showAlert("Debe seleccionar un rol.", { type: "error", title: "Datos inválidos" });
 		}
 
 		try {
 			const usuarios = await userService.listarUsuarios();
 
 			const existeDocumento = usuarios.data.some(
-				(u) => u.Documento.toString() === formData.Documento.toString(),
+				(u) => u.Documento.toString() === Documento.toString()
 			);
 			if (existeDocumento) {
-				showAlert("El documento ya está registrado.", {
+				return showAlert("El documento ya está registrado.", {
 					type: "error",
-					title: "Datos inválidos",
-					duration: 2000,
+					title: "Datos inválidos"
 				});
-				return;
 			}
 
 			const existeCorreo = usuarios.data.some(
-				(u) => u.Correo.toLowerCase() === formData.Correo.toLowerCase(),
+				(u) => u.Correo.toLowerCase() === Correo.toLowerCase()
 			);
 			if (existeCorreo) {
-				showAlert("El correo ya está registrado.", {
+				return showAlert("El correo ya está registrado.", {
 					type: "error",
-					title: "Datos inválidos",
-					duration: 2000,
+					title: "Datos inválidos"
 				});
-				return;
 			}
 
 			const usuarioFinal = {
 				...formData,
-				Rol_Id: Number(formData.Rol_Id),
+				Rol_Id: Number(Rol_Id),
 			};
-			usuarioFinal.confirmPassword = undefined;
+			delete usuarioFinal.confirmPassword;
 
 			await userService.crearUsuario(usuarioFinal);
 
@@ -186,7 +144,7 @@ export default function AgregarUsuario() {
 			}).then(() => {
 				navigate("/admin/usuario");
 			});
-		} catch (error) {
+		} catch (err) {
 			console.error(err);
 			showAlert(`Error al guardar: ${err.message}`, {
 				type: "error",
@@ -251,28 +209,46 @@ export default function AgregarUsuario() {
 						<h3 className="text-2xl text-black font-bold mb-2 block">
 							Contraseña <span className="text-red-500">*</span>
 						</h3>
-						<input
-							type="password"
-							name="Password"
-							value={formData.Password}
-							onChange={handleChange}
-							className="w-full p-2 border rounded"
-						/>
+						<div className="relative">
+							<input
+								type={mostrarPassword ? "text" : "password"}
+								name="Password"
+								value={formData.Password}
+								onChange={handleChange}
+								className="w-full p-2 border rounded pr-10"
+							/>
+							<button
+								type="button"
+								onClick={() => setMostrarPassword((prev) => !prev)}
+								className="absolute right-2 top-2 text-gray-600"
+							>
+								<FontAwesomeIcon icon={mostrarPassword ? faEyeSlash : faEye} />
+							</button>
+						</div>
 					</div>
 
 					<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 						<h3 className="text-2xl text-black font-bold mb-2 block">
 							Confirmar Contraseña <span className="text-red-500">*</span>
 						</h3>
-						<input
-							type="password"
-							name="confirmPassword"
-							value={formData.confirmPassword}
-							onChange={handleChange}
-							className="w-full p-2 border rounded"
-						/>
+						<div className="relative">
+							<input
+								type={mostrarConfirmPassword ? "text" : "password"}
+								name="confirmPassword"
+								value={formData.confirmPassword}
+								onChange={handleChange}
+								className="w-full p-2 border rounded pr-10"
+							/>
+							<button
+								type="button"
+								onClick={() => setMostrarConfirmPassword((prev) => !prev)}
+								className="absolute right-2 top-2 text-gray-600"
+							>
+								<FontAwesomeIcon icon={mostrarConfirmPassword ? faEyeSlash : faEye} />
+							</button>
+						</div>
 					</div>
-
+					
 					<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 						<h3 className="text-2xl text-black font-bold mb-2 block">
 							Rol <span className="text-red-500">*</span>
