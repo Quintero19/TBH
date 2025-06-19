@@ -1,24 +1,32 @@
 import { React, useCallback, useEffect, useMemo, useState } from "react";
-import { showAlert } from "@/components/AlertProvider";
-import { useNavigate } from "react-router-dom";
 import GeneralTable from "@/components/GeneralTable";
+import { showAlert } from "@/components/AlertProvider";
+import { useNavigate, useLocation } from "react-router-dom";
 import { clienteService } from "@/service/clientes.service";
 
 export default function Clientes() {
     const navigate = useNavigate();
+    const location = useLocation();
     const title = "Clientes";
 
     const columns = [
+        { header: "Tipo Doc.", accessor: "Tipo_Documento" },
         { header: "Documento", accessor: "Documento" },
         { header: "Nombre", accessor: "Nombre" },
-        { header: "Correo", accessor: "Correo" },
-        { header: "Estado", accessor: "Estado" },
+        { header: "Celular", accessor: "Celular" },
+        {
+            header: "Estado",
+            accessor: "Estado",
+            render: (data) => (
+                <span className={data.Estado ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                    {data.Estado ? 'Activo' : 'Inactivo'}
+                </span>
+            )
+        },
     ];
 
     const [clientes, setClientes] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
 
     const canEdit = (cliente) => cliente.Estado === true;
     const canDelete = (cliente) => cliente.Estado === true;
@@ -26,7 +34,6 @@ export default function Clientes() {
     const obtenerClientes = useCallback(async () => {
         try {
             const response = await clienteService.listarClientes();
-
             const normalizado = response.data.map((cliente) => ({
                 Id_Cliente: cliente.Id_Cliente,
                 Tipo_Documento: cliente.Tipo_Documento,
@@ -38,15 +45,20 @@ export default function Clientes() {
                 F_Nacimiento: cliente.F_Nacimiento,
                 Estado: cliente.Estado,
             }));
-
             setClientes(normalizado);
         } catch (error) {
-                    const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-                        showAlert(`Error: ${mensaje || error}`, {
-                            title: "Error",
-                            icon: "error",})
-                    }
+            console.error("Error al obtener los clientes:", error);
+            showAlert("Error al cargar los clientes.", {
+                type: "error",
+                title: "Error de Carga",
+                duration: 2500,
+            });
+        }
     }, []);
+
+    useEffect(() => {
+        obtenerClientes();
+    }, [obtenerClientes, location]);
 
     const filteredData = useMemo(() => {
         if (!searchTerm) return clientes;
@@ -54,30 +66,25 @@ export default function Clientes() {
         const lowerSearch = searchTerm.toLowerCase();
 
         return clientes.filter((cliente) => {
-            const docMatch = cliente.Documento?.toString().includes(lowerSearch);
-            const correoMatch = cliente.Correo?.toLowerCase().includes(lowerSearch);
+            const tipodocMatch = cliente.Tipo_Documento?.toString().toLowerCase().includes(lowerSearch);
+            const docMatch = cliente.Documento?.toString().toLowerCase().includes(lowerSearch);
+            const celularMatch = cliente.Celular?.toLowerCase().includes(lowerSearch);
             const nombreMatch = cliente.Nombre?.toLowerCase().includes(lowerSearch);
 
             let estadoMatch = false;
-            if (lowerSearch === "1" || lowerSearch === "activo") {
-                estadoMatch = cliente.Estado === true || cliente.Estado === 1 || cliente.Estado === "Activo";
-            } else if (lowerSearch === "0" || lowerSearch === "inactivo") {
-                estadoMatch = cliente.Estado === false || cliente.Estado === 0 || cliente.Estado === "Inactivo";
+            if (lowerSearch === "activo") {
+                estadoMatch = cliente.Estado === true;
+            } else if (lowerSearch === "inactivo") {
+                estadoMatch = cliente.Estado === false;
             }
 
-            return docMatch || correoMatch || nombreMatch || estadoMatch;
+            return tipodocMatch || docMatch || celularMatch || nombreMatch || estadoMatch;
         });
     }, [clientes, searchTerm]);
 
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const paginatedData = filteredData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-    );
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1);
     };
 
     const handleToggleEstado = async (id) => {
@@ -95,7 +102,7 @@ export default function Clientes() {
     };
 
     const handleDelete = async (cliente) => {
-        const result = await showAlert(`¿Deseas eliminar al cliente con documento "${cliente.Documento}"?`, {
+        const result = await showAlert(`¿Deseas eliminar PERMANENTEMENTE al cliente con documento "${cliente.Documento}"?`, {
             type: "warning",
             title: "Confirmar eliminación",
             showConfirmButton: true,
@@ -116,7 +123,7 @@ export default function Clientes() {
             } catch (error) {
                 const mensaje =
                     error?.response?.data?.message ||
-                    "No se pudo eliminar el cliente.";
+                    "No se pudo eliminar el cliente. Asegúrate de que no haya dependencias que impidan la eliminación.";
                 await showAlert(mensaje, {
                     type: "error",
                     title: "Error",
@@ -129,6 +136,7 @@ export default function Clientes() {
 
     const handleVerDetalles = async (cliente) => {
         try {
+            const fechaNacimientoFormateada = cliente.F_Nacimiento ? new Date(cliente.F_Nacimiento).toLocaleDateString() : "-";
             const html = `
             <div class="space-y-7 text-gray-100">
                 <!-- Encabezado -->
@@ -203,7 +211,7 @@ export default function Clientes() {
                             F. Nacimiento
                         </label>
                         <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
-                            <div class="font-medium text-white">${cliente.F_Nacimiento ?? "-"}</div>
+                            <div class="font-medium text-white">${fechaNacimientoFormateada}</div>
                         </div>
                     </div>
                     <!-- Estado -->
@@ -258,19 +266,11 @@ export default function Clientes() {
         navigate(`/admin/clientes/editar/${cliente.Id_Cliente}`);
     };
 
-    const handlePageChange = (event, value) => {
-        setCurrentPage(value);
-    };
-
-    useEffect(() => {
-        obtenerClientes();
-    }, [obtenerClientes]);
-
     return (
         <GeneralTable
             title={title}
             columns={columns}
-            data={paginatedData}
+            data={filteredData}
             onAdd={() => navigate("/admin/clientes/agregar")}
             onView={handleVerDetalles}
             onEdit={handleEdit}
@@ -280,9 +280,6 @@ export default function Clientes() {
             stateAccessor="Estado"
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
             canEdit={canEdit}
             canDelete={canDelete}
         />
