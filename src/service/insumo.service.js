@@ -28,6 +28,11 @@ export const insumoService = {
 		return res.data;
 	},
 
+	obtenerInsumosFragancia: async () => {
+		const res = await api.get(`${RESOURCE_URL}/fragancias`);
+		return res.data;
+	},
+
 	actualizarInsumo: async (id, data) => {
 		const res = await api.put(`${RESOURCE_URL}/${id}`, data);
 		return res.data;

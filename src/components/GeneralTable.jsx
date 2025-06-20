@@ -152,7 +152,7 @@ const GeneralTable = ({
 										{columns.map((col) => (
 											<td
 												key={col.accessor}
-												className="p-2 border border-gray-300"
+												className="p-2 border border-gray-300 whitespace-pre-line"
 											>
 												{col.accessor === stateAccessor ? (
 													title !== "Compras" && title !== "Ventas" ? (

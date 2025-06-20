@@ -2,6 +2,7 @@ import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { productoService } from "@/service/productos.service";
 import { catProductoService } from "@/service/categoriaProducto.service";
+import { insumoService } from "@/service/insumo.service";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +10,7 @@ const AgregarProducto = () => {
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
     const [categorias, setCategorias] = useState([]);
+    const [fragancias, setFragancias] = useState([]);
 
     const [formData, setFormData] = useState({
         Id_Categoria_Producto: "",
@@ -17,6 +19,7 @@ const AgregarProducto = () => {
         Precio_Compra: 0,
         Stock: 0,
         Estado: true,
+        Id_Insumos: "",
     });
 
     useEffect(() => {
@@ -29,7 +32,16 @@ const AgregarProducto = () => {
             }
         };
 
+        const fetchFragancias = async () => {
+            try {
+                const response = await insumoService.obtenerInsumosFragancia();
+                setFragancias(response.data);
+            } catch (error) {
+                console.error("Error al obtener categorías:", error);
+            }
+        };
         fetchCategorias();
+        fetchFragancias();
     }, []);
 
     const handleChange = (e) => {
@@ -51,11 +63,13 @@ const AgregarProducto = () => {
 			...(categoriaProducto === "Perfume"
 				? {
                     Nombre: "",
+                    Descripcion: "",
                     Precio_Venta: 0,
                     Precio_Compra: 0,
                     Stock: 0,
                 }: {
                     Nombre: "",
+                    Descripcion: "",
                 }),
 		}));
 		setErrors({});
@@ -74,7 +88,20 @@ const AgregarProducto = () => {
         }
 
         try {
-            await productoService.crearProducto(formData);
+            let dataToSend = { ...formData };
+
+            if (formData.Id_Categoria_Producto == 3) {
+                const { Id_Insumos, ...rest } = formData;
+                dataToSend = {
+                    ...rest,
+                    InsumoExtra: {
+                        Id_Insumos: parseInt(Id_Insumos),
+                    },
+                };
+            }
+
+            await productoService.crearProducto(dataToSend);
+
             showAlert("El producto ha sido guardado correctamente.", {
                 title: "¡Éxito!",
                 type: "success",
@@ -145,6 +172,56 @@ const AgregarProducto = () => {
 						)}
 				</div>
 
+                {/* Si es Perfume */}
+                {formData.Id_Categoria_Producto == 3 && (
+                    <>
+                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+                            <h3 className="text-2xl text-black font-bold mb-2 block">
+                                Fragancia
+                            </h3>
+                            <select
+                                type="text"
+                                name="Id_Insumos"
+                                value={formData.Id_Insumos}
+                                onChange={handleChange}
+                                className="w-full border border-gray-300 p-2 rounded"
+                            >
+                                <option value="">Seleccione la fragancia</option>
+                                    {fragancias.map((fragancia) => (
+                                        <option
+                                            key={fragancia.Id_Insumos}
+                                            value={fragancia.Id_Insumos}
+                                        >
+                                            {fragancia.Nombre}
+                                        </option>
+                                    ))}
+
+                            </select>
+                        </div>
+                    </>
+                )}
+
+                {/* Si es un Producto Normal O Ropa */}
+                {formData.Id_Categoria_Producto && formData.Id_Categoria_Producto != 3 && (
+                    <>
+                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+                            <h3 className="text-2xl text-black font-bold mb-2 block">
+                                Precio de Venta <span className="text-red-500">*</span>
+                            </h3>
+                            <input
+                                type="text"
+                                name="Precio_Venta"
+                                value={formData.Precio_Venta}
+                                onChange={handleChange}
+                                className="w-full border border-gray-300 p-2 rounded"
+                            />
+                            {errors.NIT && (
+                                <p className="text-red-500 text-sm mt-1">{errors.NIT}</p>
+                            )}
+                        </div>
+                    </>
+                )}
+
                 {formData.Id_Categoria_Producto && (
                     <>
                         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
@@ -162,72 +239,14 @@ const AgregarProducto = () => {
                                 <p className="text-red-500 text-sm mt-1">{errors.Email}</p>
                             )}
                         </div>
-                    </>
-                )}
-
-                {/* Si es Perfume */}
-                {formData.Id_Categoria_Producto == 16 && (
-                    <>
                         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
                             <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Fragancia
-                            </h3>
-                            <select
-                                type="text"
-                                name="Tipo_Documento"
-                                value={formData.Tipo_Documento}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            >
-                                <option value="">Seleccione el Tipo</option>
-                                <option value="C.C">C.C - Cédula de Ciudadanía</option>
-                                <option value="C.E">C.E - Cédula de Extranjería</option>
-                            </select>
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Documento
+                                Descripción <span className="text-red-500">*</span>
                             </h3>
                             <input
                                 type="text"
-                                name="Documento"
-                                value={formData.Documento}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.Documento && (
-                                <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>
-                            )}
-                        </div>
-                    </>
-                )}
-
-                {/* Si es Empresa */}
-                {formData.Id_Categoria_Producto != 16 && (
-                    <>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                NIT <span className="text-red-500">*</span>
-                            </h3>
-                            <input
-                                type="text"
-                                name="NIT"
-                                value={formData.NIT}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 p-2 rounded"
-                            />
-                            {errors.NIT && (
-                                <p className="text-red-500 text-sm mt-1">{errors.NIT}</p>
-                            )}
-                        </div>
-                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                            <h3 className="text-2xl text-black font-bold mb-2 block">
-                                Nombre de la Empresa <span className="text-red-500">*</span>
-                            </h3>
-                            <input
-                                type="text"
-                                name="Nombre_Empresa"
-                                value={formData.Nombre_Empresa}
+                                name="Descripcion"
+                                value={formData.Descripcion}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-2 rounded"
                             />
@@ -239,9 +258,6 @@ const AgregarProducto = () => {
                         </div>
                     </>
                 )}
-
-                {/* Email y Direccion (ambos tipos) */}
-
 
                 <div className="md:col-span-2 flex gap-2 ml-7">
                     <Button

@@ -16,6 +16,7 @@ import EditarInsumo from "../pages/Admin/Compras/Insumos/EditarInsumos";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
 import Productos from "../pages/Admin/Compras/Productos/Index";
 import AgregarProducto from "../pages/Admin/Compras/Productos/AgregarProducto";
+import EditarProducto from "../pages/Admin/Compras/Productos/EditarProducto";
 import AgregarTalla from "../pages/Admin/Compras/Productos/Tallas/AgregarTalla";
 import EditarTalla from "../pages/Admin/Compras/Productos/Tallas/EditarTalla";
 import Tallas from "../pages/Admin/Compras/Productos/Tallas/Index";
@@ -113,6 +114,7 @@ function App() {
 				/>
 				<Route path="productos" element={<Productos />} />
 				<Route path="productos/agregar" element={<AgregarProducto />} />
+				<Route path="productos/editar/:id" element={<EditarProducto />} />
 				<Route path="tallas" element={<Tallas />} />
 				<Route path="tallas/agregar" element={<AgregarTalla />} />
 				<Route path="tallas/editar/:id" element={<EditarTalla />} />

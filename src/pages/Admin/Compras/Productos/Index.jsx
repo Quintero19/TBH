@@ -1,32 +1,31 @@
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
-import { catProductoService } from "@/service/categoriaProducto.service";
 import { productoService } from "@/service/productos.service";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Productos = () => {
 	const [productos, setProductos] = useState([]);
-	const [categorias, setCategorias] = useState([]);
 	const canEdit = (productos) => productos.Estado === true;
 	const canDelete = (productos) => productos.Estado === true;
 	const navigate = useNavigate();
 
 	const columns = [
 		{ header: "ID", accessor: "Id_Productos" },
-		{ header: "Categoria Producto", accessor: "NombreCategoria" },
+		{ header: "Categoria Producto", accessor: "Categoria" },
 		{ header: "Nombre", accessor: "Nombre" },
-		{ header: "Precio de Venta", accessor: "Precio_Venta" },
-		{ header: "Stock Disponible", accessor: "Stock" },
+		// { header: "Descripción", accessor: "Descripcion" },
+		{ header: "Precio de Venta / Tamaños", accessor: "Precio_Venta" },
 		{ header: "Estado", accessor: "Estado" },
 	];
 
 	/* ──────── Cargar Productos ───────── */
 
-	const fetchProductos = useCallback(async (categoriasData) => {
+	const fetchProductos = useCallback(async () => {
 		try {
 			const response = await productoService.obtenerProductoss();
-			setProductos(transformData(response.data, categoriasData));
+			setProductos(transformData(response.data));
+			console.log(response)
 		} catch (error) {
 			console.error(
 				"Error al obtener productos:",
@@ -36,38 +35,46 @@ const Productos = () => {
 	}, []);
 
 	useEffect(() => {
-		const fetchCategorias = async () => {
-			try {
-				const response = await catProductoService.obtenerCategorias();
-				setCategorias(response.data);
-				await fetchProductos(response.data);
-			} catch (error) {
-				console.error("Error al cargar datos:", error.response?.data || error);
-			}
-		};
-
-		fetchCategorias();
+		fetchProductos();
 	}, [fetchProductos]);
 
 	/* ─────────────────────────────────── */
 
 	/* ───── Transformación de Datos ───── */
 
+	const formatCOP = (value) => {
+		if (!value && value !== 0) return "";
+		return `$ ${Number(value).toLocaleString("es-CO")}`;
+	};
+
+
 	const transformData = useCallback(
-		(lista, listacategorias) =>
+		(lista) =>
 			lista.map((item) => {
-				const categoria = listacategorias.find(
-					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
-				);
+				let precioVenta;
+
+				if (item.Es_Perfume && item.Detalles?.tamanos?.length > 0) {
+					precioVenta = item.Detalles.tamanos
+						.map(
+							(tamano) =>
+								`${tamano.nombre} - ${formatCOP(tamano.precio)}`
+						)
+						.join("\n");
+				} else {
+					precioVenta = item.Precio_Venta
+						? formatCOP(item.Precio_Venta)
+						: "-";
+				}
+
 				return {
 					...item,
-					NombreCategoria: categoria?.Nombre || "Desconocido",
-					Precio_Venta: Number(item.Precio_Venta).toFixed(0),
-					Precio_Compra: Number(item.Precio_Compra).toFixed(0),
+					Precio_Venta: precioVenta,
+					Precio_Compra: formatCOP(item.Precio_Compra),
 				};
 			}),
 		[],
 	);
+
 
 	/* ─────────────────────────────────── */
 
@@ -76,7 +83,7 @@ const Productos = () => {
 	const handleToggleEstado = async (id) => {
 		try {
 			await productoService.actualizarEstadoProducto(id);
-			await fetchProductos(categorias);
+			await fetchProductos();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
@@ -99,11 +106,12 @@ const Productos = () => {
 		try {
 			const html = `				
 							<div class="text-left">
-						<p><strong>Categoria de Producto:</strong> ${producto.NombreCategoria || "-"}</p>
+						<p><strong>Categoria de Producto:</strong> ${producto.Categoria || "-"}</p>
 						<p><strong>Nombre:</strong> ${producto.Nombre || "-"}</p>
+						<p><strong>Descripción:</strong> ${producto.Descripcion || "-"}</p>
 						<p><strong>Precio de Venta:</strong> ${producto.Precio_Venta || "-"}</p>
 						<p><strong>Precio de Compra:</strong> ${producto.Precio_Compra || "-"}</p>
-						<p><strong>Stock:</strong> ${producto.Stock || "-"}</p>
+						<p><strong>Stock:</strong> ${producto.Stock}</p>
 						<p><strong>Estado:</strong> ${producto.Estado ? "Activo" : "Inactivo"}</p>
 							</div>`;
 			await showAlert(html, {
@@ -159,7 +167,7 @@ const Productos = () => {
 					duration: 2000,
 				});
 
-				fetchProductos(categorias);
+				fetchProductos();
 			} catch (error) {
 				console.error("Error Eliminando Producto:", error);
 				const mensaje =

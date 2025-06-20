@@ -34,7 +34,8 @@ const Tamanos = () => {
 
 	useEffect(() => {
 		fetchTamanos();
-	}, [fetchTamanos]);
+	}, [fetchTamanos]
+	);
 
 	/* ─────────────────────────────────── */
 
@@ -43,18 +44,18 @@ const Tamanos = () => {
 	const transformData = useCallback(
 		(lista) =>
 			lista.map((item) => {
-			const precio = Math.round(Number(item.Precio_Venta)) || 0;
+			const precio = Number(item.Precio_Venta) || 0;
 			return {
 				...item,
 				Precio_Venta: precio.toLocaleString("es-CO", {
+				style: "currency",
+				currency: "COP",
 				minimumFractionDigits: 0,
 				maximumFractionDigits: 0,
 				}),
 			};
-			}),
-		[]
+			}), []
 	);
-
 
 	/* ─────────────────────────────────── */
 
@@ -92,7 +93,7 @@ const Tamanos = () => {
 							<div class="text-left">
 								<p><strong>Nombre:</strong> ${tamano.Nombre || "-"}</p>
 								<p><strong>Cantidad Máxima:</strong> ${tamano.Cantidad_Maxima || "-"}</p>
-								<p><strong>Precio de Venta:</strong> ${tamano.Precio_Venta || "-"}</p>
+								<p><strong>Precio de Venta:</strong> $ ${tamano.Precio_Venta || "-"}</p>
 								<p><strong>Estado:</strong> ${tamano.Estado ? "Activo" : "Inactivo"}</p>
 							</div>
 			`;
