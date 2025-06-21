@@ -12,6 +12,10 @@ const EditarProducto = () => {
     const [errors, setErrors] = useState({});
     const [categorias, setCategorias] = useState([]);
     const [fragancias, setFragancias] = useState([]);
+    const [imagenesNuevas, setImagenesNuevas] = useState([]);
+    const [imagenesExistentes, setImagenesExistentes] = useState([]);
+    const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
+    const maxImagenes = 5;
 
     const [formData, setFormData] = useState({
         Id_Categoria_Producto: "",
@@ -76,6 +80,14 @@ const EditarProducto = () => {
                 }
                 break;
 
+            case "imagenes":
+                if (images.length === 0) {
+                    newErrors[name] = "Debes subir al menos una imagen";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
             default:
                 break;
         }
@@ -119,7 +131,58 @@ const EditarProducto = () => {
         validateField("Id_Categoria_Producto", value);
     };
 
+    useEffect(() => {
+        const total = imagenesExistentes.length + imagenesNuevas.length;
+
+        setErrors((prev) => {
+            const updated = { ...prev };
+            if (total === 0) {
+                updated.imagenes = "Debes subir al menos una imagen";
+            } else {
+                delete updated.imagenes;
+            }
+            return updated;
+        });
+    }, [imagenesExistentes, imagenesNuevas]);
+
     /* ─────────────────────────────────── */
+
+    /* ───── Manejadores de imágenes ───── */
+
+    const handleImageChange = (e) => {
+        if (!e.target.files) return;
+        const seleccionadas = Array.from(e.target.files);
+        const total = imagenesExistentes.length + imagenesNuevas.length;
+
+        if (total + seleccionadas.length > maxImagenes) {
+            setErrors((prev) => ({
+                ...prev,
+                imagenes: `Máximo ${maxImagenes} imágenes permitidas.`,
+            }));
+            return;
+        }
+
+        setImagenesNuevas((prev) => [...prev, ...seleccionadas]);
+
+        setErrors((prev) => {
+            const err = { ...prev };
+            delete err.imagenes;
+            return err;
+        });
+
+        e.target.value = "";
+    };
+
+    const removeNuevaImagen = (idx) => {
+        setImagenesNuevas((prev) => prev.filter((_, i) => i !== idx));
+    };
+
+    const removeImagenExistente = (id) => {
+        setImagenesExistentes((prev) => prev.filter((img) => img.Id_Imagenes !== id));
+        setImagenesEliminadas((prev) => [...prev, id]);
+    };
+	
+	/* ─────────────────────────────────── */
 	
 	/* ─────────── Cargar Datos ────────── */
 
@@ -146,9 +209,11 @@ const EditarProducto = () => {
                 Estado: producto.Estado ?? true,
                 Id_Insumos: producto.InsumoExtra?.Id_Insumos || "",
             });
+
+            setImagenesExistentes(producto.Imagenes || []);
         } catch (error) {
             console.error("Error cargando datos del producto:", error);
-        }
+        };
     }, [id]);
 
     useEffect(() => {
@@ -162,8 +227,16 @@ const EditarProducto = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (imagenesExistentes.length + imagenesNuevas.length === 0) {
+            setErrors((prev) => ({
+                ...prev,
+                imagenes: "Debes subir al menos una imagen",
+            }));
+            return;
+        }
+
         if (Object.keys(errors).length > 0) {
-            showAlert("Por favor corrige los errores del formulario", {
+            showAlert("Corrige los errores del formulario", {
                 type: "error",
                 title: "Error",
                 duration: 2000,
@@ -172,21 +245,27 @@ const EditarProducto = () => {
         }
 
         try {
-            let dataToSend = { ...formData };
+            const form = new FormData();
 
-            if (formData.Id_Categoria_Producto == 3) {
-                const { Id_Insumos, ...rest } = formData;
-                dataToSend = {
-                    ...rest,
-                    InsumoExtra: {
-                        Id_Insumos: parseInt(Id_Insumos),
-                    },
-                };
+            for (const key in formData) {
+                if (key === "Id_Insumos" && formData.Id_Categoria_Producto == 3) {
+                    form.append("InsumoExtra", JSON.stringify({ Id_Insumos: parseInt(formData.Id_Insumos) }));
+                } else {
+                    form.append(key, formData[key]);
+                }
             }
 
-            await productoService.actualizarProducto(id, dataToSend);
+            imagenesNuevas.forEach((img) => {
+                form.append("imagenes", img);
+            });
 
-            showAlert("El producto fue actualizado correctamente", {
+            if (imagenesEliminadas.length > 0) {
+                form.append("ImagenesEliminadas", JSON.stringify(imagenesEliminadas));
+            }
+
+            await productoService.actualizarProducto(id, form);
+
+            showAlert("Producto actualizado correctamente.", {
                 title: "¡Éxito!",
                 type: "success",
                 duration: 2000,
@@ -194,8 +273,7 @@ const EditarProducto = () => {
                 navigate("/admin/productos");
             });
         } catch (error) {
-				const mensaje =
-					error.response?.data?.message || "Error al eliminar el proveedor";
+            const mensaje = error.response?.data?.message || "Error al actualizar";
             showAlert(mensaje, {
                 type: "error",
                 title: "Error",
@@ -237,7 +315,6 @@ const EditarProducto = () => {
                 onSubmit={handleSubmit}
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
             >
-                {/* Tipo de Proveedor */}
                 <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
                     <h3 className="text-2xl text-black font-bold mb-2">
                         Categoría de Producto <span className="text-red-500">*</span>
@@ -264,7 +341,6 @@ const EditarProducto = () => {
                 </div>
 
                 <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-                {/* Si es Perfume */}
                 {formData.Id_Categoria_Producto == 3 && (
                     <>
                         <h3 className="text-2xl text-black font-bold mb-2 block">Fragancia</h3>
@@ -287,7 +363,6 @@ const EditarProducto = () => {
                     </>
                 )}
 
-                {/* Si es un Producto Normal O Ropa */}
                 {formData.Id_Categoria_Producto != 3 && (
                     <>
                             <h3 className="text-2xl text-black font-bold mb-2 block">
@@ -337,6 +412,76 @@ const EditarProducto = () => {
                     {errors.Descripcion && (
                         <p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
                     )}
+                </div>
+
+                <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
+                    <h3 className="text-2xl text-black font-bold mb-4">
+                        Imágenes del Producto
+                    </h3>
+
+                    <div className="mb-6 w-full">
+                        <p className="text-lg font-semibold text-gray-800 mb-2">Imágenes actuales:</p>
+                        <div className="flex flex-wrap gap-4">
+                            {imagenesExistentes.length > 0 ? (
+                                imagenesExistentes.map((img, idx) => (
+                                    <div key={`existente-${idx}`} className="relative w-[200px] h-[200px] border rounded shadow">
+                                        <img src={img.URL} alt={`img-${idx}`} className="w-full h-full object-cover" />
+                                        <div className="absolute top-1 right-1">
+                                            <Button
+                                                onClick={() => removeImagenExistente(img.Id_Imagenes)}
+                                                className="red"
+                                                icon="fa-times"
+                                            />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 italic">No hay imágenes existentes</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="mb-6 w-full">
+                        <p className="text-lg font-semibold text-gray-800 mb-2">Nuevas imágenes seleccionadas:</p>
+                        <div className="flex flex-wrap gap-4">
+                            {imagenesNuevas.length > 0 ? (
+                                imagenesNuevas.map((file, idx) => (
+                                    <div key={`nueva-${idx}`} className="relative w-[200px] h-[200px] border rounded shadow">
+                                        <img src={URL.createObjectURL(file)} alt={`nueva-${idx}`} className="w-full h-full object-cover" />
+                                        <div className="absolute top-1 right-1">
+                                            <Button
+                                                onClick={() => removeNuevaImagen(idx)}
+                                                className="red"
+                                                icon="fa-times"
+                                            />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 italic">No se han seleccionado nuevas imágenes</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="relative inline-block mt-2">
+                        <Button
+                            className="blue"
+                            icon="fa-upload"
+                            disabled={imagenesExistentes.length + imagenesNuevas.length >= maxImagenes}
+                        >
+                            <div className="flex items-center gap-2">Seleccionar Imágenes</div>
+                        </Button>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                            disabled={imagenesExistentes.length + imagenesNuevas.length >= maxImagenes}
+                        />
+                    </div>
+
+                    {errors.imagenes && <p className="text-red-500 text-sm mt-2">{errors.imagenes}</p>}
                 </div>
 
                 <div className="md:col-span-2 flex gap-2 ml-7">
