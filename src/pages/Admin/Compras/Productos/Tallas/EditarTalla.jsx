@@ -4,7 +4,6 @@ import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 
 const EditarTalla = () => {
 	const [categorias, setCategorias] = useState([]);
@@ -19,34 +18,7 @@ const EditarTalla = () => {
 		Estado: true,
 	});
 
-	useEffect(() => {
-		const cargarTalla = async () => {
-			try {
-				const data = await tallasService.obtenerTallaPorId(id);
-				setFormData(data.data);
-			} catch (error) {
-				console.error("Error al cargar la talla:", error);
-				showAlert("Error al cargar la Talla", {
-					type: "error",
-					title: "Error",
-					duration: 2000,
-				});
-				navigate("/admin/tallas");
-			}
-		};
-
-		const fetchCategorias = async () => {
-			try {
-				const response = await catProductoService.obtenerCategoriasRopa();
-				setCategorias(response.data);
-			} catch (error) {
-				console.error("Error al obtener categorías:", error);
-			}
-		};
-
-		fetchCategorias();
-		cargarTalla();
-	}, [id, navigate]);
+	/* ───── Validaciones Formulario ───── */
 
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
@@ -96,6 +68,43 @@ const EditarTalla = () => {
 		validateField(name, updatedValue);
 	};
 
+	/* ─────────────────────────────────── */
+	
+	/* ─────────── Cargar Datos ────────── */
+
+	useEffect(() => {
+		const cargarTalla = async () => {
+			try {
+				const data = await tallasService.obtenerTallaPorId(id);
+				setFormData(data.data);
+			} catch (error) {
+				console.error("Error al cargar la talla:", error);
+				showAlert("Error al cargar la Talla", {
+					type: "error",
+					title: "Error",
+					duration: 2000,
+				});
+				navigate("/admin/tallas");
+			}
+		};
+
+		const fetchCategorias = async () => {
+			try {
+				const response = await catProductoService.obtenerCategoriasRopa();
+				setCategorias(response.data);
+			} catch (error) {
+				console.error("Error al obtener categorías:", error);
+			}
+		};
+
+		fetchCategorias();
+		cargarTalla();
+	}, [id, navigate]);
+
+	/* ─────────────────────────────────── */
+
+	/* ──────── Boton de Guardar ───────── */
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -127,6 +136,10 @@ const EditarTalla = () => {
 		}
 	};
 
+	/* ──────────────────────────────────── */
+
+	/* ───────── Boton de Cancelar ─────────*/
+
 	const handleCancel = () => {
 		window
 			.showAlert("Si cancelas, perderás los datos ingresados.", {
@@ -143,6 +156,8 @@ const EditarTalla = () => {
 				}
 			});
 	};
+
+	/* ──────────────────────────────────── */
 
 	return (
 		<>

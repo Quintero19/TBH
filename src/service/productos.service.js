@@ -3,8 +3,10 @@ import api from "../utils/api";
 const USER_URL = "/productos";
 
 export const productoService = {
-	crearProducto: async (data) => {
-		const res = await api.post(USER_URL, data);
+	crearProducto: async (formData) => {
+		const res = await api.post(USER_URL, formData, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
 		return res.data;
 	},
 
@@ -24,7 +26,9 @@ export const productoService = {
 	},
 
 	actualizarProducto: async (id, producto) => {
-		const res = await api.put(`${USER_URL}/${id}`, producto);
+		const res = await api.put(`${USER_URL}/${id}`, producto, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
 		return res.data;
 	},
 

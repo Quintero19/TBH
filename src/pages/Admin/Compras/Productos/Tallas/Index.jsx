@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Tallas = () => {
-	const [categorias, setCategorias] = useState([]);
 	const [tallas, setTallas] = useState([]);
 	const canEdit = (tallas) => tallas.Estado === true;
 	const canDelete = (tallas) => tallas.Estado === true;
@@ -14,17 +13,18 @@ const Tallas = () => {
 
 	const columns = [
 		{ header: "ID", accessor: "Id_Tallas" },
-		{ header: "Categoria de Producto", accessor: "NombreCategoria" },
+		{ header: "Categoria de Producto", accessor: "Categoria" },
 		{ header: "Nombre", accessor: "Nombre" },
 		{ header: "Estado", accessor: "Estado" },
 	];
 
 	/* ────────── Cargar Tallas ────────── */
 
-	const fetchTallas = useCallback(async (categoriasData) => {
+	const fetchTallas = useCallback(async () => {
 		try {
 			const response = await tallasService.obtenerTallas();
-			setTallas(transformData(response.data, categoriasData));
+			setTallas(response.data);
+			console.log(response)
 		} catch (error) {
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {
@@ -34,38 +34,8 @@ const Tallas = () => {
 	}, []);
 
 	useEffect(() => {
-		const fetchCategorias = async () => {
-			try {
-				const response = await catProductoService.obtenerCategorias();
-				setCategorias(response.data);
-				await fetchTallas(response.data);
-			} catch (error) {
-				console.error(
-					"Error al obtener categorías:",
-					error.response?.data || error,
-				);
-			}
-		};
-		fetchCategorias();
+		fetchTallas();
 	}, [fetchTallas]);
-
-	/* ─────────────────────────────────── */
-
-	/* ───── Transformación de Datos ───── */
-
-	const transformData = useCallback(
-		(lista, listacategorias) =>
-			lista.map((item) => {
-				const categoria = listacategorias.find(
-					(c) => c.Id_Categoria_Producto === item.Id_Categoria_Producto,
-				);
-				return {
-					...item,
-					NombreCategoria: categoria?.Nombre || "Desconocido",
-				};
-			}),
-		[],
-	);
 
 	/* ─────────────────────────────────── */
 
@@ -74,7 +44,7 @@ const Tallas = () => {
 	const handleToggleEstado = async (id) => {
 		try {
 			await tallasService.actualizarEstadoTalla(id);
-			await fetchTallas(categorias);
+			await fetchTallas();
 		} catch (error) {
 			console.error("Error cambiando estado:", error.response?.data || error);
 			alert("Error cambiando estado");
@@ -97,7 +67,7 @@ const Tallas = () => {
 		try {
 			const html = `
 							<div class="text-left">
-								<p><strong>Categoria Producto:</strong> ${talla.NombreCategoria || "-"}</p>
+								<p><strong>Categoria Producto:</strong> ${talla.Categoria || "-"}</p>
 								<p><strong>Nombre:</strong> ${talla.Nombre || "-"}</p>
 								<p><strong>Estado:</strong> ${talla.Estado ? "Activo" : "Inactivo"}</p>
 							</div>
@@ -155,7 +125,7 @@ const Tallas = () => {
 					duration: 2000,
 				});
 
-				fetchTallas(categorias);
+				fetchTallas();
 			} catch (error) {
 				console.error("Error Eliminando Talla:", error);
 				const mensaje =

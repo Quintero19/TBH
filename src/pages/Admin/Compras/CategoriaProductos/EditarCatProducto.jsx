@@ -17,24 +17,7 @@ const EditarCatProducto = () => {
 		Estado: true,
 	});
 
-	useEffect(() => {
-		const cargarCategoria = async () => {
-			try {
-				const data = await catProductoService.obtenerCategoriaPorId(id);
-				setFormData(data.data);
-			} catch (error) {
-				console.error("Error al cargar la categoria:", error);
-				showAlert("Error al cargar la categoria", {
-					type: "error",
-					title: "Error",
-					duration: 2000,
-				});
-				navigate("/admin/categoriaproducto");
-			}
-		};
-
-		cargarCategoria();
-	}, [id, navigate]);
+	/* ───── Validaciones Formulario ───── */
 
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
@@ -88,6 +71,33 @@ const EditarCatProducto = () => {
 		validateField(name, updatedValue);
 	};
 
+	/* ─────────────────────────────────── */
+
+	/* ── Cargar Categoria Seleccionada ── */
+
+	useEffect(() => {
+		const cargarCategoria = async () => {
+			try {
+				const data = await catProductoService.obtenerCategoriaPorId(id);
+				setFormData(data.data);
+			} catch (error) {
+				console.error("Error al cargar la categoria:", error);
+				showAlert("Error al cargar la categoria", {
+					type: "error",
+					title: "Error",
+					duration: 2000,
+				});
+				navigate("/admin/categoriaproducto");
+			}
+		};
+
+		cargarCategoria();
+	}, [id, navigate]);
+
+	/* ─────────────────────────────────── */
+
+	/* ──────── Boton de Guardar ───────── */
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -119,6 +129,10 @@ const EditarCatProducto = () => {
 		}
 	};
 
+	/* ──────────────────────────────────── */
+
+	/* ───────── Boton de Cancelar ─────────*/
+
 	const handleCancel = () => {
 		window
 			.showAlert("Si cancelas, perderás los datos ingresados.", {
@@ -135,6 +149,8 @@ const EditarCatProducto = () => {
 				}
 			});
 	};
+
+	/* ──────────────────────────────────── */
 
 	return (
 		<>
@@ -161,19 +177,7 @@ const EditarCatProducto = () => {
 						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
 					)}
 				</div>
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">Descripción</h3>
-					<input
-						type="text"
-						name="Descripcion"
-						value={formData.Descripcion}
-						onChange={handleChange}
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-					{errors.Descripcion && (
-						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
-					)}
-				</div>
+
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex items-center">
 					<h3 className="text-2xl text-black font-bold mb-2">Es Ropa?</h3>
 					<input
@@ -184,6 +188,22 @@ const EditarCatProducto = () => {
 						className="border border-gray-300 p-2 rounded"
 						id="esRopa"
 					/>
+				</div>
+
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex flex-col items-start min-h-32">
+					<h3 className="text-2xl text-black font-bold mb-2 block">
+						Descripción <span className="text-red-500">*</span>
+					</h3>
+					<textarea
+						name="Descripcion"
+						value={formData.Descripcion}
+						onChange={handleChange}
+						rows={3}
+						className="w-full border border-gray-300 p-2 rounded resize-y overflow-y-auto max-h-40"
+				/>
+					{errors.Descripcion && (
+						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
