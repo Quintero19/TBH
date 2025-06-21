@@ -9,6 +9,9 @@ import { useNavigate, useParams } from "react-router-dom";
 const EditarProducto = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const [errors, setErrors] = useState({});
+    const [categorias, setCategorias] = useState([]);
+    const [fragancias, setFragancias] = useState([]);
 
     const [formData, setFormData] = useState({
         Id_Categoria_Producto: "",
@@ -21,9 +24,104 @@ const EditarProducto = () => {
         Id_Insumos: "",
     });
 
-    const [errors, setErrors] = useState({});
-    const [categorias, setCategorias] = useState([]);
-    const [fragancias, setFragancias] = useState([]);
+    /* ───── Validaciones Formulario ───── */
+
+    const validateField = (name, value) => {
+        const newErrors = { ...errors };
+
+        switch (name) {
+            case "Nombre":
+                if (!value.trim()) {
+                    newErrors[name] = "El nombre es obligatorio";
+                } else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
+                    newErrors[name] = "Solo letras y espacios. Entre 3 y 25 caracteres";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
+            case "Descripcion":
+                if (!value.trim()) {
+                    newErrors[name] = "La descripción es obligatoria";
+                } else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{7,100}$/.test(value)) {
+                    newErrors[name] = "Solo letras y espacios. Entre 7 y 100 caracteres";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
+            case "Precio_Venta":
+                if (!value.trim()) {
+                    newErrors[name] = "El precio es obligatorio";
+                } else if (!/^\d{3,8}$/.test(value)) {
+                    newErrors[name] = "Debe contener solo números (3 a 8 dígitos)";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
+            case "Id_Categoria_Producto":
+                if (!value.trim()) {
+                    newErrors[name] = "Debe seleccionar una categoría de producto";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
+            case "Id_Insumos":
+                if (formData.Id_Categoria_Producto == 3 && !value.trim()) {
+                    newErrors[name] = "Debe seleccionar una fragancia";
+                } else {
+                    delete newErrors[name];
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setErrors(newErrors);
+    };
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        let updatedValue = type === "checkbox" ? checked : value;
+
+        if (name === "Nombre" || name === "Descripcion") {
+            const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
+            if (!regex.test(updatedValue)) return;
+        }
+
+        if (name === "Precio_Venta") {
+            updatedValue = updatedValue.replace(/\D/g, "");
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: updatedValue,
+        }));
+
+        validateField(name, updatedValue);
+    };
+
+    const handleCategoriaChange = (e) => {
+        const value = e.target.value;
+
+        setFormData((prev) => ({
+            ...prev,
+            Id_Categoria_Producto: value === "" ? "" : parseInt(value),
+            Precio_Compra: value === "3" ? null : prev.Precio_Compra,
+            Precio_Venta: value === "3" ? null : prev.Precio_Venta,
+            Id_Insumos: value === "3" ? prev.Id_Insumos : ""
+        }));
+
+        validateField("Id_Categoria_Producto", value);
+    };
+
+    /* ─────────────────────────────────── */
+	
+	/* ─────────── Cargar Datos ────────── */
 
     const fetchDatos = useCallback(async () => {
         try {
@@ -57,27 +155,9 @@ const EditarProducto = () => {
         fetchDatos();
     }, [fetchDatos]);
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        const updatedValue = type === "checkbox" ? checked : value;
-        setFormData((prev) => ({ ...prev, [name]: updatedValue }));
-    };
+    /* ─────────────────────────────────── */
 
-const handleCategoriaChange = (e) => {
-    const nuevaCategoria = parseInt(e.target.value);
-
-    setFormData((prev) => ({
-        ...prev,
-        Id_Categoria_Producto: nuevaCategoria,
-        Precio_Compra: nuevaCategoria === 3 ? null : prev.Precio_Compra,
-        Precio_Venta: nuevaCategoria === 3 ? null : prev.Precio_Venta,
-        Id_Insumos: nuevaCategoria === 3 ? prev.Id_Insumos : "" // limpiar fragancia si ya no es perfume
-    }));
-
-    setErrors({});
-};
-
-
+	/* ──────── Boton de Guardar ───────── */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -124,6 +204,10 @@ const handleCategoriaChange = (e) => {
         }
     };
 
+    /* ──────────────────────────────────── */
+
+	/* ───────── Boton de Cancelar ─────────*/
+
     const handleCancel = () => {
         window
             .showAlert("Si cancelas, perderás los cambios no guardados.", {
@@ -140,7 +224,9 @@ const handleCategoriaChange = (e) => {
                 }
             });
     };
-
+    
+    /* ──────────────────────────────────── */
+    
     return (	
         <>
             <h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -149,7 +235,7 @@ const handleCategoriaChange = (e) => {
 
             <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
             >
                 {/* Tipo de Proveedor */}
                 <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
@@ -195,6 +281,9 @@ const handleCategoriaChange = (e) => {
                                 </option>
                             ))}
                         </select>
+                            {errors.Id_Insumos && (
+                                <p className="text-red-500 text-sm mt-1">{errors.Id_Insumos}</p>
+                            )}
                     </>
                 )}
 
@@ -211,8 +300,8 @@ const handleCategoriaChange = (e) => {
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-2 rounded"
                             />
-                            {errors.NIT && (
-                                <p className="text-red-500 text-sm mt-1">{errors.NIT}</p>
+                            {errors.Precio_Venta && (
+                                <p className="text-red-500 text-sm mt-1">{errors.Precio_Venta}</p>
                             )}
                     </>
                 )}
@@ -229,25 +318,24 @@ const handleCategoriaChange = (e) => {
                         onChange={handleChange}
                         className="w-full border border-gray-300 p-2 rounded"
                     />
-                    {errors.Email && (
-                        <p className="text-red-500 text-sm mt-1">{errors.Email}</p>
+                    {errors.Nombre && (
+                        <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
                     )}
                 </div>
-                <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+
+                <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex flex-col items-start min-h-32">
                     <h3 className="text-2xl text-black font-bold mb-2 block">
                         Descripción <span className="text-red-500">*</span>
                     </h3>
-                    <input
-                        type="text"
+                    <textarea
                         name="Descripcion"
                         value={formData.Descripcion}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 p-2 rounded"
-                    />
-                    {errors.Nombre_Empresa && (
-                        <p className="text-red-500 text-sm mt-1">
-                            {errors.Nombre_Empresa}
-                        </p>
+                        rows={3}
+                        className="w-full border border-gray-300 p-2 rounded resize-y overflow-y-auto max-h-40"
+                />
+                    {errors.Descripcion && (
+                        <p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
                     )}
                 </div>
 

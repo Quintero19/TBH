@@ -15,6 +15,8 @@ const AgregarCatProducto = () => {
 		Estado: true,
 	});
 
+	/* ───── Validaciones Formulario ───── */
+	
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
@@ -67,6 +69,10 @@ const AgregarCatProducto = () => {
 		validateField(name, updatedValue);
 	};
 
+	/* ─────────────────────────────────── */
+
+	/* ──────── Boton de Guardar ───────── */
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -98,6 +104,10 @@ const AgregarCatProducto = () => {
 		}
 	};
 
+	/* ──────────────────────────────────── */
+
+	/* ───────── Boton de Cancelar ─────────*/
+
 	const handleCancel = () => {
 		window
 			.showAlert("Si cancelas, perderás los datos ingresados.", {
@@ -115,6 +125,8 @@ const AgregarCatProducto = () => {
 			});
 	};
 
+	/* ──────────────────────────────────── */
+
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -123,7 +135,7 @@ const AgregarCatProducto = () => {
 
 			<form
 				onSubmit={handleSubmit}
-				className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
 			>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -140,21 +152,7 @@ const AgregarCatProducto = () => {
 						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
 					)}
 				</div>
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2">
-						Descripción<span className="text-red-500">*</span>
-					</h3>
-					<input
-						type="text"
-						name="Descripcion"
-						value={formData.Descripcion}
-						onChange={handleChange}
-						className="w-full border border-gray-300 p-2 rounded"
-					/>
-					{errors.Descripcion && (
-						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
-					)}
-				</div>
+
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex items-center">
 					<h3 className="text-2xl text-black font-bold mb-2">Es Ropa?</h3>
 					<input
@@ -165,6 +163,22 @@ const AgregarCatProducto = () => {
 						className="border border-gray-300 p-2 rounded"
 						id="esRopa"
 					/>
+				</div>
+
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2 flex flex-col items-start min-h-32">
+					<h3 className="text-2xl text-black font-bold mb-2 block">
+						Descripción <span className="text-red-500">*</span>
+					</h3>
+					<textarea
+						name="Descripcion"
+						value={formData.Descripcion}
+						onChange={handleChange}
+						rows={3}
+						className="w-full border border-gray-300 p-2 rounded resize-y overflow-y-auto max-h-40"
+				/>
+					{errors.Descripcion && (
+						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
+					)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">

@@ -16,18 +16,7 @@ const AgregarTalla = () => {
 		Estado: true,
 	});
 
-	useEffect(() => {
-		const fetchCategorias = async () => {
-			try {
-				const response = await catProductoService.obtenerCategoriasRopa();
-				setCategorias(response.data);
-			} catch (error) {
-				console.error("Error al obtener categorías:", error);
-			}
-		};
-
-		fetchCategorias();
-	}, []);
+	/* ───── Validaciones Formulario ───── */
 
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
@@ -77,6 +66,27 @@ const AgregarTalla = () => {
 		validateField(name, updatedValue);
 	};
 
+	/* ─────────────────────────────────── */
+	
+	/* ─────── Cargar Categorias ───────── */
+
+	useEffect(() => {
+		const fetchCategorias = async () => {
+			try {
+				const response = await catProductoService.obtenerCategoriasRopa();
+				setCategorias(response.data);
+			} catch (error) {
+				console.error("Error al obtener categorías:", error);
+			}
+		};
+
+		fetchCategorias();
+	}, []);
+
+	/* ─────────────────────────────────── */
+
+	/* ──────── Boton de Guardar ───────── */
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
@@ -108,6 +118,10 @@ const AgregarTalla = () => {
 		}
 	};
 
+	/* ──────────────────────────────────── */
+
+	/* ───────── Boton de Cancelar ─────────*/
+
 	const handleCancel = () => {
 		window
 			.showAlert("Si cancelas, perderás los datos ingresados.", {
@@ -124,6 +138,8 @@ const AgregarTalla = () => {
 				}
 			});
 	};
+
+	/* ──────────────────────────────────── */
 
 	return (
 		<>

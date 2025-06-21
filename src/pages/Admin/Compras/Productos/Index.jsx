@@ -14,7 +14,6 @@ const Productos = () => {
 		{ header: "ID", accessor: "Id_Productos" },
 		{ header: "Categoria Producto", accessor: "Categoria" },
 		{ header: "Nombre", accessor: "Nombre" },
-		// { header: "Descripción", accessor: "Descripcion" },
 		{ header: "Precio de Venta / Tamaños", accessor: "Precio_Venta" },
 		{ header: "Estado", accessor: "Estado" },
 	];

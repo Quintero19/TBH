@@ -21,6 +21,8 @@ export default function EditarTamano() {
 	const [frascoSeleccionado, setFrascoSeleccionado] = useState("");
 	const [insumosSeleccionados, setInsumosSeleccionados] = useState([]);
 
+	/* ───── Validaciones Formulario ───── */
+
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
@@ -81,87 +83,12 @@ export default function EditarTamano() {
 		validateField(name, value);
 	};
 
-	const handleInsumoChange = (insumoIndex, field, val) => {
-		const list = [...insumosSeleccionados];
-		if (field === "id_insumo") {
-			const id = Number(val);
-			if (list.some((i, i2) => i.Id_Insumos === id && i2 !== insumoIndex))
-				return showAlert("Insumo Duplicado", { type: "warning" , title: "Advertencia", duration: 2000});
-			const encontrado = insumos.find((i) => i.Id_Insumos === id);
-			if (encontrado)
-				list[insumoIndex] = { ...list[insumoIndex], Id_Insumos: id, Nombre: encontrado.Nombre };
-		} else if (field === "cantidad" && (/^\d*$/.test(val) || val === "")) {
-			const nuevaCant = val === "" ? "" : Number(val);
-			const total = list.reduce(
-				(sum, i, i2) => sum + (i2 === insumoIndex ? nuevaCant : Number(i.Cantidad)),
-				0,
-			);
-			if (formData.Cantidad_Maxima && total > Number(formData.Cantidad_Maxima))
-				return showAlert("Excede la cantidad Maxima colocada", { type: "warning" , title: "Advertencia", duration: 2000});
-			list[insumoIndex].Cantidad = val;
-		}
-		setInsumosSeleccionados(list);
-	};
-
-	const addInsumo = () => {
-		const total = insumosSeleccionados.reduce(
-			(s, i) => s + Number(i.Cantidad || 0),
-			0,
-		);
-		if (total >= Number(formData.Cantidad_Maxima))
-			return showAlert("Máximo alcanzado", { type: "warning" , title: "Advertencia", duration: 2000});
-		if (insumosSeleccionados.some((i) => !i.Id_Insumos))
-			return showAlert("Hay un insumo pendiente por completar", { type: "warning" , title: "Advertencia", duration: 2000});
-		setInsumosSeleccionados([
-			...insumosSeleccionados,
-			{ Id_Insumos: "", Nombre: "", Cantidad: "" },
-		]);
-	};
-
-	const handleSubmit = async () => {
-		if (Object.keys(errors).length)
-			return showAlert("Corrige errores", { type: "warning", title: "Error", duration: 2000});
-		if (!frascoSeleccionado)
-			return showAlert("Debe seleccionar al menos el frasco del tamaño", { type: "error", title: "Error", duration: 2000});
-
-		const payload = {
-			Id_Tamano: Number(id),
-			Nombre: formData.Nombre,
-			Precio_Venta: Number.parseFloat(formData.Precio_Venta),
-			Cantidad_Maxima: Number.parseInt(formData.Cantidad_Maxima),
-			insumos: [
-				{ Id_Insumos: Number(frascoSeleccionado), Cantidad: 1 },
-				...insumosSeleccionados.map((i) => ({
-					Id_Insumos: i.Id_Insumos,
-					Cantidad: Number(i.Cantidad),
-				})),
-			],
-		};
-
-		try {
-			await tamanosService.actualizarTamano(id, payload);
-			showAlert("Actualizado", { type: "success", title: "¡Éxito!", duration: 2000}).then(() =>
-				navigate("/admin/tamanos"),
-			);
-		} catch (err) {
-			console.error(err);
-			showAlert("Error al actualizar", { type: "error", title: "Error", duration: 2000});
-		}
-	};
-
-	const handleCancel = () => {
-		showAlert("Perderás los cambios", {
-			type: "warning",
-			title: "¿Cancelar?",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí",
-			cancelButtonText: "No",
-		}).then((r) => r.isConfirmed && navigate("/admin/tamanos"));
-	};
+	/* ─────────────────────────────────── */
+	
+	/* ─────────── Cargar Datos ────────── */
 
 	useEffect(() => {
-		const loadData = async () => {
+		const obtenerDatos = async () => {
 			try {
 				const [insumosRes, frascosRes, tamanoRes] = await Promise.all([
 					insumoService.obtenerInsumosBase(),
@@ -205,9 +132,106 @@ export default function EditarTamano() {
 				showAlert("Error al cargar datos", { type: "error" , title: "Error", duration: 2000});
 			}
 		};
-		loadData();
+		obtenerDatos();
 	}, [id]);
 
+	/* ─────────────────────────────────── */
+
+	/* ────── Insumos Seleccionados ────── */
+
+	const handleInsumoChange = (insumoIndex, field, val) => {
+		const list = [...insumosSeleccionados];
+		if (field === "id_insumo") {
+			const id = Number(val);
+			if (list.some((i, i2) => i.Id_Insumos === id && i2 !== insumoIndex))
+				return showAlert("Insumo Duplicado", { type: "warning" , title: "Advertencia", duration: 2000});
+			const encontrado = insumos.find((i) => i.Id_Insumos === id);
+			if (encontrado)
+				list[insumoIndex] = { ...list[insumoIndex], Id_Insumos: id, Nombre: encontrado.Nombre };
+		} else if (field === "cantidad" && (/^\d*$/.test(val) || val === "")) {
+			const nuevaCant = val === "" ? "" : Number(val);
+			const total = list.reduce(
+				(sum, i, i2) => sum + (i2 === insumoIndex ? nuevaCant : Number(i.Cantidad)),
+				0,
+			);
+			if (formData.Cantidad_Maxima && total > Number(formData.Cantidad_Maxima))
+				return showAlert("Excede la cantidad Maxima colocada", { type: "warning" , title: "Advertencia", duration: 2000});
+			list[insumoIndex].Cantidad = val;
+		}
+		setInsumosSeleccionados(list);
+	};
+
+	/* ─────────────────────────────────── */
+
+	/* ─────────── +/- Insumos ─────────── */
+		
+	const addInsumo = () => {
+		const total = insumosSeleccionados.reduce(
+			(s, i) => s + Number(i.Cantidad || 0),
+			0,
+		);
+		if (total >= Number(formData.Cantidad_Maxima))
+			return showAlert("Máximo alcanzado", { type: "warning" , title: "Advertencia", duration: 2000});
+		if (insumosSeleccionados.some((i) => !i.Id_Insumos))
+			return showAlert("Hay un insumo pendiente por completar", { type: "warning" , title: "Advertencia", duration: 2000});
+		setInsumosSeleccionados([
+			...insumosSeleccionados,
+			{ Id_Insumos: "", Nombre: "", Cantidad: "" },
+		]);
+	};
+
+	/* ─────────────────────────────────── */
+
+	/* ───────── Boton de Guardar ──────── */
+
+	const handleSubmit = async () => {
+		if (Object.keys(errors).length)
+			return showAlert("Corrige errores", { type: "warning", title: "Error", duration: 2000});
+		if (!frascoSeleccionado)
+			return showAlert("Debe seleccionar al menos el frasco del tamaño", { type: "error", title: "Error", duration: 2000});
+
+		const payload = {
+			Id_Tamano: Number(id),
+			Nombre: formData.Nombre,
+			Precio_Venta: Number.parseFloat(formData.Precio_Venta),
+			Cantidad_Maxima: Number.parseInt(formData.Cantidad_Maxima),
+			insumos: [
+				{ Id_Insumos: Number(frascoSeleccionado), Cantidad: 1 },
+				...insumosSeleccionados.map((i) => ({
+					Id_Insumos: i.Id_Insumos,
+					Cantidad: Number(i.Cantidad),
+				})),
+			],
+		};
+
+		try {
+			await tamanosService.actualizarTamano(id, payload);
+			showAlert("Actualizado", { type: "success", title: "¡Éxito!", duration: 2000}).then(() =>
+				navigate("/admin/tamanos"),
+			);
+		} catch (err) {
+			console.error(err);
+			showAlert("Error al actualizar", { type: "error", title: "Error", duration: 2000});
+		}
+	};
+
+	/* ──────────────────────────────────── */
+
+	/* ──────── Boton de Cancelar ───────── */
+
+	const handleCancel = () => {
+		showAlert("Perderás los cambios", {
+			type: "warning",
+			title: "¿Cancelar?",
+			showConfirmButton: true,
+			showCancelButton: true,
+			confirmButtonText: "Sí",
+			cancelButtonText: "No",
+		}).then((r) => r.isConfirmed && navigate("/admin/tamanos"));
+	};
+
+	/* ──────────────────────────────────── */
+	
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">

@@ -23,25 +23,8 @@ function AgregarTamano() {
 		Estado: 1,
 	});
 
-	const obtenerDatos = useCallback(async () => {
-		try {
-			const [resInsumos, resFrascos] = await Promise.all([
-				insumoService.obtenerInsumosBase(),
-				insumoService.obtenerInsumosFrascos(),
-			]);
-			setInsumos(resInsumos.data);
-			setFrascos(resFrascos.data);
-		} catch (error) {
-			console.error("Error al obtener insumos o frascos:", error);
-		}
-	}, []);
+	/* ───── Validaciones Formulario ───── */
 
-	useEffect(() => {
-		obtenerDatos();
-	}, [obtenerDatos]);
-
-
-	// ---------------- VALIDACIÓN ----------------
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
@@ -91,16 +74,6 @@ function AgregarTamano() {
 		setErrors(newErrors);
 	};
 
-
-	const mostrarAlerta = (titulo, mensaje) => {
-		showAlert(mensaje, {
-			title: titulo,
-			type: "warning",
-			duration: 2000,
-		});
-	};
-
-	// ---------------- MANEJO DE INPUTS ----------------
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
 		const isValid = {
@@ -126,6 +99,31 @@ function AgregarTamano() {
 			});
 		}
 	};
+
+	/* ─────────────────────────────────── */
+	
+	/* ─────────── Cargar Datos ────────── */
+
+	const obtenerDatos = useCallback(async () => {
+		try {
+			const [resInsumos, resFrascos] = await Promise.all([
+				insumoService.obtenerInsumosBase(),
+				insumoService.obtenerInsumosFrascos(),
+			]);
+			setInsumos(resInsumos.data);
+			setFrascos(resFrascos.data);
+		} catch (error) {
+			console.error("Error al obtener insumos o frascos:", error);
+		}
+	}, []);
+
+	useEffect(() => {
+		obtenerDatos();
+	}, [obtenerDatos]);
+
+	/* ─────────────────────────────────── */
+
+	/* ────── Insumos Seleccionados ────── */
 
 	const handleInsumoChange = (insumoIndex, key, value) => {
 		const nuevos = [...insumosSeleccionados];
@@ -165,6 +163,10 @@ function AgregarTamano() {
 		setInsumosSeleccionados(nuevos);
 	};
 
+	/* ─────────────────────────────────── */
+
+	/* ────── Calcular Cantidades ──────── */
+
 	const calcularTotalCantidad = (indice, nuevaCantidad) =>
 		insumosSeleccionados.reduce(
 			(sum, item, idx) =>
@@ -172,7 +174,10 @@ function AgregarTamano() {
 			0,
 		);
 
-	// ---------------- MANEJO DE INSUMOS ----------------
+	/* ─────────────────────────────────── */
+
+	/* ─────────── +/- Insumos ─────────── */
+
 	const addInsumo = () => {
 		const total = insumosSeleccionados.reduce(
 			(sum, i) => sum + Number(i.Cantidad),
@@ -200,7 +205,10 @@ function AgregarTamano() {
 		setInsumosSeleccionados(nuevos);
 	};
 
-	// ---------------- SUBMIT Y CANCELAR ----------------
+	/* ─────────────────────────────────── */
+
+	/* ───────── Boton de Guardar ──────── */
+
 	const handleSubmit = async () => {
 		if (Object.keys(errors).length > 0) {
 			return showAlert("Por favor corrige los errores", {
@@ -236,6 +244,10 @@ function AgregarTamano() {
 		}
 	};
 
+	/* ──────────────────────────────────── */
+
+	/* ──────── Boton de Cancelar ───────── */
+
 	const handleCancel = () => {
 		showAlert("Si cancelas, perderás los datos ingresados.", {
 			title: "¿Estás seguro?",
@@ -249,7 +261,20 @@ function AgregarTamano() {
 		});
 	};
 
-	// ---------------- RETURN ----------------
+	/* ──────────────────────────────────── */
+
+	/* ──────── Alerta Reutilizable ─────── */
+
+	const mostrarAlerta = (titulo, mensaje) => {
+		showAlert(mensaje, {
+			title: titulo,
+			type: "warning",
+			duration: 2000,
+		});
+	};
+
+	/* ──────────────────────────────────── */
+
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
