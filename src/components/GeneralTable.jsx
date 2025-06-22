@@ -195,6 +195,22 @@ const GeneralTable = ({
 													icon="fa-eye"
 												/>
 
+												{(title === "Productos" || title === "Servicios") && (
+													<Button
+														className="green"
+														onClick={() => rest.verImagenes(row)}
+														icon="fa-image"
+													/>
+												)}
+
+												{title === "Roles" && row[stateAccessor] && (
+													<Button
+														className="green"
+														onClick={() => onAssignPermissions(row)}
+														icon="fa-key"
+													/>
+												)}
+
 												{title !== "Compras" &&
 													title !== "Ventas" &&
 													(canEdit ? canEdit(row) : true) && (
@@ -204,6 +220,7 @@ const GeneralTable = ({
 															icon="fa-pencil"
 														/>
 													)}
+
 												{title !== "Compras" &&
 													title !== "Ventas" &&
 													(canDelete ? canDelete(row) : true) && (
@@ -213,13 +230,7 @@ const GeneralTable = ({
 															icon="fa-trash"
 														/>
 													)}
-												{title === "Roles" && row[stateAccessor] && (
-													<Button
-														className="green"
-														onClick={() => onAssignPermissions(row)}
-														icon="fa-key"
-													/>
-												)}
+
 												{(title === "Compras" || title === "Ventas") &&
 													row[stateAccessor] === true && (
 														<Button
