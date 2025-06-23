@@ -17,7 +17,7 @@ const Button = ({
 		red: "bg-red-500 hover:bg-red-700 rounded-full flex items-center justify-center",
 		orange:
 			"bg-orange-400 border-orange-700 hover:bg-orange-700  rounded-full flex items-center justify-center",
-		gray: "bg-gray-500 border-gray-400 hover:bg-gray-600 cursor-not-allowed",
+		gray: "bg-gray-500 border-gray-400 hover:bg-gray-600",
 	};
 	const colorKey = Object.keys(colors).find((key) =>
     className.split(" ").includes(key)

@@ -24,6 +24,7 @@ const CategoriasProducto = () => {
 		try {
 			const response = await catProductoService.obtenerCategorias();
 			setCatsProducto(transformData(response.data));
+			console.log(response)
 		} catch (error) {
 			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {
@@ -78,15 +79,89 @@ const CategoriasProducto = () => {
 	const handleVerDetalles = async (categoria) => {
 		try {
 			const html = `
-							<div class="text-left">
-								<p><strong>Nombre:</strong> ${categoria.Nombre || "-"}</p>
-								<p><strong>Descripción:</strong> ${categoria.Descripcion || "-"}</p>
-								<p><strong>Es_Ropa?:</strong> ${categoria.Es_Ropa}</p>
-								<p><strong>Estado:</strong> ${categoria.Estado ? "Activo" : "Inactivo"}</p>
-							</div>
+				<div class="space-y-7 text-gray-100">
+					<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
+					<h3 class="text-xl font-bold text-white">Detalles de la Categoría</h3>
+					<span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+						ID: ${categoria.Id_Categoria_Producto ?? "N/A"}
+					</span>
+					</div>
+
+					<div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+					<!-- Nombre -->
+					<div class="relative">
+						<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+						Nombre
+						</label>
+						<div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+						<div class="font-medium text-white">${categoria.Nombre ?? "-"}</div>
+						</div>
+					</div>
+
+					<div class="relative">
+						<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+						Estado
+						</label>
+						<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
+							categoria.Estado
+								? "bg-[#112d25] border-emerald-500/30"
+								: "bg-[#2c1a1d] border-rose-500/30"
+						}">
+						<div class="font-medium ${
+							categoria.Estado ? "text-emerald-300" : "text-rose-300"
+						}">
+							${categoria.Estado ? "Activo" : "Inactivo"}
+						</div>
+						</div>
+					</div>
+
+					<div class="relative md:col-span-2">
+						<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+						Descripción
+						</label>
+						<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
+						<div class="text-gray-200 ${!categoria.Descripcion ? "italic text-gray-400" : ""}">
+							${categoria.Descripcion || "No hay descripción disponible"}
+						</div>
+						</div>
+					</div>
+					</div>
+
+					<div class="relative md:col-span-2">
+						<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">
+							Productos Relacionados
+						</label>
+
+
+						<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
+							${
+								categoria.Productos.length > 0
+								? `
+									<table class="w-full text-left text-base text-gray-200">
+										<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 text-sm uppercase tracking-wide shadow">
+											<tr>
+												<th class="py-3 px-4">ID</th>
+												<th class="py-3 px-4">Nombre</th>
+											</tr>
+										</thead>
+										<tbody>
+											${categoria.Productos.map(p => `
+												<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
+													<td class="py-3 px-4">${p.Id_Productos}</td>
+													<td class="py-3 px-4">${p.Nombre}</td>
+												</tr>
+											`).join("")}
+										</tbody>
+									</table>
+								`
+								: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
+							}
+						</div>
+					</div>
+
+				</div>
 			`;
 			await showAlert(html, {
-				title: `Detalles Cat.Producto ID: ${categoria.Id_Categoria_Producto}`,
 				type: "info",
 				showConfirmButton: true,
 				swalOptions: {
