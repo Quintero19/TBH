@@ -179,11 +179,11 @@ const Productos = () => {
 					</div>
 
 					${producto.Es_Perfume && producto.Detalles?.tamanos?.length ? `
-						<div class="relative">
-							<label class="absolute -top-4 left-3 bg-[#111827] text-sm text-gray-400 font-semibold px-1 rounded-md z-10">Tamaños Asociaods</label>
-							<div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5">
-								<table class="w-full text-left text-gray-200 table-auto">
-									<thead class="text-sm text-gray-400 uppercase border-b border-gray-600/50">
+						<div class="relative md:col-span-2">
+							<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">Tamaños Asociaods</label>
+							<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
+								<table class="w-full text-left text-base text-gray-200">
+									<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 text-sm uppercase tracking-wide shadow">
 										<tr>
 											<th class="py-2">Tamaño</th>
 											<th class="py-2">Precio</th>
@@ -203,21 +203,21 @@ const Productos = () => {
 					` : ''}
 
 					${producto.Es_Ropa && producto.Detalles?.tallas?.length ? `
-						<div class="relative">
-							<label class="absolute -top-4 left-3 bg-[#111827] text-sm text-gray-400 font-semibold px-1 rounded-md z-10">Tallas del Producto</label>
-							<div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5">
-								<table class="w-full text-left text-gray-200 table-auto">
-									<thead class="text-sm text-gray-400 uppercase border-b border-gray-600/50">
+						<div class="relative relative md:col-span-2">
+							<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">Tallas del Producto</label>
+							<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
+								<table class="w-full text-left text-base text-gray-200">
+									<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 text-sm uppercase tracking-wide shadow">
 										<tr>
-											<th class="py-2">Talla</th>
-											<th class="py-2">Stock</th>
+											<th class="py-3 px-5">Talla</th>
+											<th class="py-3 px-5">Stock</th>
 										</tr>
 									</thead>
 									<tbody>
 										${producto.Detalles.tallas.map(t => `
 											<tr class="border-b border-gray-800">
-												<td class="py-2">${t.nombre}</td>
-												<td class="py-2">${t.stock}</td>
+												<td class="py-3 px-8">${t.nombre}</td>
+												<td class="py-3 px-8">${t.stock}</td>
 											</tr>
 										`).join("")}
 									</tbody>

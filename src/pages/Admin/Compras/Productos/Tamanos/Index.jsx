@@ -186,7 +186,7 @@ const transformData = useCallback((lista) =>
 											<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 												<td class="py-3 px-4">${i.Id_Insumos}</td>
 												<td class="py-3 px-4">${i.Nombre}</td>
-												<td class="py-3 px-4">${i.Cantidad}</td>
+												<td class="py-3 px-10">${i.Cantidad}</td>
 											</tr>
 										`).join("")}
 									</tbody>
