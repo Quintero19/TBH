@@ -25,7 +25,6 @@ const Proveedores = () => {
 		try {
 			const response = await proveedorService.obtenerProveedores();
 			setProveedores(transformData(response.data));
-			console.log(response)
 		} catch (error) {
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {

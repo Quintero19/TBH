@@ -42,6 +42,7 @@ export function AlertProvider({ children }) {
 				cancelButton: "swal-cancel-button",
 				confirmButton: "swal-confirm-button",
 			},
+			width: options.width || undefined,
 			...(options.duration !== undefined ? { timer: options.duration } : {}),
 			...options.swalOptions,
 		});

@@ -27,7 +27,6 @@ const Productos = () => {
 		try {
 			const response = await productoService.obtenerProductoss();
 			setProductos(transformData(response.data));
-			console.log(response)
 		} catch (error) {
 			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 				showAlert(`Error: ${mensaje || error}`, {
