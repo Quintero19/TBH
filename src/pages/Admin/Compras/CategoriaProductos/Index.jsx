@@ -24,7 +24,6 @@ const CategoriasProducto = () => {
 		try {
 			const response = await catProductoService.obtenerCategorias();
 			setCatsProducto(transformData(response.data));
-			console.log(response)
 		} catch (error) {
 			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {

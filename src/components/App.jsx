@@ -10,7 +10,8 @@ import CategoriaInsumoAdmin from "../pages/Admin/Compras/CategoriaInsumos/Index"
 import AgregarCatProducto from "../pages/Admin/Compras/CategoriaProductos/AgregarCatProducto";
 import EditarCatProducto from "../pages/Admin/Compras/CategoriaProductos/EditarCatProducto";
 import CategoriasProducto from "../pages/Admin/Compras/CategoriaProductos/Index";
-import CompraAdmin from "../pages/Admin/Compras/Compra/Index";
+import Compras from "../pages/Admin/Compras/Compra/Index";
+import AgregarCompra from "../pages/Admin/Compras/Compra/AgregarCompra";
 import AgregarInsumo from "../pages/Admin/Compras/Insumos/AgregarInsumos";
 import EditarInsumo from "../pages/Admin/Compras/Insumos/EditarInsumos";
 import InsumoAdmin from "../pages/Admin/Compras/Insumos/Index";
@@ -99,7 +100,8 @@ function App() {
 				<Route path="servicios/editar/:id" element={<EditarServicios />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
-				<Route path="compras" element={<CompraAdmin />} />
+				<Route path="compras" element={<Compras />} />
+				<Route path="compras/agregar" element={<AgregarCompra />} />
 				<Route path="proveedores" element={<Proveedores />} />
 				<Route path="proveedores/agregar" element={<AgregarProveedor />} />
 				<Route path="proveedores/editar/:id" element={<EditarProveedor />} />

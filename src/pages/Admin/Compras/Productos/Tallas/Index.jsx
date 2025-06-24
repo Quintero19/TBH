@@ -24,7 +24,6 @@ const Tallas = () => {
 		try {
 			const response = await tallasService.obtenerTallas();
 			setTallas(response.data);
-			console.log(response)
 		} catch (error) {
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {

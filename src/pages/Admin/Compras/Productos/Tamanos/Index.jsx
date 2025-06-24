@@ -24,7 +24,6 @@ const Tamanos = () => {
 		try {
 			const response = await tamanosService.obtenerTamanos();
 			setTamanos(transformData(response.data));
-			console.log(response)
 		} catch (error) {
 					const mensaje =error.response?.data?.message || "Error al obtener los tamaños.";
 						showAlert(`Error: ${mensaje || error}`, {

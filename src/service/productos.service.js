@@ -15,10 +15,10 @@ export const productoService = {
 		return res.data;
 	},
 
-	/* obtenerProductosActivos: async () => {
-		const res = await api.get(`${USER_URL}/activos`);
+	obtenerProductosCompras: async () => {
+		const res = await api.get(`${USER_URL}/compras`);
 		return res.data;
-	}, */
+	},
 
 	obtenerProductoPorId: async (id) => {
 		const res = await api.get(`${USER_URL}/${id}`);

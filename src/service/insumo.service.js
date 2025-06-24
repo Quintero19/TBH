@@ -18,6 +18,11 @@ export const insumoService = {
 		return res.data;
 	},
 
+	obtenerInsumosActivos: async () => {
+		const res = await api.get(`${RESOURCE_URL}/activos`);
+		return res.data;
+	},
+
 	obtenerInsumosBase: async () => {
 		const res = await api.get(`${RESOURCE_URL}/base`);
 		return res.data;
