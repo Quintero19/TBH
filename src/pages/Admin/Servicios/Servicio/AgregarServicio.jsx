@@ -210,6 +210,7 @@ const AgregarServicio = () => {
 						name="Duracion"
 						value={formData.Duracion}
 						onChange={handleChange}
+						min="1"  
 						required
 						className="w-full p-2 border border-gray-300 rounded"
 					/>
