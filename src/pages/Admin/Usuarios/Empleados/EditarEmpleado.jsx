@@ -166,19 +166,19 @@ const EditarEmpleado = () => {
   };
 
   const handleCancel = () => {
-		showAlert("Si cancelas, perderás los datos ingresados.", {
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/empleado");
-			}
-		});
-	};
+    showAlert("Si cancelas, perderás los datos ingresados.", {
+      title: "¿Estás seguro?",
+      type: "warning",
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/admin/empleado");
+      }
+    });
+  };
   
 
   if (loading) {
@@ -235,7 +235,6 @@ const EditarEmpleado = () => {
             <p className="text-red-500 text-sm mt-1">{errors.Documento}</p>
           )}
         </div>
-
 
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
@@ -307,40 +306,28 @@ const EditarEmpleado = () => {
           />
         </div>
 
-        {/* Sexo */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
             Sexo <span className="text-red-500">*</span>
           </h3>
           <select
-            name="Sexo"
-            value={formData.Sexo}
-            onChange={handleChange}
-            className={`w-full p-2 border ${errors.Sexo ? "border-red-500" : "border-gray-300"} rounded`}
-            required
-          >
-            <option value="">Seleccione...</option>
-            <option value="M">Masculino</option>
-            <option value="F">Femenino</option>
-          </select>
+  name="Sexo"
+  value={formData.Sexo}
+  onChange={handleChange}
+  disabled
+  className={`w-full p-2 border bg-gray-100 text-gray-600 cursor-not-allowed ${
+    errors.Sexo ? "border-red-500" : "border-gray-300"
+  } rounded`}
+  required
+>
+  <option value="">Seleccione...</option>
+  <option value="M">Masculino</option>
+  <option value="F">Femenino</option>
+</select>
+
           {errors.Sexo && (
             <p className="text-red-500 text-sm mt-1">{errors.Sexo}</p>
           )}
-        </div>
-
-        {/* Estado */}
-        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-          <h3 className="text-2xl text-black font-bold mb-2">Estado</h3>
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              name="Estado"
-              checked={formData.Estado}
-              onChange={handleChange}
-              className="h-5 w-5 text-blue-600 rounded"
-            />
-            <label className="text-gray-700">Activo</label>
-          </div>
         </div>
 
         <div className="md:col-span-2 flex gap-2 ml-7">
