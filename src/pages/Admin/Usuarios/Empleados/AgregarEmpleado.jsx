@@ -132,23 +132,23 @@ const AgregarEmpleado = () => {
   };
 
   const handleCancel = () => {
-		showAlert("Si cancelas, perderás los datos ingresados.", {
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/empleado");
-			}
-		});
-	};
-	const isFormValid = () => {
-  	const requiredFields = ["Tipo_Documento", "Documento", "Nombre", "Celular", "F_Nacimiento", "Sexo"];
-  	return requiredFields.every((field) => formData[field].trim?.() || formData[field]) && Object.keys(errors).length === 0;
-	};
+    showAlert("Si cancelas, perderás los datos ingresados.", {
+      title: "¿Estás seguro?",
+      type: "warning",
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/admin/empleado");
+      }
+    });
+  };
+  const isFormValid = () => {
+    const requiredFields = ["Tipo_Documento", "Documento", "Nombre", "Celular", "F_Nacimiento", "Sexo"];
+    return requiredFields.every((field) => formData[field].trim?.() || formData[field]) && Object.keys(errors).length === 0;
+  };
   return (
     <>
       <h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -286,22 +286,16 @@ const AgregarEmpleado = () => {
           )}
         </div>
 
-        {/* Estado */}
-        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-          <h3 className="text-2xl text-black font-bold mb-2">Estado</h3>
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              name="Estado"
-              checked={formData.Estado}
-              onChange={handleChange}
-              className="h-5 w-5 text-blue-600 rounded"
-            />
-            <label className="text-gray-700">Activo</label>
-          </div>
-        </div>
-
         <div className="md:col-span-2 flex gap-2 ml-7">
+          <Button
+        type="submit"
+        className={`green ${(!isFormValid() || submitting) ? "opacity-50 cursor-not-allowed" : ""}`}
+        disabled={!isFormValid() || submitting}
+        loading={submitting}
+        icon="fa-floppy-o"
+      >
+        <div className="flex items-center gap-2">Guardar</div>
+      </Button>
           <Button
             type="button"
             onClick={handleCancel}
@@ -311,15 +305,7 @@ const AgregarEmpleado = () => {
           >
             <div className="flex items-center gap-2">Cancelar</div>
           </Button>
-        	<Button
-  			type="submit"
-  			className={`green ${(!isFormValid() || submitting) ? "opacity-50 cursor-not-allowed" : ""}`}
-  			disabled={!isFormValid() || submitting}
-  			loading={submitting}
-  			icon="fa-floppy-o"
-			>
-  			<div className="flex items-center gap-2">Guardar</div>
-			</Button>
+          
 
         </div>
       </form>
