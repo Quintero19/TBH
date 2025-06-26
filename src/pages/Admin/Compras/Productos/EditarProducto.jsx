@@ -12,6 +12,8 @@ const EditarProducto = () => {
     const [errors, setErrors] = useState({});
     const [categorias, setCategorias] = useState([]);
     const [fragancias, setFragancias] = useState([]);
+    const [tallasDisponibles, setTallasDisponibles] = useState([]);
+    const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
     const [imagenesNuevas, setImagenesNuevas] = useState([]);
     const [imagenesExistentes, setImagenesExistentes] = useState([]);
     const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
@@ -131,6 +133,15 @@ const EditarProducto = () => {
         validateField("Id_Categoria_Producto", value);
     };
 
+    const handleTallaChange = (e) => {
+        const id = parseInt(e.target.value);
+        setTallasSeleccionadas((prev) =>
+            e.target.checked ? [...prev, id] : prev.filter((t) => t !== id)
+        );
+    };
+
+
+
     useEffect(() => {
         const total = imagenesExistentes.length + imagenesNuevas.length;
 
@@ -199,6 +210,9 @@ const EditarProducto = () => {
 
             const producto = prodRes.data;
 
+            console.log(prodRes)
+            console.log(catRes)
+
             setFormData({
                 Id_Categoria_Producto: producto.Id_Categoria_Producto,
                 Nombre: producto.Nombre,
@@ -211,6 +225,14 @@ const EditarProducto = () => {
             });
 
             setImagenesExistentes(producto.Imagenes || []);
+
+            if (producto.Categoria.Es_Ropa) {
+                const categoria = catRes.data.find(cat => cat.Id_Categoria_Producto === producto.Id_Categoria_Producto);
+                const tallasIds = (producto.TallasSeleccionadas || []).map(t => parseInt(t.Id_Tallas));
+                setTallasDisponibles(categoria.Tallas || []);
+                setTallasSeleccionadas(tallasIds);
+            }
+
         } catch (error) {
             console.error("Error cargando datos del producto:", error);
         };
@@ -247,13 +269,29 @@ const EditarProducto = () => {
         try {
             const form = new FormData();
 
+            // Añadir campos base
             for (const key in formData) {
                 if (key === "Id_Insumos" && formData.Id_Categoria_Producto == 3) {
-                    form.append("InsumoExtra", JSON.stringify({ Id_Insumos: parseInt(formData.Id_Insumos) }));
+                    form.append(
+                        "InsumoExtra",
+                        JSON.stringify({ Id_Insumos: parseInt(formData.Id_Insumos) })
+                    );
                 } else {
                     form.append(key, formData[key]);
                 }
             }
+
+            const categoriaSeleccionada = categorias.find(
+                (cat) => cat.Id_Categoria_Producto === parseInt(formData.Id_Categoria_Producto)
+            );
+
+            if (categoriaSeleccionada?.Es_Ropa && tallasSeleccionadas.length > 0) {
+                const tallasFormateadas = tallasSeleccionadas.map(id => ({
+                    Id_Tallas: parseInt(id),
+                }));
+                form.append("TallasSeleccionadas", JSON.stringify(tallasFormateadas));
+            }
+
 
             imagenesNuevas.forEach((img) => {
                 form.append("imagenes", img);
@@ -413,6 +451,29 @@ const EditarProducto = () => {
                         <p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
                     )}
                 </div>
+
+            {categorias.find(c => c.Id_Categoria_Producto == formData.Id_Categoria_Producto)?.Es_Ropa && (
+                <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
+                    <h3 className="text-2xl text-black font-bold mb-2 block">
+                        Tallas disponibles <span className="text-red-500">*</span>
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
+                        {tallasDisponibles.map((talla) => (
+                            <label key={talla.Id_Tallas} className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    value={talla.Id_Tallas}
+                                    checked={tallasSeleccionadas.includes(talla.Id_Tallas)}
+                                    onChange={handleTallaChange}
+                                    className="form-checkbox"
+                                />
+                                <span>{talla.Nombre}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+            )}
+
 
                 <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
                     <h3 className="text-2xl text-black font-bold mb-4">
