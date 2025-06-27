@@ -51,49 +51,68 @@ const EditarServicios = () => {
     const newErrors = { ...errors };
 
     switch (name) {
-      case "Nombre": {
-        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+			case "Nombre": {
+		const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
 
-        if (value.trim().length === 0) {
-          newErrors[name] = "El nombre es requerido";
-        } else if (!regex.test(value)) {
-          newErrors[name] = "No se permiten números ni caracteres especiales";
-        } else if (value.trim().length < 3) {
-          newErrors[name] = "Debe tener al menos 3 caracteres";
+		if (value.trim().length === 0) {
+			newErrors[name] = "El nombre es requerido";
+		} else if (!regex.test(value)) {
+			newErrors[name] = "No se permiten números ni caracteres especiales";
+		} else if (value.trim().length < 3) {
+			newErrors[name] = "Debe tener al menos 3 caracteres";
+		} else if (value.trim().length > 30) {
+			newErrors[name] = "No puede exceder los 30 caracteres";
+		} else {
+			delete newErrors[name];
+		}
+		break;
+	}
+
+
+			case "Precio":
+				if (value.trim().length === 0) {
+					newErrors[name] = "El precio es requerido";
+				} else if (/[eE]/.test(value)) {
+					newErrors[name] = "No se permite la notación científica (e)";
+				} else if (Number.isNaN(Number(value)) || Number(value) <= 0) {
+					newErrors[name] = "Debe ser un número mayor a 0";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
+			case "Duracion": {
+				const isValid =
+					/^[0-9]+$/.test(value) &&
+					Number.parseInt(value) > 0 &&
+					Number.parseInt(value) <= 120;
+
+				if (value.trim().length === 0) {
+					newErrors[name] = "La duración es requerida";
+				} else if (!isValid) {
+					newErrors[name] = "Debe ser un número entero entre 1 y 120 minutos (2 horas)";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+			}
+
+			case "Descripcion":
+				if (value.trim().length === 0) {
+					newErrors[name] = "La descripción es requerida";
+				} else if (value.length < 5 || value.length > 150) {
+					newErrors[name] = "Debe tener al menos 5 caracteres y máximo 150";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+      
+      case "imagenes":
+        if (imagenes.length === 0) {
+          newErrors[name] = "Debes subir al menos una imagen";
         } else {
-          newErrors[name] = "";
+          delete newErrors[name];
         }
-        break;
-      }
-
-      case "Precio":
-        newErrors[name] =
-          value.trim().length > 0 && /[eE]/.test(value)
-            ? "No se permite la notación científica (e)"
-            : value.trim().length > 0 &&
-                (Number.isNaN(value) || Number(value) <= 0)
-              ? "Debe ser un número mayor a 0"
-              : "";
-        break;
-
-      case "Duracion": {
-        const isValid =
-          /^[0-9]+$/.test(value) &&
-          Number.parseInt(value) > 0 &&
-          Number.parseInt(value) <= 120;
-
-        newErrors[name] =
-          value.trim().length > 0 && !isValid
-            ? "Debe ser un número entero entre 1 y 120 minutos (2 horas)"
-            : "";
-        break;
-      }
-
-      case "Descripcion":
-        newErrors[name] =
-          value.trim().length > 0 && (value.length < 5 || value.length > 120)
-            ? "Debe tener al menos 5 caracteres y máximo 120"
-            : "";
         break;
 
       default:
@@ -224,23 +243,41 @@ const EditarServicios = () => {
         </div>
 
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
-          <h3 className="text-2xl text-black font-bold mb-2">
-            Precio <span className="text-red-500">*</span>
-          </h3>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            name="Precio"
-            value={formData.Precio}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-          {errors.Precio && (
-            <p className="text-red-500 text-sm mt-1">{errors.Precio}</p>
-          )}
-        </div>
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Precio <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="number"
+						step="0.01"
+						min="0"
+						name="Precio"
+						value={formData.Precio}
+						onChange={(e) => {
+							const value = e.target.value;
+							const digitsOnly = value.replace(".", "");
+							if (digitsOnly.length <= 6) {
+								handleChange(e);
+							}
+						}}
+						onKeyDown={(e) => {
+							const allowedKeys = [
+								"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+								".", "Backspace", "Tab", "Delete", "ArrowLeft", "ArrowRight"
+							];
+							if (!allowedKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
+								e.preventDefault();
+							}
+							if (e.key === "." && e.target.value.includes(".")) {
+								e.preventDefault();
+							}
+						}}
+						required
+						className="w-full p-2 border border-gray-300 rounded"
+					/>
+					{errors.Precio && (
+						<p className="text-red-500 text-sm mt-1">{errors.Precio}</p>
+					)}
+				</div>
 
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
@@ -278,6 +315,8 @@ const EditarServicios = () => {
             <p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
           )}
         </div>
+
+        
 
         <div className="md:col-span-2 flex gap-2 ml-7">
           <Button

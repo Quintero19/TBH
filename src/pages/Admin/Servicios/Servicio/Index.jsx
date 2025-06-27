@@ -58,35 +58,107 @@ const Servicios = () => {
 		navigate("/admin/servicios/agregar");
 	};
 
+	
+
 	const handleVerDetalles = async (Servicios) => {
-		try {
-			Swal.fire({
-				title: `Detalles Servicio ID: ${Servicios.Id_Servicios}`,
-				html: `
-          <div class="text-left">
-            <p><strong>nombre :</strong> ${Servicios.Nombre || "-"}</p>
-            <p><strong>precio:</strong> ${Servicios.Precio != null ? Math.floor(Servicios.Precio) : "-"}</p>
-            <p><strong>Duracion:</strong> ${Servicios.Duracion} min</p>
-            <p><strong>Descripcion:</strong> ${Servicios.Descripcion || "-"}</p>
-            <p><strong>Estado:</strong> ${Servicios.Estado ? "Activo" : "Inactivo"}</p>
+  try {
+    const html = `
+    <div class="space-y-7 text-gray-100">
+      <!-- Encabezado -->
+      <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
+        <h3 class="text-xl font-bold text-white">Detalles de Servicio</h3>
+        <span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+          ID: ${Servicios.Id_Servicios ?? "N/A"}
+        </span>
+      </div>
+
+      <!-- Campos -->
+      <div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+
+        <!-- Nombre -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Nombre
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${Servicios.Nombre ?? "-"}</div>
           </div>
-      `,
-				icon: "info",
-				confirmButtonText: "Cerrar",
-				padding: "1rem",
-				confirmButtonColor: "#3085d6",
-				background: "#000",
-				color: "#fff",
-			});
-		} catch (error) {
-			console.error("Error al obtener el Servicios:", error);
-			Swal.fire(
-				"Error",
-				"No se pudieron cargar los detalles del Servicios",
-				"error",
-			);
-		}
-	};
+        </div>
+
+        <!-- Precio -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Precio
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${Servicios.Precio != null ? Math.floor(Servicios.Precio) : "-"}</div>
+          </div>
+        </div>
+
+        <!-- Duración -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Duración
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${Servicios.Duracion ?? "-"} min</div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="relative md:col-span-2">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Descripción
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="text-white">${Servicios.Descripcion ?? "-"}</div>
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="relative md:col-span-2">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Estado
+          </label>
+          <div class="rounded-lg border pt-4 pb-2.5 px-4 ${
+            Servicios.Estado
+              ? "bg-[#112d25] border-emerald-500/30"
+              : "bg-[#2c1a1d] border-rose-500/30"
+          }">
+            <div class="font-medium ${
+              Servicios.Estado ? "text-emerald-300" : "text-rose-300"
+            }">
+              ${Servicios.Estado ? "Activo" : "Inactivo"}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    `;
+
+    Swal.fire({
+      title: `Detalles del Servicio`,
+      html: html,
+      icon: "info",
+      showConfirmButton: false,  // Esta línea elimina el botón "Cerrar"
+      padding: "1rem",
+      background: "#111827",
+      color: "#fff",
+      width: "600px",
+      timer: 3000  // La ventana se cerrará automáticamente después de 3 segundos
+    });
+  } catch (error) {
+    console.error("Error al obtener el Servicio:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudieron cargar los detalles del Servicio",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 3000
+    });
+  }
+};
 
 	const handleEdit = (Servicios) => {
 		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`);
