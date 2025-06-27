@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
@@ -118,7 +118,9 @@ const EditarTalla = () => {
 		}
 
 		try {
+			showLoadingAlert("Editando Talla...");
 			await tallasService.actualizarTalla(id, formData);
+			closeAlert();
 			showAlert("La Talla ha sido actualizada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -128,7 +130,9 @@ const EditarTalla = () => {
 			});
 		} catch (error) {
 			console.error("Error al actualizar la talla:", error);
-			showAlert("No se pudo actualizar la Talla", {
+			closeAlert();
+			const mensaje = error.response?.data?.message || "Error al agregar la talla";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 				duration: 2000,

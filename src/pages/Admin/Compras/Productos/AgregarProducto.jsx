@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { productoService } from "@/service/productos.service";
 import { catProductoService } from "@/service/categoriaProducto.service";
@@ -17,6 +17,7 @@ const AgregarProducto = () => {
     const [tallasDisponibles, setTallasDisponibles] = useState([]);
     const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+    const [inputFocused, setInputFocused] = useState(false);
 
 
     const [formData, setFormData] = useState({
@@ -167,6 +168,21 @@ const AgregarProducto = () => {
     const handleImageChange = (e) => {
         if (!e.target.files) return;
         const selected = Array.from(e.target.files);
+
+        const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
+
+        const archivosInvalidos = selected.filter(
+            (file) => !tiposPermitidos.includes(file.type)
+        );
+
+        if (archivosInvalidos.length > 0) {
+            setErrors((prev) => ({
+                ...prev,
+                imagenes: "Solo se permiten imágenes JPG, PNG o WEBP.",
+            }));
+            return;
+        }
+
         if (imagenes.length + selected.length > maxImagenes) {
             setErrors((prev) => ({
                 ...prev,
@@ -174,14 +190,18 @@ const AgregarProducto = () => {
             }));
             return;
         }
+
         setImagenes((prev) => [...prev, ...selected]);
         setErrors((prev) => {
             const newErr = { ...prev };
             delete newErr.imagenes;
             return newErr;
         });
-        e.target.value = "";
+
+        e.target.value = ""; // Reset file input
     };
+
+
     const removeImage = (idx) => {
         setImagenes((prev) => prev.filter((_, i) => i !== idx));
     };
@@ -231,6 +251,8 @@ const AgregarProducto = () => {
         }
 
         try {
+            showLoadingAlert("Guardando Producto...");
+
             const form = new FormData();
 
             for (const key in formData) {
@@ -252,6 +274,8 @@ const AgregarProducto = () => {
 
             await productoService.crearProducto(form);
 
+            closeAlert();
+
             showAlert("El producto ha sido guardado correctamente.", {
                 title: "¡Éxito!",
                 type: "success",
@@ -262,7 +286,9 @@ const AgregarProducto = () => {
 
         } catch (error) {
             console.error("Error al agregar el producto:", error);
-            showAlert("Error al agregar producto", {
+            closeAlert();
+            const mensaje = error.response?.data?.message || "Error al agregar el producto";
+            showAlert(mensaje, {
                 type: "error",
                 title: "Error",
                 duration: 2000,
@@ -390,8 +416,15 @@ const AgregarProducto = () => {
                                 name="Nombre"
                                 value={formData.Nombre}
                                 onChange={handleChange}
+                                onFocus={() => setInputFocused(true)}
+                                onBlur={() => setInputFocused(false)}
                                 className="w-full border border-gray-300 p-2 rounded"
                             />
+                                {inputFocused && (
+                                    <p className="text-gray-500 text-sm mt-1">
+                                        Sea Especifico con los Colores
+                                    </p>
+                                    )}
                                 {errors.Nombre && (
                                     <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
                                 )}
@@ -471,7 +504,7 @@ const AgregarProducto = () => {
                                 <input
                                     type="file"
                                     multiple
-                                    accept="image/*"
+                                    accept=".jpg,.jpeg,.png,.webp"
                                     onChange={handleImageChange}
                                     disabled={imagenes.length >= maxImagenes}
                                     className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"

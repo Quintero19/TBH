@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { insumoService } from "@/service/insumo.service";
 import { tamanosService } from "@/service/tamanos.service";
@@ -205,13 +205,17 @@ export default function EditarTamano() {
 		};
 
 		try {
+			showLoadingAlert("Editando Tamaño...");
 			await tamanosService.actualizarTamano(id, payload);
+			closeAlert()
 			showAlert("Actualizado", { type: "success", title: "¡Éxito!", duration: 2000}).then(() =>
 				navigate("/admin/tamanos"),
 			);
-		} catch (err) {
-			console.error(err);
-			showAlert("Error al actualizar", { type: "error", title: "Error", duration: 2000});
+		} catch (error) {
+			console.error(error);
+			closeAlert()
+			const mensaje = error.response?.data?.message || "Error al editar el tamaño";
+			showAlert(mensaje, { type: "error", title: "Error", duration: 2000});
 		}
 	};
 

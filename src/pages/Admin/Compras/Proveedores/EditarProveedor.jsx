@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { proveedorService } from "@/service/proveedores.service";
 import React, { useState, useEffect } from "react";
@@ -244,7 +244,9 @@ const EditarProveedor = () => {
 		}
 
 		try {
+			showLoadingAlert("Editando Proveedor...");
 			await proveedorService.actualizarProveedor(id, datosLimpios);
+			closeAlert()
 			showAlert("El proveedor ha sido actualizado correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -254,6 +256,7 @@ const EditarProveedor = () => {
 			});
 		} catch (error) {
 			console.error("Error al actualizar proveedor:", error);
+			closeAlert()
 			showAlert("No se pudo actualizar el proveedor", {
 				type: "error",
 				title: "Error",

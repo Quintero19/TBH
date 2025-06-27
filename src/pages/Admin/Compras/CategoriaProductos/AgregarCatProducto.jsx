@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import React, { useState } from "react";
@@ -86,7 +86,9 @@ const AgregarCatProducto = () => {
 		}
 
 		try {
+			showLoadingAlert("Guardando Categoria de Producto...");
 			await catProductoService.crearCategoria(formData);
+			closeAlert();
 			showAlert("La Categoria ha sido guardada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -96,7 +98,9 @@ const AgregarCatProducto = () => {
 			});
 		} catch (error) {
 			console.error("Error al agregar la categoria de producto:", error);
-			showAlert("Error al agregar la categoria de producto", {
+			closeAlert();
+			const mensaje = error.response?.data?.message || "Error al agregar la categoria de producto";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 				duration: 2000,

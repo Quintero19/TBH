@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { productoService } from "@/service/productos.service";
 import { catProductoService } from "@/service/categoriaProducto.service";
@@ -133,14 +133,34 @@ const EditarProducto = () => {
         validateField("Id_Categoria_Producto", value);
     };
 
+    useEffect(() => {
+        const categoriaSeleccionada = categorias.find(
+            (cat) => cat.Id_Categoria_Producto === parseInt(formData.Id_Categoria_Producto)
+        );
+
+        if (!categoriaSeleccionada) return;
+
+        setTallasDisponibles(categoriaSeleccionada.Tallas || []);
+
+        // Solo reiniciar tallas si venías de otra categoría y esta sí es ropa
+        const esNuevaCategoria = !tallasDisponibles.length && categoriaSeleccionada.Es_Ropa;
+
+        if (esNuevaCategoria) {
+            setTallasSeleccionadas([]); // solo si antes no había tallas cargadas
+        }
+
+        if (!categoriaSeleccionada.Es_Ropa) {
+            setTallasSeleccionadas([]);
+        }
+
+    }, [formData.Id_Categoria_Producto, categorias]);
+
     const handleTallaChange = (e) => {
         const id = parseInt(e.target.value);
         setTallasSeleccionadas((prev) =>
             e.target.checked ? [...prev, id] : prev.filter((t) => t !== id)
         );
     };
-
-
 
     useEffect(() => {
         const total = imagenesExistentes.length + imagenesNuevas.length;
@@ -162,14 +182,51 @@ const EditarProducto = () => {
 
     const handleImageChange = (e) => {
         if (!e.target.files) return;
+
         const seleccionadas = Array.from(e.target.files);
         const total = imagenesExistentes.length + imagenesNuevas.length;
+
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+        ];
+
+        const archivosInvalidos = seleccionadas.filter(
+            (file) => !tiposPermitidos.includes(file.type)
+        );
+
+        if (archivosInvalidos.length > 0) {
+            setErrors((prev) => ({
+                ...prev,
+                imagenes: "Solo se permiten imágenes JPG, PNG, WEBP.",
+            }));
+
+            setTimeout(() => {
+                setErrors((prev) => {
+                    const err = { ...prev };
+                    delete err.imagenes;
+                    return err;
+                });
+            }, 5000);
+
+            return;
+        }
 
         if (total + seleccionadas.length > maxImagenes) {
             setErrors((prev) => ({
                 ...prev,
                 imagenes: `Máximo ${maxImagenes} imágenes permitidas.`,
             }));
+
+            setTimeout(() => {
+                setErrors((prev) => {
+                    const err = { ...prev };
+                    delete err.imagenes;
+                    return err;
+                });
+            }, 5000);
+
             return;
         }
 
@@ -183,6 +240,7 @@ const EditarProducto = () => {
 
         e.target.value = "";
     };
+
 
     const removeNuevaImagen = (idx) => {
         setImagenesNuevas((prev) => prev.filter((_, i) => i !== idx));
@@ -267,17 +325,17 @@ const EditarProducto = () => {
         }
 
         try {
+            showLoadingAlert("Editando Producto...");
+
             const form = new FormData();
 
-            // Añadir campos base
             for (const key in formData) {
                 if (key === "Id_Insumos" && formData.Id_Categoria_Producto == 3) {
-                    form.append(
-                        "InsumoExtra",
-                        JSON.stringify({ Id_Insumos: parseInt(formData.Id_Insumos) })
-                    );
+                    form.append("InsumoExtra", JSON.stringify({ Id_Insumos: parseInt(formData.Id_Insumos) }));
+                } else if ((key === "Precio_Venta" || key === "Precio_Compra") && formData.Id_Categoria_Producto == 3) {
+                    form.append(key, ""); // ← En lugar de "null", envías vacío
                 } else {
-                    form.append(key, formData[key]);
+                    form.append(key, formData[key] ?? "");
                 }
             }
 
@@ -303,6 +361,8 @@ const EditarProducto = () => {
 
             await productoService.actualizarProducto(id, form);
 
+            closeAlert();
+
             showAlert("Producto actualizado correctamente.", {
                 title: "¡Éxito!",
                 type: "success",
@@ -311,7 +371,8 @@ const EditarProducto = () => {
                 navigate("/admin/productos");
             });
         } catch (error) {
-            const mensaje = error.response?.data?.message || "Error al actualizar";
+            const mensaje = error.response?.data?.message || "Error al actualizar producto";
+            closeAlert();
             showAlert(mensaje, {
                 type: "error",
                 title: "Error",
