@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import React, { useState, useEffect } from "react";
@@ -111,7 +111,9 @@ const EditarCatProducto = () => {
 		}
 
 		try {
+			showLoadingAlert("Editando Categoria de Producto...");
 			await catProductoService.actualizarCategoria(id, formData);
+			closeAlert();
 			showAlert("La Categoria ha sido actualizada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -121,7 +123,9 @@ const EditarCatProducto = () => {
 			});
 		} catch (error) {
 			console.error("Error al actualizar la categoria:", error);
-			showAlert("No se pudo actualizar la categoria", {
+			closeAlert();
+			const mensaje = error.response?.data?.message || "Error al editar la categoria de producto";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 				duration: 2000,

@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { proveedorService } from "@/service/proveedores.service";
 import React, { useState } from "react";
@@ -217,7 +217,9 @@ const AgregarProveedor = () => {
 		}
 
 		try {
+			showLoadingAlert("Guardando Proveedor...");
 			await proveedorService.crearProveedor(formData);
+			closeAlert()
 			showAlert("El proveedor ha sido guardado correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -227,6 +229,7 @@ const AgregarProveedor = () => {
 			});
 		} catch (error) {
 			console.error("Error al agregar proveedor:", error);
+			closeAlert()
 			showAlert("Error al agregar proveedor", {
 				type: "error",
 				title: "Error",

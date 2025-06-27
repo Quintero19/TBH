@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
@@ -100,7 +100,9 @@ const AgregarTalla = () => {
 		}
 
 		try {
+			showLoadingAlert("Guardando Talla...");
 			await tallasService.crearTalla(formData);
+			closeAlert();
 			showAlert("La Talla ha sido guardada correctamente.", {
 				title: "¡Éxito!",
 				type: "success",
@@ -110,7 +112,9 @@ const AgregarTalla = () => {
 			});
 		} catch (error) {
 			console.error("Error al agregar la Talla:", error);
-			showAlert("Error al agregar la Talla", {
+			closeAlert();
+			const mensaje = error.response?.data?.message || "Error al agregar la talla";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 				duration: 2000,

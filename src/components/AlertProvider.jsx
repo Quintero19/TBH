@@ -17,12 +17,14 @@ const typeConfig = {
 	error: { icon: "error" },
 };
 
-/* ---------- Variable global privada ---------- */
+/* ---------- Variables globales privadas ---------- */
 let _globalOpenAlert = null;
+let _globalShowLoadingAlert = null;
+let _globalCloseAlert = null;
 
 /* ---------- Alerta ---------- */
 export function AlertProvider({ children }) {
-	/* Función única que dispara SwAl2 */
+	/* Función que dispara una alerta normal */
 	const openAlert = useCallback((message, options = {}) => {
 		const type = options.type || "info";
 		const config = typeConfig[type] || typeConfig.info;
@@ -48,18 +50,52 @@ export function AlertProvider({ children }) {
 		});
 	}, []);
 
+	const showLoadingAlert = useCallback((message = "Cargando...", options = {}) => {
+		return Swal.fire({
+			title: options.title || "Por favor espere",
+			html: message,
+			allowOutsideClick: false,
+			allowEscapeKey: false,
+			showConfirmButton: false,
+			background: "#000000",
+			color: "#ffffff",
+			customClass: {
+				confirmButton: "swal-confirm-button",
+			},
+			...options.swalOptions,
+			didOpen: () => {
+				Swal.showLoading();
+			},
+		});
+	}, []);
+
+	const closeAlert = () => {
+		Swal.close();
+	};
+
 	useEffect(() => {
 		_globalOpenAlert = openAlert;
+		_globalShowLoadingAlert = showLoadingAlert;
+		_globalCloseAlert = closeAlert;
+
 		window.showAlert = openAlert;
+		window.showLoadingAlert = showLoadingAlert;
+		window.closeAlert = closeAlert;
 
 		return () => {
 			_globalOpenAlert = null;
+			_globalShowLoadingAlert = null;
+			_globalCloseAlert = null;
+
 			window.showAlert = undefined;
+			window.showLoadingAlert = undefined;
+			window.closeAlert = undefined;
 		};
-	}, [openAlert]);
+	}, [openAlert, showLoadingAlert]);
+
 
 	return (
-		<AlertContext.Provider value={{ openAlert }}>
+		<AlertContext.Provider value={{ openAlert, showLoadingAlert }}>
 			{children}
 		</AlertContext.Provider>
 	);
@@ -78,3 +114,19 @@ export const showAlert = (message, options = {}) => {
 	console.warn("AlertProvider no está montado todavía.");
 	return Promise.resolve();
 };
+
+export const showLoadingAlert = (message, options = {}) => {
+	if (typeof _globalShowLoadingAlert === "function") {
+		return _globalShowLoadingAlert(message, options);
+	}
+	console.warn("AlertProvider no está montado todavía.");
+	return Promise.resolve();
+};
+
+export const closeAlert = () => {
+	if (typeof _globalCloseAlert === "function") {
+		return _globalCloseAlert();
+	}
+	console.warn("AlertProvider no está montado todavía.");
+};
+

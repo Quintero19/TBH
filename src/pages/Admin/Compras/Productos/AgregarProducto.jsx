@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { productoService } from "@/service/productos.service";
 import { catProductoService } from "@/service/categoriaProducto.service";
@@ -13,6 +13,12 @@ const AgregarProducto = () => {
     const [fragancias, setFragancias] = useState([]);
     const [imagenes, setImagenes] = useState([]);
     const maxImagenes = 5;
+
+    const [tallasDisponibles, setTallasDisponibles] = useState([]);
+    const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+    const [inputFocused, setInputFocused] = useState(false);
+
 
     const [formData, setFormData] = useState({
         Id_Categoria_Producto: "",
@@ -115,21 +121,32 @@ const AgregarProducto = () => {
 
     const handleCategoriaChange = (e) => {
         const categoriaId = e.target.value;
+        const categoria = categorias.find(cat => cat.Id_Categoria_Producto.toString() === categoriaId);
 
         setFormData((prev) => ({
             ...prev,
             Id_Categoria_Producto: categoriaId,
             ...(categoriaId === "3"
-                ? {
-                    Id_Insumos: prev.Id_Insumos,
-                }
-                : {
-                    Id_Insumos: "",
-                }),
+                ? { Id_Insumos: prev.Id_Insumos }
+                : { Id_Insumos: "" }),
         }));
+
+        setCategoriaSeleccionada(categoria || null);
+        setTallasDisponibles(categoria?.Tallas || []);
+        setTallasSeleccionadas([]);
 
         validateField("Id_Categoria_Producto", categoriaId);
     };
+
+    const toggleTalla = (idTalla) => {
+        setTallasSeleccionadas((prev) =>
+            prev.includes(idTalla)
+                ? prev.filter((id) => id !== idTalla)
+                : [...prev, idTalla]
+        );
+    };
+
+
 
     useEffect(() => {
         setErrors((prev) => {
@@ -151,6 +168,21 @@ const AgregarProducto = () => {
     const handleImageChange = (e) => {
         if (!e.target.files) return;
         const selected = Array.from(e.target.files);
+
+        const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
+
+        const archivosInvalidos = selected.filter(
+            (file) => !tiposPermitidos.includes(file.type)
+        );
+
+        if (archivosInvalidos.length > 0) {
+            setErrors((prev) => ({
+                ...prev,
+                imagenes: "Solo se permiten imágenes JPG, PNG o WEBP.",
+            }));
+            return;
+        }
+
         if (imagenes.length + selected.length > maxImagenes) {
             setErrors((prev) => ({
                 ...prev,
@@ -158,14 +190,18 @@ const AgregarProducto = () => {
             }));
             return;
         }
+
         setImagenes((prev) => [...prev, ...selected]);
         setErrors((prev) => {
             const newErr = { ...prev };
             delete newErr.imagenes;
             return newErr;
         });
-        e.target.value = "";
+
+        e.target.value = ""; // Reset file input
     };
+
+
     const removeImage = (idx) => {
         setImagenes((prev) => prev.filter((_, i) => i !== idx));
     };
@@ -179,6 +215,7 @@ const AgregarProducto = () => {
             try {
                 const response = await catProductoService.obtenerCategorias();
                 setCategorias(response.data);
+                console.log(response)
             } catch (error) {
                 console.error("Error al obtener categorías:", error);
             }
@@ -214,6 +251,8 @@ const AgregarProducto = () => {
         }
 
         try {
+            showLoadingAlert("Guardando Producto...");
+
             const form = new FormData();
 
             for (const key in formData) {
@@ -224,11 +263,18 @@ const AgregarProducto = () => {
                 }
             }
 
+            if (categoriaSeleccionada?.Es_Ropa && tallasSeleccionadas.length > 0) {
+                const tallasFormateadas = tallasSeleccionadas.map((id) => ({ Id_Tallas: id }));
+                form.append("TallasSeleccionadas", JSON.stringify(tallasFormateadas));
+            }
+
             imagenes.forEach((img) => {
                 form.append("imagenes", img); 
             });
 
             await productoService.crearProducto(form);
+
+            closeAlert();
 
             showAlert("El producto ha sido guardado correctamente.", {
                 title: "¡Éxito!",
@@ -240,7 +286,9 @@ const AgregarProducto = () => {
 
         } catch (error) {
             console.error("Error al agregar el producto:", error);
-            showAlert("Error al agregar producto", {
+            closeAlert();
+            const mensaje = error.response?.data?.message || "Error al agregar el producto";
+            showAlert(mensaje, {
                 type: "error",
                 title: "Error",
                 duration: 2000,
@@ -368,8 +416,15 @@ const AgregarProducto = () => {
                                 name="Nombre"
                                 value={formData.Nombre}
                                 onChange={handleChange}
+                                onFocus={() => setInputFocused(true)}
+                                onBlur={() => setInputFocused(false)}
                                 className="w-full border border-gray-300 p-2 rounded"
                             />
+                                {inputFocused && (
+                                    <p className="text-gray-500 text-sm mt-1">
+                                        Sea Especifico con los Colores
+                                    </p>
+                                    )}
                                 {errors.Nombre && (
                                     <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
                                 )}
@@ -389,6 +444,28 @@ const AgregarProducto = () => {
                                 <p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
                             )}
                         </div>
+
+                    {categoriaSeleccionada?.Es_Ropa && (
+                        <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
+                            <h3 className="text-2xl text-black font-bold mb-2">
+                                Tallas Disponibles <span className="text-red-500">*</span>
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
+                                {tallasDisponibles.map((talla) => (
+                                    <label key={talla.Id_Tallas} className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            value={talla.Id_Tallas}
+                                            checked={tallasSeleccionadas.includes(talla.Id_Tallas)}
+                                            onChange={() => toggleTalla(talla.Id_Tallas)}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-black">{talla.Nombre}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
                             <h3 className="text-2xl text-black font-bold mb-2">
@@ -427,7 +504,7 @@ const AgregarProducto = () => {
                                 <input
                                     type="file"
                                     multiple
-                                    accept="image/*"
+                                    accept=".jpg,.jpeg,.png,.webp"
                                     onChange={handleImageChange}
                                     disabled={imagenes.length >= maxImagenes}
                                     className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { comprasService } from "@/service/compras.service";
 import { proveedorService } from "@/service/proveedores.service";
@@ -23,10 +23,27 @@ const AgregarCompra = () => {
     const [detalleActual, setDetalleActual] = useState({
         tipo: "Insumo",
         idItemSeleccionado: "",
-        cantidad: 1,
-        precio: 0,
+        cantidad: "",
+        precio: "",
         tallas: [],
+        unidadMedida: "",
     });
+
+    const opcionesUnidad = [
+        { value: "Unidades", label: "Unidades" },
+        { value: "Ml", label: "Mililitros" },
+        { value: "L", label: "Litros" },
+        { value: "Onza", label: "Onza" },
+        { value: "Galon", label: "Galón" },
+    ];
+
+    const conversionesUnidadAMl = {
+        Unidad: 1,
+        Ml: 1,
+        L: 1000,
+        Onza: 29.5735,
+        Galon: 3785.41,
+    };
 
     const obtenerDatos = useCallback(async () => {
         try {
@@ -38,6 +55,8 @@ const AgregarCompra = () => {
             setProveedores(transformData(resProveedores.data));
             setInsumos(resInsumos.data);
             setProductos(resProductos.data);
+
+            console.log(resInsumos)
         } catch (error) {
             console.error(error);
             showAlert("Error cargando Datos ", { type: "error",  duration: 2000 });
@@ -52,10 +71,11 @@ const AgregarCompra = () => {
         const { name, value } = e.target;
         setDetalleActual((prev) => ({
             ...prev,
-            [name]: ["precio", "cantidad"].includes(name) ? Number(value) : value,
+            [name]: ["precio", "cantidad"].includes(name)
+                ? value === "" ? 0 : Number(value)
+                : value,
         }));
     };
-
 
     const transformData = useCallback(
         (data) =>
@@ -90,10 +110,18 @@ const AgregarCompra = () => {
     }, [detalleActual.tipo, detalleActual.idItemSeleccionado, productos]);
 
     const actualizarCantidadTalla = (index, cantidad) => {
+        const cantidadNumerica = cantidad === "" ? 0 : Number(cantidad);
         setDetalleActual((prev) => {
             const tallasActualizadas = [...prev.tallas];
-            tallasActualizadas[index].cantidad = +cantidad;
-            return { ...prev, tallas: tallasActualizadas };
+            tallasActualizadas[index].cantidad = cantidadNumerica;
+
+            const sumaTotal = tallasActualizadas.reduce((acc, t) => acc + t.cantidad, 0);
+
+            return {
+                ...prev,
+                tallas: tallasActualizadas,
+                cantidad: sumaTotal,
+            };
         });
     };
 
@@ -125,13 +153,31 @@ const AgregarCompra = () => {
 
         const nuevoDetalle = {
             Cantidad: Number(detalleActual.cantidad),
-            Subtotal: Number(detalleActual.precio),
         };
 
-        if (detalleActual.tipo === "Insumo") {
-            nuevoDetalle.Id_Insumos = +detalleActual.idItemSeleccionado;
-        } else {
+    if (detalleActual.tipo === "Insumo") {
+        if (!detalleActual.unidadMedida) {
+            return showAlert("Selecciona una unidad de medida", { type: "warning" });
+        }
+
+        const factorConversion = conversionesUnidadAMl[detalleActual.unidadMedida] || 1;
+        const cantidadOriginal = Number(detalleActual.cantidad);
+        const cantidadEnMl = cantidadOriginal * factorConversion;
+
+        if (cantidadEnMl === 0) {
+            return showAlert("La cantidad convertida no puede ser cero", { type: "warning" });
+        }
+
+        nuevoDetalle.Id_Insumos = +detalleActual.idItemSeleccionado;
+        nuevoDetalle.Unidad_Medida = detalleActual.unidadMedida;
+        nuevoDetalle.CantidadOriginal = cantidadOriginal;
+        nuevoDetalle.Cantidad = cantidadEnMl; // esta se enviará al backend
+        nuevoDetalle.Subtotal = Number(detalleActual.precio);
+        nuevoDetalle.Precio_Unitario = Number(detalleActual.precio) / cantidadEnMl;
+    } else {
             nuevoDetalle.Id_Productos = +detalleActual.idItemSeleccionado;
+            nuevoDetalle.Precio_Unitario = Number(detalleActual.precio);
+
             if (detalleActual.tallas.length) {
                 const totalTallas = detalleActual.tallas.reduce((suma, t) => suma + t.cantidad, 0);
                 if (totalTallas !== nuevoDetalle.Cantidad) {
@@ -153,17 +199,37 @@ const AgregarCompra = () => {
         setDetalleActual({
             tipo: "Insumo",
             idItemSeleccionado: "",
-            cantidad: 1,
-            precio: 0,
+            cantidad: "",
+            precio: "",
             tallas: [],
+            unidadMedida: "",
         });
+
     };
 
     const eliminarDetalleCompra = (index) => {
         setListaDetalles((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const totalCompra = listaDetalles.reduce((suma, d) => suma + d.Subtotal, 0);
+    const totalCompra = listaDetalles.reduce((suma, d) => {
+        if (d.Subtotal) return suma + d.Subtotal;
+        if (d.Precio_Unitario) return suma + (d.Precio_Unitario * d.Cantidad);
+        return suma;
+    }, 0);
+
+    const insumoSeleccionado = insumos.find(
+        (ins) => ins.Id_Insumos === +detalleActual.idItemSeleccionado
+    );
+    const esFrasco = detalleActual.tipo === "Insumo" && insumoSeleccionado?.Categoria === "Frasco";
+
+    useEffect(() => {
+        if (esFrasco && detalleActual.unidadMedida !== "Unidades") {
+            setDetalleActual((prev) => ({
+                ...prev,
+                unidadMedida: "Unidades",
+            }));
+        }
+    }, [esFrasco, detalleActual.unidadMedida]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -172,7 +238,6 @@ const AgregarCompra = () => {
             setErrorProveedor(true);
             return;
         }
-
 
         if (!listaDetalles.length) {
             return showAlert("Agrega al menos un producto o insumo", { type: "error" });
@@ -184,12 +249,15 @@ const AgregarCompra = () => {
         };
 
         try {
+            showLoadingAlert("Generando Compra...");
             await comprasService.crearCompra(nuevaCompra);
+            closeAlert();
             showAlert("Compra registrada con éxito", { title: "¡Éxito!", type: "success", duration: 2000, }).then(() =>
                 navigate("/admin/compras")
             );
         } catch (error) {
             console.error(error);
+            closeAlert();
             showAlert("Error al registrar la compra", { type: "error" });
         }
     };
@@ -260,7 +328,7 @@ const AgregarCompra = () => {
                 <div className="bg-white p-6 rounded shadow border border-gray-200 md:col-span-2 space-y-4">
                     <h2 className="text-2xl font-bold">Agregar Productos / Insumos</h2>
 
-                    <div className="grid grid-cols-6 gap-4 items-end">
+                    <div className="grid grid-cols-7 gap-4 items-end">
 
                         <div className="col-span-1">
                             <h3 className="text-xl font-bold mb-3 text-black">Tipo</h3>
@@ -291,7 +359,7 @@ const AgregarCompra = () => {
                                     detalleActual.tipo === "Insumo"
                                         ? insumos.map((ins) => ({
                                             value: ins.Id_Insumos,
-                                            label: ins.Nombre,
+                                            label: `${ins.Categoria} - ${ins.Nombre}`,
                                         }))
                                         : productos.map((prod) => ({
                                             value: prod.Id_Productos,
@@ -323,30 +391,75 @@ const AgregarCompra = () => {
                             />
                         </div>
 
+                    {detalleActual.tipo === "Insumo" && (
+                        <div className="col-span-1">
+                            <h3 className="text-xl font-bold mb-3 text-black">Unidad de Medida</h3>
+                            <Select
+                                isClearable={!esFrasco}
+                                isDisabled={esFrasco}
+                                placeholder="Seleccione"
+                                options={opcionesUnidad}
+                                value={
+                                    opcionesUnidad.find(op => op.value === detalleActual.unidadMedida) || null
+                                }
+                                onChange={(opcion) =>
+                                    setDetalleActual((prev) => ({
+                                        ...prev,
+                                        unidadMedida: opcion ? opcion.value : "",
+                                    }))
+                                }
+                            />
+                        </div>
+                    )}
+
                         <div className="col-span-1">
                             <h3 className="text-xl font-bold mb-3 text-black">Cantidad</h3>
                             <input
                                 type="number"
                                 name="cantidad"
                                 min="1"
-                                value={detalleActual.cantidad}
+                                value={detalleActual.cantidad === 0 ? "" : detalleActual.cantidad}
                                 onChange={manejarCambioDetalle}
+                                onKeyDown={(e) => {
+                                    if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+                                }}
+                                onPaste={(e) => {
+                                    const pasted = e.clipboardData.getData("text");
+                                    if (/[eE\+\-]/.test(pasted)) {
+                                        e.preventDefault();
+                                    }
+                                }}
+                                disabled={
+                                    detalleActual.tipo === "Producto" &&
+                                    productos.find((p) => p.Id_Productos === +detalleActual.idItemSeleccionado)?.Es_Ropa
+                                }
                                 className="border p-2 rounded w-full h-[38px]"
                             />
                         </div>
 
                         <div className="col-span-1">
-                            <h3 className="text-xl font-bold mb-3 text-black">Subtotal</h3>
+                            <h3 className="text-xl font-bold mb-3 text-black">
+                                {detalleActual.tipo === "Producto" ? "Precio Unitario" : "Subtotal"}
+                            </h3>
                             <input
                                 type="number"
                                 name="precio"
                                 min="0"
-                                value={detalleActual.precio}
+                                step="0.01"
+                                value={detalleActual.precio === 0 ? "" : detalleActual.precio}
                                 onChange={manejarCambioDetalle}
+                                onPaste={(e) => {
+                                    const pasted = e.clipboardData.getData("text");
+                                    if (/[eE\+\-]/.test(pasted)) {
+                                        e.preventDefault();
+                                    }
+                                }}
+                                onKeyDown={(e) => {
+                                    if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+                                }}
                                 className="border p-2 rounded w-full h-[38px]"
                             />
                         </div>
-
                         <div className="col-span-1">
                             <Button icon="fa-plus" className="green" onClick={agregarDetalleCompra}>
                                 <div className="flex items-center gap-2">Agregar</div>
@@ -355,15 +468,25 @@ const AgregarCompra = () => {
                     </div>
 
                     {detalleActual.tipo === "Producto" && detalleActual.tallas.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">|
                             {detalleActual.tallas.map((talla, i) => (
                                 <div key={i}>
-                                    <label className="block">{talla.nombre}</label>
+                                    <h3 className="text-xl font-bold mb-3 text-black">{talla.nombre}</h3>
                                     <input
                                         type="number"
                                         min="0"
-                                        value={talla.cantidad}
+                                        value={talla.cantidad === 0 ? "" : talla.cantidad}
                                         onChange={(e) => actualizarCantidadTalla(i, e.target.value)}
+                                        placeholder="Cantidad"
+                                        onKeyDown={(e) => {
+                                            if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+                                        }}
+                                        onPaste={(e) => {
+                                            const pasted = e.clipboardData.getData("text");
+                                            if (/[eE\+\-]/.test(pasted)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                         className="border p-2 rounded w-full h-[38px]"
                                     />
                                 </div>
@@ -392,7 +515,7 @@ const AgregarCompra = () => {
                                         const producto = productos.find((p) => p.Id_Productos === d.Id_Productos);
                                         return (
                                             <tr key={i} className="border-b">
-                                                <td className="p-2">{producto?.Nombre}</td>
+                                                <td className="p-2">{producto.Categoria} - {producto?.Nombre}</td>
                                                 <td className="p-2">{d.Cantidad}</td>
                                                 <td className="p-2">
                                                     {d.tallas
@@ -405,8 +528,24 @@ const AgregarCompra = () => {
                                                         })
                                                         .join(", ")}
                                                 </td>
-                                                <td className="p-2">${(d.Subtotal / d.Cantidad).toFixed(2)}</td>
-                                                <td className="p-2">${d.Subtotal.toLocaleString()}</td>
+                                                <td className="p-2">
+                                                    ${Number(
+                                                        d.Precio_Unitario ?? d.Subtotal / d.Cantidad
+                                                    ).toLocaleString("es-CO", {
+                                                        minimumFractionDigits: 0,
+                                                        maximumFractionDigits: 0,
+                                                    })}
+                                                </td>
+                                                <td className="p-2">
+                                                    ${Number(
+                                                        d.Precio_Unitario
+                                                            ? d.Precio_Unitario * d.Cantidad
+                                                            : d.Subtotal
+                                                    ).toLocaleString("es-CO", {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2,
+                                                    })}
+                                                </td>
                                                 <td className="p-2">
                                                     <Button className="red" onClick={() => eliminarDetalleCompra(i)}>
                                                         <div className="flex items-center gap-2">Eliminar</div>
@@ -430,6 +569,7 @@ const AgregarCompra = () => {
                                     <tr>
                                         <th className="p-2">Insumo</th>
                                         <th className="p-2">Cantidad</th>
+                                        <th className="p-2">Cantidad Unidad</th>
                                         <th className="p-2">Precio Unidad</th>
                                         <th className="p-2">Subtotal</th>
                                         <th className="p-2">Acciones</th>
@@ -441,9 +581,31 @@ const AgregarCompra = () => {
                                         return (
                                             <tr key={i} className="border-b">
                                                 <td className="p-2">{insumo?.Nombre}</td>
-                                                <td className="p-2">{d.Cantidad}</td>
-                                                <td className="p-2">${(d.Subtotal / d.Cantidad).toFixed(2)}</td>
-                                                <td className="p-2">${d.Subtotal.toLocaleString()}</td>
+                                                <td className="p-2">
+                                                    {d.CantidadOriginal} {d.Unidad_Medida}
+                                                </td>
+                                                <td className="p-2">
+                                                    {d.Unidad_Medida === "Unidades"
+                                                        ? d.Cantidad.toLocaleString("es-CO", {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 0,
+                                                        })
+                                                        : `${d.Cantidad.toLocaleString("es-CO", {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })} ml`}
+                                                </td>
+
+                                                <td className="p-2">
+                                                    ${Math.round(d.Precio_Unitario).toLocaleString("es-CO")}
+                                                </td>
+                                                <td className="p-2">
+                                                    ${d.Subtotal.toLocaleString("es-CO", {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2,
+                                                    })}
+                                                </td>
+
                                                 <td className="p-2">
                                                     <Button className="red" onClick={() => eliminarDetalleCompra(i)}>
                                                         <div className="flex items-center gap-2">Eliminar</div>
@@ -472,7 +634,6 @@ const AgregarCompra = () => {
                 </div>
             </form>
         </>
-
     );
 };
 

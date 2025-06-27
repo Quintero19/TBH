@@ -1,4 +1,4 @@
-import { showAlert } from "@/components/AlertProvider";
+import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { insumoService } from "@/service/insumo.service";
 import { tamanosService } from "@/service/tamanos.service";
@@ -218,6 +218,7 @@ function AgregarTamano() {
 			});
 		}
 		try {
+			showLoadingAlert("Guardando Tamaño...");
 			const resTamaño = await tamanosService.crearTamano(formData);
 			const Id_Tamano = resTamaño.data.Id_Tamano;
 
@@ -229,6 +230,7 @@ function AgregarTamano() {
 				await tamanosService.crearRelaciones({ Id_Tamano, ...frasco });
 			}
 
+			closeAlert()
 			showAlert("Tamaño guardado correctamente", {
 				title: "¡Éxito!",
 				type: "success",
@@ -236,7 +238,9 @@ function AgregarTamano() {
 			}).then(() => navigate("/admin/tamanos"));
 		} catch (error) {
 			console.error("Error al agregar el Tamaño:", error);
-			showAlert("Error al agregar el Tamaño", {
+			closeAlert()
+			const mensaje = error.response?.data?.message || "Error al agregar el tamaño";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 				duration: 2000,
