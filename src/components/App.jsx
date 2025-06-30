@@ -47,6 +47,7 @@ import ClientesAgregar from "../pages/Admin/Usuarios/Ventas/Clientes/Agregar";
 import ClientesEditar from "../pages/Admin/Usuarios/Ventas/Clientes/Editar";
 import DevolucionesAdmin from "../pages/Admin/Usuarios/Ventas/Devoluciones/Index";
 import VentaAdmin from "../pages/Admin/Usuarios/Ventas/Venta/Index";
+import AgregarVenta from "../pages/Admin/Usuarios/Ventas/Venta/AgregarVenta";
 import AgregarNovedad from "../pages/Admin/Servicios/Horarios/AgregarNovedad"
 import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
@@ -140,6 +141,8 @@ function App() {
 				{/* Rutas de ventas */}
 
 				<Route path="ventas" element={<VentaAdmin />} />
+				<Route path="ventas/agregar" element={<AgregarVenta />} />
+
 				<Route path="clientes" element={<ClienteAdmin />} />
 				<Route path="clientes/agregar" element={<ClientesAgregar />} />
 				<Route path="clientes/editar/:id" element={<ClientesEditar />} />
