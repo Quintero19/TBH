@@ -12,6 +12,7 @@ export default function AgregarUsuario() {
 	const [roles, setRoles] = useState([]);
 	const [mostrarPassword, setMostrarPassword] = useState(false);
 	const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
+	const [rolNombreSeleccionado, setRolNombreSeleccionado] = useState("");
 
 	const [formData, setFormData] = useState({
 		Documento: "",
@@ -20,6 +21,14 @@ export default function AgregarUsuario() {
 		confirmPassword: "",
 		Rol_Id: "",
 		Estado: true,
+
+		//Campos Adicionales
+		Tipo_Documento: "",
+		Nombre: "",
+		Celular: "",
+		F_Nacimiento: "",
+		Direccion : "",
+		Sexo : "",
 	});
 
 	useEffect(() => {
@@ -46,6 +55,12 @@ export default function AgregarUsuario() {
 
 		if (name === "Estado") {
 			val = value === "true";
+		}
+
+		if (name === "Rol_Id") {
+			const id = Number(value);
+			const rolSeleccionado = roles.find((r) => r.Id === id);
+			setRolNombreSeleccionado(rolSeleccionado?.Nombre || "");
 		}
 
 		setFormData((prev) => ({ ...prev, [name]: val }));
@@ -106,6 +121,51 @@ export default function AgregarUsuario() {
 		if (!Rol_Id) {
 			return showAlert("Debe seleccionar un rol.", { type: "error", title: "Datos inválidos" });
 		}
+
+		if (["Cliente", "Empleado"].includes(rolNombreSeleccionado)) {
+			const {
+				Tipo_Documento,
+				Nombre,
+				Direccion,
+				Celular,
+				F_Nacimiento,
+				Sexo,
+			} = formData;
+
+			if (!Tipo_Documento.trim()) {
+				return showAlert("Debe seleccionar el tipo de documento.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!Nombre.trim()) {
+				return showAlert("Debe ingresar el nombre completo.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!Direccion.trim()) {
+				return showAlert("Debe ingresar la dirección.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!Celular.trim()) {
+				return showAlert("Debe ingresar el número de celular.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!/^\d{10}$/.test(Celular)) {
+				return showAlert("El número de celular debe tener exactamente 10 dígitos.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!F_Nacimiento.trim()) {
+				return showAlert("Debe ingresar la fecha de nacimiento.", { type: "error", title: "Datos inválidos" });
+			}
+
+			const fechaNacimiento = new Date(F_Nacimiento);
+			if (isNaN(fechaNacimiento.getTime())) {
+				return showAlert("La fecha de nacimiento no es válida.", { type: "error", title: "Datos inválidos" });
+			}
+
+			if (!Sexo.trim()) {
+				return showAlert("Debe seleccionar el sexo.", { type: "error", title: "Datos inválidos" });
+			}
+		}
+
 
 		try {
 			const usuarios = await userService.listarUsuarios();
@@ -269,6 +329,79 @@ export default function AgregarUsuario() {
 						</select>
 					</div>
 
+					{["Cliente","Empleado"].includes(rolNombreSeleccionado) && (
+						<>
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+								<h3 className="text-2xl text-black font-bold mb-2 block">
+                            Tipo de Documento <span className="text-red-500">*</span>
+                        </h3>
+                        <select
+                            name="Tipo_Documento"
+                            value={formData.Tipo_Documento}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded"
+                        >
+                            <option value="">Selecciona tipo</option>
+                            <option value="T.I">T.I</option>
+                            <option value="C.C">C.C</option>
+                            <option value="C.E">C.E</option>
+                        </select>
+							</div>
+
+							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+								<h3 className="text-2xl text-black font-bold mb-2 block">
+									Nombre completo <span className="text-red-500">*</span>
+								</h3>
+								<input type="text" name="Nombre" value={formData.Nombre} onChange={handleChange} className="w-full p-2 border rounded" />
+							</div>
+							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+								<h3 className="text-2xl text-black font-bold mb-2 block">
+									Dirección <span className="text-red-500">*</span>
+								</h3>
+								<input type="text" name="Direccion" value={formData.Direccion} onChange={handleChange} className="w-full p-2 border rounded" />
+							</div>
+							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+								<h3 className="text-2xl text-black font-bold mb-2 block">
+									Celular <span className="text-red-500">*</span>
+								</h3>
+								<input type="number" name="Celular" value={formData.Celular} onChange={handleChange} className="w-full p-2 border rounded" />
+							</div>
+					
+
+							<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+								<h3 className="text-2xl text-black font-bold mb-2 block">
+                            Fecha de Nacimiento <span className="text-red-500">*</span>
+                        	</h3>
+							<input
+								type="date"
+								name="F_Nacimiento"
+								value={formData.F_Nacimiento}
+								onChange={handleChange}
+								className="w-full p-2 border rounded"
+							/>	
+							</div>
+
+						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+							<h3 className="text-2xl text-black font-bold mb-2 block">
+                            Sexo <span className="text-red-500">*</span>
+                        </h3>
+                        <select
+                            name="Sexo"
+                            value={formData.Sexo}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded"
+                        >
+                            <option value="">Selecciona</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                        </select>
+							</div>
+						</>
+						
+					)}
+
+					
+					
 					<div className="md:col-span-2 flex gap-2 ml-7">
 						<Button icon="fa-floppy-o" className="green" type="submit">
 							{" "}

@@ -13,6 +13,12 @@ export const empleadoService = {
 		return res.data;
 	},
 
+	listarEmpleadoPorDocumento: async (documento) => {
+        const res = await api.get(`${EMPLEADO_URL}/documento/${documento}`);
+        return res.data;
+    },
+
+
 	obtenerEmpleadosActivos: async () => {
     try {
       const res = await api.get(`${EMPLEADO_URL}/activos`);

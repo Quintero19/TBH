@@ -1,4 +1,4 @@
-import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
@@ -89,15 +89,17 @@ export default function Rol() {
 				});
 				await obtenerRoles();
 			} catch (error) {
-				const mensaje =
-					error?.response?.data?.message || "No se pudo eliminar el rol.";
-				await showAlert(mensaje, {
+				console.error("Error Elimnar Rol:", error);
+
+				const errorMessage =
+					error.response?.data?.message || "Error al eliminar el rol.";
+
+				await showAlert(errorMessage, {
 					type: "error",
 					title: "Error",
-					showConfirmButton: true,
-					confirmButtonText: "Cerrar",
+					duration: 2500,
 				});
-			}
+	}
 		}
 	};
 
@@ -200,10 +202,6 @@ export default function Rol() {
 
 	const handleEdit = (rol) => {
 		navigate(`/admin/roles/editar/${rol.Id}`);
-	};
-
-	const handlePageChange = (event, value) => {
-		setCurrentPage(value);
 	};
 
 	const handleAsignarPermisos = (rol) => {
