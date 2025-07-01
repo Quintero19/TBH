@@ -4,21 +4,22 @@ import Button from "./Buttons/Button";
 import BasicPagination from "./Paginacion";
 
 const GeneralTable = ({
-	title,
-	columns,
-	data,
-	onAdd,
-	onView,
-	onEdit,
-	onDelete,
-	onToggleEstado,
-	idAccessor = "id",
-	stateAccessor = "Estado",
-	onAssignPermissions,
-	itemsPerPage = 6,
-	canEdit,
-	canDelete,
-	...rest
+  title,
+  columns,
+  data,
+  onAdd,
+  onView,
+  onEdit,
+  onDelete,
+  onToggleEstado,
+  idAccessor = "id",
+  stateAccessor = "Estado",
+  onAssignPermissions,
+  itemsPerPage = 6,
+  canEdit,
+  canDelete,
+  verImagenes,
+  ...rest
 }) => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -195,13 +196,13 @@ const GeneralTable = ({
 													icon="fa-eye"
 												/>
 
-												{(title === "Productos" || title === "Servicios") && (
-													<Button
-														className="green"
-														onClick={() => rest.verImagenes(row)}
-														icon="fa-image"
-													/>
-												)}
+                        {(title === "Productos" || title === "Servicios") && (
+                          <Button
+                            className="green"
+                            onClick={() => verImagenes(row)}
+                            icon="fa-image"
+                          />
+                        )}
 
 												{title === "Roles" && row[stateAccessor] && (
 													<Button
@@ -269,25 +270,26 @@ const GeneralTable = ({
 };
 
 GeneralTable.propTypes = {
-	title: PropTypes.string.isRequired,
-	columns: PropTypes.arrayOf(
-		PropTypes.shape({
-			header: PropTypes.string.isRequired,
-			accessor: PropTypes.string.isRequired,
-		}),
-	).isRequired,
-	data: PropTypes.arrayOf(PropTypes.object).isRequired,
-	onAdd: PropTypes.func.isRequired,
-	onView: PropTypes.func.isRequired,
-	onEdit: PropTypes.func.isRequired,
-	onDelete: PropTypes.func.isRequired,
-	onToggleEstado: PropTypes.func.isRequired,
-	idAccessor: PropTypes.string,
-	stateAccessor: PropTypes.string,
-	itemsPerPage: PropTypes.number,
-	onAssignPermissions: PropTypes.func,
-	canEdit: PropTypes.func,
-	canDelete: PropTypes.func,
+  title: PropTypes.string.isRequired,
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      header: PropTypes.string.isRequired,
+      accessor: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onView: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onToggleEstado: PropTypes.func.isRequired,
+  idAccessor: PropTypes.string,
+  stateAccessor: PropTypes.string,
+  itemsPerPage: PropTypes.number,
+  onAssignPermissions: PropTypes.func,
+  canEdit: PropTypes.func,
+  canDelete: PropTypes.func,
+  verImagenes: PropTypes.func,
 };
 
 GeneralTable.defaultProps = {
