@@ -1,5 +1,5 @@
 import { showAlert } from "@/components/AlertProvider";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../../components/Buttons/Button";
 import { servicioService } from "../../../../service/serviciosService";
@@ -8,6 +8,7 @@ const AgregarServicio = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [imagenes, setImagenes] = useState([]);
+  const [nombresServicios, setNombresServicios] = useState([]);
   const maxImagenes = 3;
 
   const [formData, setFormData] = useState({
@@ -17,6 +18,20 @@ const AgregarServicio = () => {
     Descripcion: "",
     Estado: true,
   });
+
+  useEffect(() => {
+    const obtenerNombresServicios = async () => {
+      try {
+        const servicios = await servicioService.obtenerServicios();
+        const nombres = servicios.map(servicio => servicio.Nombre.toLowerCase());
+        setNombresServicios(nombres);
+      } catch (error) {
+        console.error("Error al obtener los servicios:", error);
+      }
+    };
+
+    obtenerNombresServicios();
+  }, []);
 
   const isFormValid = () => {
     const requiredFields = ["Nombre", "Precio", "Duracion", "Descripcion"];
@@ -41,6 +56,8 @@ const AgregarServicio = () => {
           newErrors[name] = "Debe tener al menos 3 caracteres";
         } else if (value.trim().length > 30) {
           newErrors[name] = "No puede exceder los 30 caracteres";
+        } else if (nombresServicios.includes(value.toLowerCase().trim())) {
+          newErrors[name] = "Este nombre de servicio ya existe";
         } else {
           delete newErrors[name];
         }
@@ -204,6 +221,7 @@ const AgregarServicio = () => {
       <h1 className="text-5xl ml-10 font-bold mb-5 text-black">Agregar Servicio</h1>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
         {/* Nombre */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
@@ -220,7 +238,7 @@ const AgregarServicio = () => {
           />
           {errors.Nombre && <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>}
         </div>
-
+        
         {/* Precio */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
@@ -229,25 +247,34 @@ const AgregarServicio = () => {
           <input
             type="number"
             step="0.01"
-            min="0"
+            min="1"
             name="Precio"
             value={formData.Precio}
             onChange={(e) => {
               const value = e.target.value;
+              // Bloquear notación científica (e/E)
+              if (/[eE]/.test(value)) return;
+              
+              // Validar que sea número mayor que 1
+              if (value && (Number(value) <= 0 || isNaN(Number(value)))) {
+                setErrors(prev => ({...prev, Precio: "Debe ser un número mayor que 0"}));
+              } else {
+                setErrors(prev => {
+                  const newErrors = {...prev};
+                  delete newErrors.Precio;
+                  return newErrors;
+                });
+              }
+
+              // Limitar a 6 dígitos antes del punto decimal
               const digitsOnly = value.replace(".", "");
               if (digitsOnly.length <= 6) {
                 handleChange(e);
               }
             }}
             onKeyDown={(e) => {
-              const allowedKeys = [
-                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                ".", "Backspace", "Tab", "Delete", "ArrowLeft", "ArrowRight"
-              ];
-              if (!allowedKeys.includes(e.key) && !e.ctrlKey && !e.metaKey) {
-                e.preventDefault();
-              }
-              if (e.key === "." && e.target.value.includes(".")) {
+              // Prevenir entrada de 'e' o 'E'
+              if (e.key === 'e' || e.key === 'E') {
                 e.preventDefault();
               }
             }}

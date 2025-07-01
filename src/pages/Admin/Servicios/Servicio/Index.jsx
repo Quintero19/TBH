@@ -1,234 +1,239 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { showAlert } from "@/components/AlertProvider";
+import GeneralTable from "@/components/GeneralTable";
+import CarruselImagenes from "@/components/CarruselImagenes";
+import { servicioService } from "@/service/serviciosservice";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import GeneralTable from "../../../../components/GeneralTable";
-import { servicioService } from "../../../../service/serviciosService";
-
-const columns = [
-	{ header: "Id_Servicios", accessor: "Id_Servicios" },
-	{ header: "Nombre", accessor: "Nombre" },
-	{ header: "Precio", accessor: "Precio" },
-	{ header: "Duracion ", accessor: "Duracion" },
-	{ header: "Estado", accessor: "Estado" },
-];
-const canEdit = (servicios) => servicios.Estado === true;
-const canDelete = (servicios) => servicios.Estado === true;
-
-const transformData = (data) => {
-	return data.map((item) => {
-		return {
-			...item,
-			Precio: item.Precio != null ? Math.floor(item.Precio) : "-",
-		};
-	});
-};
 
 const Servicios = () => {
-	const [servicios, setServicios] = useState([]);
-	const navigate = useNavigate();
+  const [servicios, setServicios] = useState([]);
+  const [serviciosRaw, setServiciosRaw] = useState([]);
+  const [mostrarCarrusel, setMostrarCarrusel] = useState(false);
+  const [imagenesActuales, setImagenesActuales] = useState([]);
+  const canEdit = (servicio) => servicio.Estado === true;
+  const canDelete = (servicio) => servicio.Estado === true;
+  const navigate = useNavigate();
 
-	const fetchServicios = useCallback(async () => {
-		try {
-			const response = await servicioService.obtenerServicios();
-			console.log(response);
-			setServicios(transformData(response.data));
-		} catch (error) {
-					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-						showAlert(`Error: ${mensaje || error}`, {
-							title: "Error",
-							icon: "error",})
-					}
-	}, []);
+  const columns = [
+    { header: "ID", accessor: "Id_Servicios" },
+    { header: "Nombre", accessor: "Nombre" },
+    { header: "Precio", accessor: "Precio" },
+    {
+      header: "Duración",
+      accessor: "Duracion",
+      format: (value) => `${value} min`,
+    },
+    { header: "Estado", accessor: "Estado" },
+  ];
 
-	const handleToggleEstado = async (id) => {
-		try {
-			await servicioService.actualizarEstadoServicios(id);
-			await fetchServicios();
-		} catch (error) {
-			console.error("Error cambiando estado:", error.response?.data || error);
-			alert("Error cambiando estado");
-		}
-	};
+  /* ──────── Cargar Servicios ───────── */
+  const fetchServicios = useCallback(async () => {
+    try {
+      const response = await servicioService.obtenerServicios();
+      setServiciosRaw(response.data);
+      setServicios(transformData(response.data));
+    } catch (error) {
+      const mensaje = error.response?.data?.message || "Error al obtener los servicios.";
+      showAlert(`Error: ${mensaje || error}`, {
+        title: "Error",
+        icon: "error",
+      });
+    }
+  }, []);
 
-	useEffect(() => {
-		fetchServicios();
-	}, [fetchServicios]);
+  useEffect(() => {
+    fetchServicios();
+  }, [fetchServicios]);
 
-	const handleAdd = () => {
-		navigate("/admin/servicios/agregar");
-	};
+  /* ───── Transformación de Datos ───── */
+  const formatCOP = (value) => {
+    if (!value && value !== 0) return "";
+    return `$ ${Number(value).toLocaleString("es-CO")}`;
+  };
 
-	
+  const transformData = useCallback(
+    (lista) =>
+      lista.map((item) => ({
+        ...item,
+        Precio: item.Precio != null ? formatCOP(item.Precio) : "-",
+        Duracion: item.Duracion != null ? `${item.Duracion}` : "-",
+      })),
+    []
+  );
 
-	const handleVerDetalles = async (Servicios) => {
-  try {
-    const html = `
-    <div class="space-y-7 text-gray-100">
-      <!-- Encabezado -->
-      <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
-        <h3 class="text-xl font-bold text-white">Detalles de Servicio</h3>
-        <span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
-          ID: ${Servicios.Id_Servicios ?? "N/A"}
-        </span>
-      </div>
+  /* ────────── Ver Imágenes ─────────── */
+  const verImagenes = (servicio) => {
+    if (!servicio?.Imagenes?.length) return;
+    const urls = servicio.Imagenes.map((img) => img.URL);
+    setImagenesActuales(urls);
+    setMostrarCarrusel(true);
+  };
 
-      <!-- Campos -->
-      <div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+  /* ───────── Cambiar Estado ────────── */
+  const handleToggleEstado = async (id) => {
+    try {
+      await servicioService.actualizarEstadoServicios(id);
+      await fetchServicios();
+    } catch (error) {
+      console.error("Error cambiando estado:", error.response?.data || error);
+      showAlert("Error cambiando estado", {
+        title: "Error",
+        icon: "error",
+      });
+    }
+  };
 
-        <!-- Nombre -->
-        <div class="relative">
-          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
-            Nombre
-          </label>
-          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
-            <div class="font-medium text-white">${Servicios.Nombre ?? "-"}</div>
+  /* ────────── Ir a Agregar ─────────── */
+  const handleAdd = () => {
+    navigate("/admin/servicios/agregar");
+  };
+
+  /* ────────── Ver Detalles ─────────── */
+  const handleVerDetalles = async (servicio) => {
+    try {
+      const html = `				
+        <div class="space-y-6 text-gray-100">
+          <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-4">
+            <h3 class="text-xl font-bold text-white">Detalles del Servicio</h3>
+            <span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+              ID: ${servicio.Id_Servicios ?? "N/A"}
+            </span>
           </div>
-        </div>
 
-        <!-- Precio -->
-        <div class="relative">
-          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
-            Precio
-          </label>
-          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
-            <div class="font-medium text-white">${Servicios.Precio != null ? Math.floor(Servicios.Precio) : "-"}</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="relative">
+              <label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Nombre</label>
+              <div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
+                ${servicio.Nombre ?? "-"}
+              </div>
+            </div>
+
+            <div class="relative">
+              <label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Precio</label>
+              <div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
+                ${servicio.Precio != null ? formatCOP(servicio.Precio) : "-"}
+              </div>
+            </div>
+
+            <div class="relative">
+              <label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Duración</label>
+              <div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
+                ${servicio.Duracion ?? "-"} min
+              </div>
+            </div>
+
+            <div class="relative">
+              <label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Estado</label>
+              <div class="rounded-lg px-4 pt-4 pb-2.5 font-medium border ${
+                servicio.Estado 
+                  ? "bg-[#112d25] border-emerald-500/30 text-emerald-300" 
+                  : "bg-[#2c1a1d] border-rose-500/30 text-rose-300"
+              }">
+                ${servicio.Estado ? "Activo" : "Inactivo"}
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Duración -->
-        <div class="relative">
-          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
-            Duración
-          </label>
-          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
-            <div class="font-medium text-white">${Servicios.Duracion ?? "-"} min</div>
-          </div>
-        </div>
-
-        <!-- Descripción -->
-        <div class="relative md:col-span-2">
-          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
-            Descripción
-          </label>
-          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
-            <div class="text-white">${Servicios.Descripcion ?? "-"}</div>
-          </div>
-        </div>
-
-        <!-- Estado -->
-        <div class="relative md:col-span-2">
-          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
-            Estado
-          </label>
-          <div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-            Servicios.Estado
-              ? "bg-[#112d25] border-emerald-500/30"
-              : "bg-[#2c1a1d] border-rose-500/30"
-          }">
-            <div class="font-medium ${
-              Servicios.Estado ? "text-emerald-300" : "text-rose-300"
-            }">
-              ${Servicios.Estado ? "Activo" : "Inactivo"}
+          <div class="relative">
+            <label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Descripción</label>
+            <div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white">
+              ${servicio.Descripcion ?? "-"}
             </div>
           </div>
         </div>
+      `;
+      
+      await showAlert(html, {
+        type: "info",
+        showConfirmButton: true,
+        swalOptions: {
+          confirmButtonText: "Cerrar",
+          padding: "1rem",
+        },
+      });
+    } catch (error) {
+      console.error("Error al obtener el servicio:", error);
+      showAlert(`No se pudieron cargar los detalles del servicio: ${error}`, {
+        type: "error",
+        title: "Error",
+      });
+    }
+  };
 
-      </div>
-    </div>
-    `;
+  /* ──────────── Ir a Editar ─────────── */
+  const handleEdit = (servicio) => {
+    navigate(`/admin/servicios/editar/${servicio.Id_Servicios}`);
+  };
 
-    Swal.fire({
-      title: `Detalles del Servicio`,
-      html: html,
-      icon: "info",
-      showConfirmButton: false,  // Esta línea elimina el botón "Cerrar"
-      padding: "1rem",
-      background: "#111827",
-      color: "#fff",
-      width: "600px",
-      timer: 3000  // La ventana se cerrará automáticamente después de 3 segundos
-    });
-  } catch (error) {
-    console.error("Error al obtener el Servicio:", error);
-    Swal.fire({
-      title: "Error",
-      text: "No se pudieron cargar los detalles del Servicio",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 3000
-    });
-  }
-};
+  /* ───────────── Eliminar ────────────── */
+  const handleDelete = async (servicio) => {
+    const result = await window.showAlert(
+      `¿Deseas eliminar el servicio <strong>${servicio.Nombre}</strong>?`,
+      {
+        type: "warning",
+        title: "¿Estás seguro?",
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      },
+    );
 
-	const handleEdit = (Servicios) => {
-		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`);
-	};
+    if (result.isConfirmed) {
+      try {
+        await servicioService.eliminarServicios(servicio.Id_Servicios);
 
-	const handleDelete = async (Servicios) => {
-		const result = await Swal.fire({
-			title: "¿Estás seguro?",
-			text: `¿Deseas eliminar al Servicio "${Servicios.Nombre}"?`,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#d33",
-			cancelButtonColor: "#3085d6",
-			confirmButtonText: "Sí, eliminar",
-			cancelButtonText: "Cancelar",
-			background: "#000",
-			color: "#fff",
-		});
+        await window.showAlert("Servicio eliminado correctamente", {
+          type: "success",
+          title: "Eliminado",
+          duration: 2000,
+        });
 
-		if (result.isConfirmed) {
-			try {
-				await servicioService.eliminarServicios(Servicios.Id_Servicios);
+        fetchServicios();
+      } catch (error) {
+        console.error("Error Eliminando Servicio:", error);
+        const mensaje =
+          error.response?.data?.message || "Error al eliminar el servicio";
 
-				await Swal.fire({
-					title: "Eliminado",
-					text: "Servicios eliminado correctamente",
-					icon: "success",
-					timer: 2000,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
+        window.showAlert(mensaje, {
+          type: "error",
+          title: "Error",
+          duration: 2500,
+        });
+      }
+    }
+  };
 
-				fetchServicios();
-			} catch (error) {
-				console.error("Error Eliminando Servicios:", error);
-				const mensaje =
-					error.response?.data?.message || "Error al eliminar el Servicios";
+  return (
+    <>
+      <GeneralTable
+        title="Servicios"
+        columns={columns}
+        data={servicios}
+        onAdd={handleAdd}
+        onView={(servicioFormateado) => {
+          const original = serviciosRaw.find(
+            (s) => s.Id_Servicios === servicioFormateado.Id_Servicios
+          );
+          handleVerDetalles(original);
+        }}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleEstado={handleToggleEstado}
+        idAccessor="Id_Servicios"
+        stateAccessor="Estado"
+        canEdit={canEdit}
+        canDelete={canDelete}
+        verImagenes={verImagenes}
+      />
 
-				Swal.fire({
-					title: "Error",
-					text: mensaje,
-					icon: "error",
-					timer: 2500,
-					showConfirmButton: false,
-					background: "#000",
-					color: "#fff",
-				});
-			}
-		}
-	};
-
-	return (
-		<>
-			<GeneralTable
-				title="Servicios"
-				columns={columns}
-				data={servicios}
-				onAdd={handleAdd}
-				onView={handleVerDetalles}
-				onEdit={handleEdit}
-				onDelete={handleDelete}
-				onToggleEstado={handleToggleEstado}
-				idAccessor="Id_Servicios"
-				stateAccessor="Estado"
-				canEdit={canEdit}
-				canDelete={canDelete}
-			/>
-		</>
-	);
+      <CarruselImagenes
+        imagenes={imagenesActuales}
+        visible={mostrarCarrusel}
+        onClose={() => setMostrarCarrusel(false)}
+      />
+    </>
+  );
 };
 
 export default Servicios;
