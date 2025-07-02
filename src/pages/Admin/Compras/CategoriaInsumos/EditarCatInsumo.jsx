@@ -83,6 +83,7 @@ const EditarCatInsumo = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
+		// Validación local
 		let newErrors = validateField("Nombre", formData.Nombre, {});
 		newErrors = validateField("Descripcion", formData.Descripcion, newErrors);
 		setErrors(newErrors);
@@ -128,12 +129,14 @@ const EditarCatInsumo = () => {
 			navigate("/admin/categoriainsumo");
 		} catch (err) {
 			console.error(err);
-			showAlert(`Error al guardar: ${err.message}`, {
+			const mensaje = err.response?.data?.message || "Error al guardar";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 			});
 		}
 	};
+
 
 	const handleCancel = () => {
 		showAlert("¿Estás seguro de cancelar los cambios?", {

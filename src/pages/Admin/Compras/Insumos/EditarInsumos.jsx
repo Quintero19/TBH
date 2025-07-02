@@ -12,8 +12,10 @@ const EditarInsumo = () => {
 	const [formData, setFormData] = useState({
 		Nombre: "",
 		Id_Categoria_Insumos: "",
+		Stock: 0,
 		Estado: true,
 	});
+
 	const [categorias, setCategorias] = useState([]);
 	const [insumosExistentes, setInsumosExistentes] = useState([]);
 	const [errors, setErrors] = useState({});
@@ -25,31 +27,16 @@ const EditarInsumo = () => {
 
 		switch (name) {
 			case "Nombre":
-				if (!val) {
-					newErrors.Nombre = "El nombre es obligatorio";
-				} else if (val.length < 3) {
-					newErrors.Nombre = "Mínimo 3 letras";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val)) {
+				if (!val) newErrors.Nombre = "El nombre es obligatorio";
+				else if (val.length < 3) newErrors.Nombre = "Mínimo 3 letras";
+				else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val))
 					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
-				} else if (
-					insumosExistentes.some(
-						(insumo) =>
-							insumo.Nombre.toLowerCase() === val.toLowerCase() &&
-							insumo.Id_Insumos.toString() !== id
-					)
-				) {
-					newErrors.Nombre = "Ya existe un insumo con este nombre";
-				} else {
-					newErrors.Nombre = undefined;
-				}
+				else newErrors.Nombre = undefined;
 				break;
 
 			case "Id_Categoria_Insumos":
-				if (!val) {
-					newErrors.Id_Categoria_Insumos = "Seleccione una categoría";
-				} else {
-					newErrors.Id_Categoria_Insumos = undefined;
-				}
+				if (!val) newErrors.Id_Categoria_Insumos = "Seleccione una categoría";
+				else newErrors.Id_Categoria_Insumos = undefined;
 				break;
 
 			default:
@@ -75,6 +62,7 @@ const EditarInsumo = () => {
 				setFormData({
 					Nombre: data.Nombre || "",
 					Id_Categoria_Insumos: data.Id_Categoria_Insumos || "",
+					Stock: data.Stock ?? 0,
 					Estado: data.Estado !== undefined ? data.Estado : true,
 				});
 			} catch (err) {
@@ -116,6 +104,21 @@ const EditarInsumo = () => {
 			});
 			return;
 		}
+		
+		const duplicado = insumosExistentes.find(
+			(i) =>
+				i.Nombre.trim().toLowerCase() === formData.Nombre.trim().toLowerCase() &&
+				i.Id_Insumos.toString() !== id
+		);
+
+		if (duplicado) {
+			showAlert("Ya existe otro insumo con ese nombre", {
+				type: "warning",
+				title: "Insumo duplicado",
+				duration: 2000,
+			});
+			return;
+		}
 
 		try {
 			await insumoService.actualizarInsumo(id, formData);
@@ -126,7 +129,8 @@ const EditarInsumo = () => {
 			navigate("/admin/insumo");
 		} catch (err) {
 			console.error(err);
-			showAlert(`Error al guardar: ${err.message}`, {
+			const mensaje = err.response?.data?.message || "Error al guardar";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 			});
@@ -160,6 +164,20 @@ const EditarInsumo = () => {
 				className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
 				noValidate
 			>
+				{/* Campo: Nombre */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg min-h-[120px]">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Nombre <span className="text-red-500">*</span>
+					</h3>
+					<input
+						type="text"
+						name="Nombre"
+						value={formData.Nombre}
+						onChange={handleChange}
+						className={`w-full border p-2 rounded ${errors.Nombre ? "border-red-500" : "border-gray-300"}`}
+					/>
+					{errors.Nombre && <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>}
+				</div>
 
 				{/* Campo: Categoría */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg">
@@ -170,9 +188,7 @@ const EditarInsumo = () => {
 						name="Id_Categoria_Insumos"
 						value={formData.Id_Categoria_Insumos}
 						onChange={handleChange}
-						className={`w-full border p-2 rounded ${
-							errors.Id_Categoria_Insumos ? "border-red-500" : "border-gray-300"
-						}`}
+						className={`w-full border p-2 rounded ${errors.Id_Categoria_Insumos ? "border-red-500" : "border-gray-300"}`}
 					>
 						<option value="">Seleccione una categoría</option>
 						{categorias.map((cat) => (
@@ -185,34 +201,12 @@ const EditarInsumo = () => {
 						<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Insumos}</p>
 					)}
 				</div>
-				
-				{/* Campo: Nombre */}
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg min-h-[120px]">
-					<h3 className="text-2xl text-black font-bold mb-2">
-						Nombre <span className="text-red-500">*</span>
-					</h3>
-					<input
-						type="text"
-						name="Nombre"
-						value={formData.Nombre}
-						onChange={handleChange}
-						className={`w-full border p-2 rounded ${
-							errors.Nombre ? "border-red-500" : "border-gray-300"
-						}`}
-					/>
-					{errors.Nombre && (
-						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
-					)}
-				</div>
+
+				{/* Campo oculto: Stock */}
+				<input type="hidden" name="Stock" value={formData.Stock} />
 
 				{/* Campo oculto: Estado */}
-				<input
-					type="checkbox"
-					name="Estado"
-					checked={formData.Estado}
-					disabled
-					className="hidden"
-				/>
+				<input type="checkbox" name="Estado" checked={formData.Estado} disabled className="hidden" />
 
 				{/* Botones */}
 				<div className="md:col-span-2 flex gap-4">

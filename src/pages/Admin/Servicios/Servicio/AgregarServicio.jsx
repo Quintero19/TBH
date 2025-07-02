@@ -159,14 +159,27 @@ const AgregarServicio = () => {
     }
 
     try {
-      const payload = {
-        ...formData,
-        Precio: Number.parseFloat(formData.Precio),
-        Duracion: Number.parseInt(formData.Duracion),
-        // Aquí puedes agregar manejo para las imágenes si van al servidor
-      };
+      const formDataToSend = new FormData();
 
-      await servicioService.crearServicio(payload);
+      // Campos de texto
+      formDataToSend.append("Nombre", formData.Nombre);
+      formDataToSend.append("Precio", formData.Precio);
+      formDataToSend.append("Duracion", formData.Duracion);
+      formDataToSend.append("Descripcion", formData.Descripcion);
+      // Agrega más campos si los tienes (como categoría, etc.)
+
+      // Imágenes (puedes tener múltiples)
+      imagenes.forEach((img) => {
+        formDataToSend.append("imagenes", img); // 👈 nombre debe coincidir con multer: 'imagenes'
+      });
+
+      // Enviar como multipart/form-data
+      await servicioService.crearServicio(formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       showAlert("El servicio ha sido guardado correctamente.", {
         title: "¡Éxito!",
         type: "success",
@@ -174,6 +187,7 @@ const AgregarServicio = () => {
       }).then(() => {
         navigate("/admin/servicios");
       });
+
     } catch (error) {
       console.error("Error al agregar servicio:", error);
       showAlert("Error al agregar servicio", {
@@ -181,7 +195,8 @@ const AgregarServicio = () => {
         title: "Error",
         duration: 2000,
       });
-    }
+    } 
+
   };
 
   const handleCancel = () => {

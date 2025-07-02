@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 // --- Columnas para la tabla ---
 const columns = [
 	{ header: "ID", accessor: "Id_Insumos" },
-	{ header: "Categoría", accessor: "CategoriaNombre" },
 	{ header: "Nombre", accessor: "Nombre" },
+	{ header: "Categoría", accessor: "CategoriaNombre" },
 	{ header: "Stock (Unidades)", accessor: "StockFormateado" },
 	{ header: "Estado", accessor: "Estado" },
 ];

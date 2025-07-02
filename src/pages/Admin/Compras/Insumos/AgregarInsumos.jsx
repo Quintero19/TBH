@@ -52,14 +52,42 @@ const AgregarInsumo = () => {
 		return Object.keys(newErrors).length === 0;
 	};
 
-	// --- Manejo de cambios ---
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		setFormData((prev) => ({ ...prev, [name]: value }));
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+
+		if (name === "Nombre") {
+			if (!value.trim()) {
+				newErrors.Nombre = "El nombre es obligatorio";
+			} else if (value.length < 3) {
+				newErrors.Nombre = "Mínimo 3 caracteres";
+			} else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+				newErrors.Nombre = "Solo letras y números, sin espacios";
+			} else {
+				delete newErrors.Nombre;
+			}
+		}
+
+		if (name === "Id_Categoria_Insumos") {
+			if (!value) {
+				newErrors.Id_Categoria_Insumos = "Debe seleccionar una categoría";
+			} else {
+				delete newErrors.Id_Categoria_Insumos;
+			}
+		}
+
+		setErrors(newErrors);
 	};
 
-	// --- Guardar insumo ---
-	const handleSubmit = async (e) => {
+	// --- Manejo de cambios ---
+	const handleChange = (e) => {
+			const { name, value } = e.target;
+			setFormData((prev) => ({ ...prev, [name]: value }));
+			validateField(name, value);
+		};
+
+
+		// --- Guardar insumo ---
+		const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		if (!validateForm()) {
@@ -79,8 +107,8 @@ const AgregarInsumo = () => {
 
 			if (yaExiste) {
 				showAlert("Ya existe un insumo con ese nombre", {
-					type: "error",
-					title: "Duplicado",
+					type: "warning",
+					title: "Insumo duplicado",
 					duration: 2000,
 				});
 				return;
@@ -94,7 +122,8 @@ const AgregarInsumo = () => {
 			navigate("/admin/insumo");
 		} catch (err) {
 			console.error(err);
-			showAlert(`Error al guardar: ${err.message}`, {
+			const mensaje = err.response?.data?.message || "Error al guardar";
+			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
 			});

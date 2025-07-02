@@ -36,16 +36,54 @@ const AgregarCatInsumo = () => {
 		} else if (descripcion.length > 100) {
 			newErrors.Descripcion = "Máximo 100 caracteres permitidos";
 		}
+		else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
+			newErrors.Nombre = "Solo letras y números, sin espacios";
+		}
+
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
 
+	const validateField = (name, value) => {
+		const newErrors = { ...errors };
+
+		if (name === "Nombre") {
+			if (!value.trim()) {
+				newErrors.Nombre = "El nombre es obligatorio";
+			} else if (value.length < 3) {
+				newErrors.Nombre = "Mínimo 3 caracteres";
+			} else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+				newErrors.Nombre = "Solo letras y números, sin espacios";
+			} else {
+				delete newErrors.Nombre;
+			}
+		}
+
+		if (name === "Descripcion") {
+			if (!value.trim()) {
+				newErrors.Descripcion = "La descripción es obligatoria";
+			} else if (value.length < 5) {
+				newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
+			} else if (value.length > 100) {
+				newErrors.Descripcion = "Máximo 100 caracteres permitidos";
+			} else {
+				delete newErrors.Descripcion;
+			}
+		}
+
+		setErrors(newErrors);
+	};
+
+
+
 	/* ---------- Manejo de cambios ---------- */
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
+		validateField(name, value);
 	};
+
 
 	/* ---------- Guardar ---------- */
 	const handleSubmit = async (e) => {

@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
 import { servicioService } from "../../../../service/serviciosService";
+import { showAlert } from "@/components/AlertProvider";
+import CarruselImagenes from "@/components/CarruselImagenes";
 
 const columns = [
 	{ header: "Id_Servicios", accessor: "Id_Servicios" },
@@ -26,6 +28,8 @@ const transformData = (data) => {
 const Servicios = () => {
 	const [servicios, setServicios] = useState([]);
 	const navigate = useNavigate();
+	const [mostrarCarrusel, setMostrarCarrusel] = useState(false);
+	const [imagenesActuales, setImagenesActuales] = useState([]);
 
 	const fetchServicios = useCallback(async () => {
 		try {
@@ -211,6 +215,17 @@ const Servicios = () => {
 		}
 	};
 
+	const verImagenes = (servicio) => {
+	console.log("Servicio recibido:", servicio);
+	if (!servicio?.Imagenes?.length) return;
+
+	const urls = servicio.Imagenes.map((img) => img.URL);
+	setImagenesActuales(urls);
+	setMostrarCarrusel(true);
+	};
+
+
+
 	return (
 		<>
 			<GeneralTable
@@ -226,7 +241,13 @@ const Servicios = () => {
 				stateAccessor="Estado"
 				canEdit={canEdit}
 				canDelete={canDelete}
+				verImagenes={verImagenes}
 			/>
+			<CarruselImagenes
+							imagenes={imagenesActuales}
+							visible={mostrarCarrusel}
+							onClose={() => setMostrarCarrusel(false)}
+						/>
 		</>
 	);
 };

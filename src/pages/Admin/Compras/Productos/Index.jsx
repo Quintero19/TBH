@@ -80,6 +80,7 @@ const Productos = () => {
 	/* ─────────────────────────────────── */
 
 	const verImagenes = (producto) => {
+		  console.log("Producto recibido:", producto);
 		if (!producto?.Imagenes?.length) return;
 
 		const urls = producto.Imagenes.map((img) => img.URL); // ← aquí extraes solo las URLs
