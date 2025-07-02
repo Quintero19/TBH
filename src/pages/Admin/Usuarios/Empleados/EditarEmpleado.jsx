@@ -225,10 +225,8 @@ const EditarEmpleado = () => {
             type="text"
             name="Documento"
             value={formData.Documento}
-            readOnly
-            className={`w-full p-2 border bg-gray-100 text-gray-600 cursor-not-allowed ${
-              errors.Documento ? "border-red-500" : "border-gray-300"
-            } rounded`}
+            onChange={handleChange}
+            className={`w-full p-2 border ${errors.Documento ? "border-red-500" : "border-gray-300"} rounded`}
             required
           />
           {errors.Documento && (
@@ -311,19 +309,16 @@ const EditarEmpleado = () => {
             Sexo <span className="text-red-500">*</span>
           </h3>
           <select
-  name="Sexo"
-  value={formData.Sexo}
-  onChange={handleChange}
-  disabled
-  className={`w-full p-2 border bg-gray-100 text-gray-600 cursor-not-allowed ${
-    errors.Sexo ? "border-red-500" : "border-gray-300"
-  } rounded`}
-  required
->
-  <option value="">Seleccione...</option>
-  <option value="M">Masculino</option>
-  <option value="F">Femenino</option>
-</select>
+            name="Sexo"
+            value={formData.Sexo} 
+            onChange={handleChange}
+            className={`w-full p-2 border ${errors.Sexo ? "border-red-500" : "border-gray-300"} rounded`}
+            required
+          >
+            <option value="">Seleccione...</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+          </select>
 
           {errors.Sexo && (
             <p className="text-red-500 text-sm mt-1">{errors.Sexo}</p>
@@ -332,15 +327,6 @@ const EditarEmpleado = () => {
 
         <div className="md:col-span-2 flex gap-2 ml-7">
           <Button
-            type="button"
-            onClick={handleCancel}
-            className="red"
-            disabled={submitting}
-            icon="fa-times"
-          >
-            <div className="flex items-center gap-2">Cancelar</div>
-          </Button>
-          <Button
             type="submit"
             className="green"
             disabled={submitting || Object.keys(errors).length > 0}
@@ -348,6 +334,15 @@ const EditarEmpleado = () => {
             icon="fa-floppy-o"
           >
             <div className="flex items-center gap-2">Guardar</div>
+          </Button>
+          <Button
+            type="button"
+            onClick={handleCancel}
+            className="red"
+            disabled={submitting}
+            icon="fa-times"
+          >
+            <div className="flex items-center gap-2">Cancelar</div>
           </Button>
         </div>
       </form>

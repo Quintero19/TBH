@@ -4,8 +4,8 @@ import Swal from "sweetalert2";
 import GeneralTable from "../../../../components/GeneralTable";
 import {horariosService} from "@/service/horarios.service"
 const columns = [
-  { header: "ID Novedad", accessor: "Id_Novedades_Horarios" },
-  { header: "ID Empleado", accessor: "Id_Empleados" },
+  { header: "Codigo Novedad", accessor: "Id_Novedades_Horarios" },
+  { header: "Código Empleado", accessor: "CodigoSecuencial" }, // Este es el número consecutivo
   { header: "Fecha", accessor: "Fecha" },
   { header: "Hora Inicio", accessor: "Hora_Inicio" },
   { header: "Hora Fin", accessor: "Hora_Fin" },
@@ -16,12 +16,13 @@ const canEdit = (horario) => true;
 const canDelete = (horario) => true; 
 
 const transformData = (data) => {
-  return data.map((item) => {
+  return data.map((item, index) => {
     return {
       ...item,
-      Fecha: new Date(item.Fecha).toLocaleDateString(), 
+      CodigoSecuencial: index + 1, // empieza en 1
+      Fecha: new Date(item.Fecha).toLocaleDateString(),
       Hora_Inicio: item.Hora_Inicio?.substring(1, 5) || "-",
-      Hora_Fin: item.Hora_Fin?.substring(1, 5) || "-", 
+      Hora_Fin: item.Hora_Fin?.substring(1, 5) || "-",
     };
   });
 };
@@ -50,34 +51,98 @@ const HorariosNovedades = () => {
     navigate("/admin/horarios-novedades/agregar");
   };
 
-  const handleVerDetalles = async (horario) => {
-    try {
-      Swal.fire({
-        title: `Detalles Novedad ID: ${horario.Id_Novedades_Horarios}`,
-        html: `
-          <div class="text-left">
-            <p><strong>ID Empleado:</strong> ${horario.Id_Empleados || "-"}</p>
-            <p><strong>Fecha:</strong> ${new Date(horario.Fecha).toLocaleDateString() || "-"}</p>
-            <p><strong>Hora Inicio:</strong> ${horario.Hora_Inicio?.substring(0, 5) || "-"}</p>
-            <p><strong>Hora Fin:</strong> ${horario.Hora_Fin?.substring(0, 5) || "-"}</p>
-            <p><strong>Motivo:</strong> ${horario.Motivo || "-"}</p>
+  const handleVerDetalles = async (horarios) => {
+  try {
+    const html = `
+    <div class="space-y-7 text-gray-100">
+      <!-- Encabezado -->
+      <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
+        <h3 class="text-xl font-bold text-white">Detalles de la novedad</h3>
+        <span class="rounded-md bg-gray-700 px-2 py-1 text-sm font-mono text-gray-300">
+          ID: ${horarios.Id_Novedades_Horarios ?? "N/A"}
+        </span>
+      </div>
+
+      <!-- Campos -->
+      <div class="grid grid-cols-1 gap-7 md:grid-cols-2">
+
+        
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Codigo Empleado
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${horarios.Id_Empleados ?? "-"}</div>
           </div>
-        `,
-        icon: "info",
-        confirmButtonText: "Cerrar",
-        padding: "1rem",
-        confirmButtonColor: "#3085d6",
-        background: "#000",
-        color: "#fff",
-      });
-    } catch (error) {
-      console.error("Error al obtener los detalles:", error);
-      Swal.fire(
-        "Error",
-        "No se pudieron cargar los detalles de la novedad",
-        "error"
-      );
-    }
+        </div>
+
+        <!-- Documento -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Fecha
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${horarios.Fecha ?? "-"}</div>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Hora Inicio
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${horarios.Hora_Inicio ?? "-"}</div>
+          </div>
+        </div>
+
+        <!-- Celular -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Hora Fin
+          </label>
+          <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${horarios.Hora_Fin ?? "-"}</div>
+          </div>
+        </div>
+
+        <!-- F. Nacimiento -->
+        <div class="relative">
+          <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+            Fecha de Nacimiento
+          </label>
+          <div class="border border-gray-600/wor0 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+            <div class="font-medium text-white">${horarios.Motivo ?? "-"}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+
+    await showAlert(html, {
+      title: "",
+      width: "640px",
+      background: "#111827",
+      color: "#ffffff",
+      padding: "1.5rem",
+      confirmButtonText: "Cerrar",
+      confirmButtonColor: "#4f46e5",
+      customClass: {
+        popup: "rounded-xl shadow-2xl border border-gray-700/50",
+        confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    await showAlert(`Error: ${error.message || error}`, {
+      title: "Error",
+      icon: "error",
+      background: "#1f2937",
+      color: "#ffffff",
+      width: "500px",
+      confirmButtonColor: "#dc2626",
+    });
+  }
   };
 
   const handleEdit = (horario) => {
@@ -138,7 +203,7 @@ const HorariosNovedades = () => {
   return (
     <>
       <GeneralTable
-        title="Novedades de Horarios"
+        title="Novedades"
         columns={columns}
         data={horarios}
         onAdd={handleAdd}

@@ -1,16 +1,12 @@
 import { showAlert } from "@/components/AlertProvider";
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/Buttons/Button";
 import { horariosService } from "@/service/horarios.service";
-import { empleadoService } from "@/service/empleado.service";
 
-const AgregarNovedadHorario = () => {
+const EditarNovedadHorario = () => {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  const [empleados, setEmpleados] = useState([]);
-  const [loadingEmpleados, setLoadingEmpleados] = useState(true);
+  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     Id_Empleados: "",
@@ -19,17 +15,17 @@ const AgregarNovedadHorario = () => {
     Hora_Fin: "",
     Motivo: "",
   });
+  const [errors, setErrors] = useState({});
+  const [editable, setEditable] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const validateTimeRange = useCallback(() => {
-    if (formData.Hora_Inicio && formData.Hora_Fin) {
-      const inicio = new Date(`2000-01-01T${formData.Hora_Inicio}`);
-      const fin = new Date(`2000-01-01T${formData.Hora_Fin}`);
-
+    const { Hora_Inicio, Hora_Fin } = formData;
+    if (Hora_Inicio && Hora_Fin) {
+      const inicio = new Date(`2000-01-01T${Hora_Inicio}`);
+      const fin = new Date(`2000-01-01T${Hora_Fin}`);
       if (inicio >= fin) {
-        setErrors(prev => ({
-          ...prev,
-          Hora_Fin: "La hora final debe ser mayor a la hora inicial"
-        }));
+        setErrors(prev => ({ ...prev, Hora_Fin: "La hora final debe ser mayor a la hora inicial" }));
         return false;
       } else {
         setErrors(prev => {
@@ -41,59 +37,58 @@ const AgregarNovedadHorario = () => {
       }
     }
     return true;
-  }, [formData.Hora_Inicio, formData.Hora_Fin]);
+  }, [formData]);
 
   useEffect(() => {
-    const fetchEmpleados = async () => {
+    const fetchNovedad = async () => {
       try {
-        setLoadingEmpleados(true);
-        const response = await empleadoService.obtenerEmpleadosActivos();
+        const res = await horariosService.obtenerNovedadPorId(id);
+        const novedad = res.data;
 
-        let empleadosData = [];
-
-        if (Array.isArray(response)) {
-          empleadosData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          empleadosData = response.data;
-        } else if (response?.empleados && Array.isArray(response.empleados)) {
-          empleadosData = response.empleados;
-        }
-
-        setEmpleados(empleadosData);
-
-        if (empleadosData.length === 0) {
-          showAlert("No se encontraron empleados activos", {
-            type: "warning",
-            title: "Advertencia"
-          });
-        }
-      } catch (error) {
-        console.error("Error al obtener empleados:", error);
-        showAlert("Error al cargar la lista de empleados", {
-          type: "error",
-          title: "Error"
+        setFormData({
+          Id_Empleados: novedad.Id_Empleados,
+          Fecha: novedad.Fecha,
+          Hora_Inicio: novedad.Hora_Inicio,
+          Hora_Fin: novedad.Hora_Fin,
+          Motivo: novedad.Motivo,
         });
-        setEmpleados([]);
-      } finally {
-        setLoadingEmpleados(false);
+
+        // Verificar si se puede editar (3 horas antes)
+        const fechaHora = new Date(`${novedad.Fecha}T${novedad.Hora_Inicio}`);
+        const ahora = new Date();
+        const tresHoras = 3 * 60 * 60 * 1000;
+
+        if (fechaHora - ahora < tresHoras) {
+          showAlert("No se puede modificar la novedad porque faltan menos de 3 horas para la hora de inicio.", {
+            type: "warning",
+            title: "Restricción de Edición"
+          });
+          setEditable(false);
+        }
+
+      } catch (error) {
+        console.error("Error al obtener la novedad:", error);
+        showAlert("Error al cargar la novedad", { type: "error", title: "Error" });
       }
     };
 
-    fetchEmpleados();
-  }, []);
+    fetchNovedad();
+  }, [id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    validateField(name, value);
+
+    if ((name === "Hora_Inicio" || name === "Hora_Fin") && formData.Hora_Inicio && formData.Hora_Fin) {
+      validateTimeRange();
+    }
+  };
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
     switch (name) {
-      case "Id_Empleados":
-        if (!value) {
-          newErrors[name] = "Seleccione un empleado";
-        } else {
-          delete newErrors[name];
-        }
-        break;
-
       case "Fecha":
         if (!value) {
           newErrors[name] = "Seleccione una fecha";
@@ -140,16 +135,6 @@ const AgregarNovedadHorario = () => {
     setErrors(newErrors);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    validateField(name, value);
-
-    if ((name === "Hora_Inicio" || name === "Hora_Fin") && formData.Hora_Inicio && formData.Hora_Fin) {
-      validateTimeRange();
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -175,18 +160,16 @@ const AgregarNovedadHorario = () => {
         Fecha: new Date(formData.Fecha).toISOString().split('T')[0]
       };
 
-      await horariosService.crearNovedadHorario(datosEnviar);
-      showAlert("Novedad de horario creada exitosamente", {
+      await horariosService.actualizarNovedadHorario(id, datosEnviar);
+      showAlert("Novedad actualizada exitosamente", {
         type: "success",
         title: "Éxito"
       });
       navigate("/admin/horarios");
     } catch (error) {
-      console.error("Error al crear novedad de horario:", error);
-      showAlert("Error al crear novedad de horario", {
-        type: "error",
-        title: "Error"
-      });
+      console.error("Error al actualizar novedad:", error);
+      const msg = error.response?.data?.message || "Error al actualizar novedad";
+      showAlert(msg, { type: "error", title: "Error" });
     } finally {
       setSubmitting(false);
     }
@@ -200,7 +183,7 @@ const AgregarNovedadHorario = () => {
       return;
     }
 
-    showAlert("Si cancelas, perderás los datos ingresados.", {
+    showAlert("Si cancelas, perderás los cambios realizados.", {
       title: "¿Estás seguro?",
       type: "warning",
       showConfirmButton: true,
@@ -215,51 +198,31 @@ const AgregarNovedadHorario = () => {
   };
 
   const isFormValid = () => {
-    const requiredFields = ["Id_Empleados", "Fecha", "Hora_Inicio", "Hora_Fin", "Motivo"];
+    const requiredFields = ["Fecha", "Hora_Inicio", "Hora_Fin", "Motivo"];
     const fieldsValid = requiredFields.every(field => formData[field]);
     const noErrors = Object.keys(errors).length === 0;
 
-    return fieldsValid && noErrors;
+    return fieldsValid && noErrors && editable;
   };
 
   return (
     <>
       <h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-        Agregar Novedad de Horario
+        Editar Novedad de Horario
       </h1>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Empleado */}
+        {/* Empleado (solo lectura) */}
         <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
           <h3 className="text-2xl text-black font-bold mb-2">
-            Empleado <span className="text-red-500">*</span>
+            Empleado
           </h3>
-          {loadingEmpleados ? (
-            <div className="animate-pulse p-3 bg-gray-200 rounded-lg">
-              Cargando empleados...
-            </div>
-          ) : (
-            <>
-              <select
-                name="Id_Empleados"
-                value={formData.Id_Empleados}
-                onChange={handleChange}
-                className={`w-full p-2 border ${errors.Id_Empleados ? "border-red-500" : "border-gray-300"} rounded`}
-                required
-                disabled={empleados.length === 0}
-              >
-                <option value="">Seleccione un empleado...</option>
-                {empleados.map(empleado => (
-                  <option key={empleado.Id_Empleados} value={empleado.Id_Empleados}>
-                    {empleado.Nombre} - {empleado.Documento}
-                  </option>
-                ))}
-              </select>
-              {errors.Id_Empleados && (
-                <p className="text-red-500 text-sm mt-1">{errors.Id_Empleados}</p>
-              )}
-            </>
-          )}
+          <input
+            type="text"
+            value={formData.Id_Empleados}
+            disabled
+            className="w-full p-2 border border-gray-300 rounded bg-gray-100"
+          />
         </div>
 
         {/* Fecha */}
@@ -272,6 +235,7 @@ const AgregarNovedadHorario = () => {
             name="Fecha"
             value={formData.Fecha}
             onChange={handleChange}
+            disabled={!editable}
             className={`w-full p-2 border ${errors.Fecha ? "border-red-500" : "border-gray-300"} rounded`}
             min={new Date().toISOString().split("T")[0]}
             required
@@ -291,6 +255,7 @@ const AgregarNovedadHorario = () => {
             name="Hora_Inicio"
             value={formData.Hora_Inicio}
             onChange={handleChange}
+            disabled={!editable}
             className={`w-full p-2 border ${errors.Hora_Inicio ? "border-red-500" : "border-gray-300"} rounded`}
             required
           />
@@ -309,6 +274,7 @@ const AgregarNovedadHorario = () => {
             name="Hora_Fin"
             value={formData.Hora_Fin}
             onChange={handleChange}
+            disabled={!editable}
             className={`w-full p-2 border ${errors.Hora_Fin ? "border-red-500" : "border-gray-300"} rounded`}
             required
           />
@@ -328,6 +294,7 @@ const AgregarNovedadHorario = () => {
             onChange={handleChange}
             maxLength={100}
             rows={4}
+            disabled={!editable}
             className={`w-full p-2 border ${errors.Motivo ? "border-red-500" : "border-gray-300"} rounded`}
             placeholder="Describa el motivo de la novedad..."
             required
@@ -345,8 +312,8 @@ const AgregarNovedadHorario = () => {
         <div className="md:col-span-2 flex gap-2 ml-7">
           <Button
             type="submit"
-            className={`green ${(!isFormValid() || submitting) ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={!isFormValid() || submitting}
+            className={`green ${!isFormValid() ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={!isFormValid()}
             loading={submitting}
             icon="fa-floppy-o"
           >
@@ -367,4 +334,4 @@ const AgregarNovedadHorario = () => {
   );
 };
 
-export default AgregarNovedadHorario;
+export default EditarNovedadHorario;
