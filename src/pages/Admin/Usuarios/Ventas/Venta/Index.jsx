@@ -10,7 +10,7 @@ const Ventas = () => {
 
   const columns = [
 		{ header: "ID", accessor: "Id_Ventas" },
-		{ header: "Empleado", accessor: "Id_Empleados" },
+		{ header: "Empleado", accessor: "Nombre_Empleado" },
 		{ header: "Fecha", accessor: "Fecha" },
 		{ header: "Total", accessor: "Total" },
 		{ header: "Estado", accessor: "Estado" },
@@ -22,7 +22,7 @@ const Ventas = () => {
 		try {
 			const response = await ventasService.obtenerVentas();
 			setVentas(transformData(response.data));
-			console.log(response);
+			// console.log(response);
 		} catch (error) {
 			const mensaje = error.response?.data?.message || "Error al obtener las ventas.";
 			showAlert(`Error: ${mensaje}`, {
@@ -48,6 +48,7 @@ const Ventas = () => {
 			(lista) =>
 				lista.map((item) => ({
 				...item,
+					Id_Ventas: `VEN_${item.Id_Ventas}`,
 					Total: item.Total ? formatCOP(item.Total) : "-",
 				})),
 			[]

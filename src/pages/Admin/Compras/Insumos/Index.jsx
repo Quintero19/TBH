@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 // --- Columnas para la tabla ---
 const columns = [
-	{ header: "ID", accessor: "Id_Insumos" },
+	{ header: "ID", accessor: "idVisual" },
 	{ header: "Nombre", accessor: "Nombre" },
 	{ header: "Categoría", accessor: "CategoriaNombre" },
 	{ header: "Stock (Unidades)", accessor: "StockFormateado" },
@@ -25,6 +25,7 @@ const InsumoAdmin = () => {
 		const response = await insumoService.obtenerInsumos();
 		const datosProcesados = response.data.map((i) => ({
 			...i,
+			idVisual: `IN_${i.Id_Insumos}`,
 			CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
 			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
 		}));

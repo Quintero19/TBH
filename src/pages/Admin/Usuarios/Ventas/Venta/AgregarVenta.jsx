@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import api from "@/utils/api";
-import { clienteService } from "@/service/clientes.service";
 import Button from "@/components/Buttons/Button";
+import { useNavigate } from "react-router-dom";
+import { empleadoService } from "@/service/empleado.service";
+import { rolService } from "@/service/roles.service";
+import { clienteService } from "@/service/clientes.service";
+import { showAlert } from "@/components/AlertProvider";
+import { ventasService } from "@/service/ventas.service";
+
 
 const AgregarVenta = () => {
     const [clientes, setClientes] = useState([]);
@@ -15,91 +21,115 @@ const AgregarVenta = () => {
         Id_Usuario: "",
         Fecha_Registro: "",
         Metodo_Pago: "",
+        Referencia:"",
         Items: []
     });
 
     const [errorCliente, setErrorCliente] = useState(false);
     const [errorMetodoPago, setErrorMetodoPago] = useState(false);
+    const [errorReferencia, setErrorReferencia] = useState(false);
 
     // Estado para el formulario de agregar items
     const [tipoItem, setTipoItem] = useState("producto");
     const [itemSeleccionado, setItemSeleccionado] = useState({ id: "", nombre: "", precio: 0 });
     const [cantidad, setCantidad] = useState(1);
+    const navigate = useNavigate();
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     useEffect(() => {
-    const fetchData = async () => {
-        try {
-            // Obtener usuario actual
-            const resUsuario = await api.get("/me/");
-            setUsuario({
-                id: resUsuario.data?.user?.id || "",
-                nombre: resUsuario.data?.user?.correo || "",
-            });
+        const fetchData = async () => {
+            try {
+                const resUsuario = await api.get("/me/");
+                const user = resUsuario.data?.user;
+                const today = new Date().toISOString().split("T")[0];
+                let nombreUsuario = "Desconocido";
 
-            // Obtener clientes
-            const resClientes = await clienteService.listarClientes();
-            setClientes(resClientes.data || []);
+                // Buscar el nombre del usuario
+                if (user?.rol_id === 89 && user?.documento) {
+                    try {
+                        const empleado = await empleadoService.listarEmpleadoPorDocumento(user.documento);
+                        nombreUsuario = empleado?.Nombre || "Empleado no encontrado";
+                    } catch (err) {
+                        console.warn("Empleado no encontrado:", err);
+                    }
+                } else {
+                    try {
+                        const rol = await rolService.obtenerRolPorId(user.rol_id);
+                        nombreUsuario = rol?.Nombre || rol?.data?.Nombre || "Rol desconocido";
+                    } catch (err) {
+                        console.warn("Rol no encontrado:", err);
+                    }
+                }
 
-            // Obtener productos desde la base de datos
-            const resProductos = await api.get("/productos");
-            if (resProductos.data && Array.isArray(resProductos.data)) {
-                setProductosDisponibles(resProductos.data);
-            } else {
-                console.error("Formato de productos inválido:", resProductos.data);
+                // Establecer usuario
+                setUsuario({
+                    id: user?.id || "",
+                    nombre: nombreUsuario,
+                });
+
+                // Obtener clientes
+                const resClientes = await clienteService.listarClientes();
+                setClientes(resClientes.data || []);
+
+                // Productos
+                const resProductos = await api.get("/productos");
+                if (Array.isArray(resProductos.data?.data)) {
+                    setProductosDisponibles(resProductos.data.data);
+                } else {
+                    console.warn("Formato de productos inválido:", resProductos.data);
+                    setProductosDisponibles([]);
+                }
+
+                // Servicios
+                const resServicios = await api.get("/servicios");
+                if (Array.isArray(resServicios.data?.data)) {
+                    setServiciosDisponibles(resServicios.data.data);
+                } else {
+                    console.warn("Formato de servicios inválido:", resServicios.data);
+                    setServiciosDisponibles([]);
+                }
+
+                setFormData((prev) => ({
+                    ...prev,
+                    Id_Usuario: user?.id || "",
+                    Fecha_Registro: today,
+                }));
+
+            } catch (error) {
+                console.error("Error al obtener datos:", error);
+                setClientes([]);
                 setProductosDisponibles([]);
-            }
-
-            // Obtener servicios desde la base de datos
-            const resServicios = await api.get("/servicios");
-            if (resServicios.data && Array.isArray(resServicios.data)) {
-                setServiciosDisponibles(resServicios.data);
-            } else {
-                console.error("Formato de servicios inválido:", resServicios.data);
                 setServiciosDisponibles([]);
             }
+        };
 
-            // Setear fecha actual
-            const today = new Date();
-            const fecha = today.toISOString().split("T")[0];
+        fetchData();
+    }, []);
 
-            setFormData(prev => ({
-                ...prev,
-                Id_Usuario: resUsuario.data?.user?.id || "",
-                Fecha_Registro: fecha
-            }));
-        } catch (error) {
-            console.error("Error al obtener datos:", error);
-            setClientes([]);
-            setProductosDisponibles([]);
-            setServiciosDisponibles([]);
-        }
-    };
-
-    fetchData();
-}, []);
-
-
-
-
-
-
-    // Función para obtener opciones de productos/servicios de forma segura
     const getOpcionesItems = () => {
     try {
-        // Obtener los items según el tipo seleccionado
         const items = tipoItem === "producto" 
             ? productosDisponibles 
             : serviciosDisponibles;
 
-        // Verificar que sea un array y tenga datos
         if (!Array.isArray(items) || items.length === 0) {
-            console.warn(`No hay ${tipoItem === "producto" ? "productos" : "servicios"} disponibles`);
+            // console.warn(`No hay ${tipoItem === "producto" ? "productos" : "servicios"} disponibles`);
             return [];
         }
 
-        // Mapear los items a formato para el Select
         return items.map(item => {
-            // Asegurar que los campos existan
             const id = tipoItem === "producto" 
                 ? item.Id_Productos || item.id || ""
                 : item.Id_Servicios || item.id || "";
@@ -119,120 +149,161 @@ const AgregarVenta = () => {
     }
 };
 
+        const agregarItem = () => {
+            if (!itemSeleccionado.id || cantidad <= 0) return;
 
+            const nuevoItem = {
+                tipo: tipoItem,
+                id: itemSeleccionado.id,
+                nombre: itemSeleccionado.nombre,
+                precio: itemSeleccionado.precio,
+                cantidad: cantidad
+            };
 
+            setFormData(prev => ({
+                ...prev,
+                Items: [...prev.Items, nuevoItem]
+            }));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    const agregarItem = () => {
-        if (!itemSeleccionado.id || cantidad <= 0) return;
-
-        const nuevoItem = {
-            tipo: tipoItem,
-            id: itemSeleccionado.id,
-            nombre: itemSeleccionado.nombre,
-            precio: itemSeleccionado.precio,
-            cantidad: cantidad
+            setItemSeleccionado({ id: "", nombre: "", precio: 0 });
+            setCantidad(1);
         };
 
-        setFormData(prev => ({
-            ...prev,
-            Items: [...prev.Items, nuevoItem]
-        }));
+        const eliminarItem = (index) => {
+            setFormData(prev => ({
+                ...prev,
+                Items: prev.Items.filter((_, i) => i !== index)
+            }));
+        };
 
-        // Resetear formulario de item
-        setItemSeleccionado({ id: "", nombre: "", precio: 0 });
-        setCantidad(1);
-    };
+        const actualizarCantidad = (index, nuevaCantidad) => {
+            if (nuevaCantidad <= 0) return;
 
-    const eliminarItem = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            Items: prev.Items.filter((_, i) => i !== index)
-        }));
-    };
+            setFormData(prev => {
+                const nuevosItems = [...prev.Items];
+                nuevosItems[index].cantidad = Number(nuevaCantidad);
+                return { ...prev, Items: nuevosItems };
+            });
+        };
 
-    const actualizarCantidad = (index, nuevaCantidad) => {
-        if (nuevaCantidad <= 0) return;
+        const actualizarPrecio = (index, nuevoPrecio) => {
+            if (nuevoPrecio < 0) return;
 
-        setFormData(prev => {
-            const nuevosItems = [...prev.Items];
-            nuevosItems[index].cantidad = Number(nuevaCantidad);
-            return { ...prev, Items: nuevosItems };
-        });
-    };
+            setFormData(prev => {
+                const nuevosItems = [...prev.Items];
+                nuevosItems[index].precio = Number(nuevoPrecio);
+                return { ...prev, Items: nuevosItems };
+            });
+        };
 
-    const actualizarPrecio = (index, nuevoPrecio) => {
-        if (nuevoPrecio < 0) return;
+        const calcularTotal = () => {
+            return formData.Items.reduce((total, item) => total + (item.precio * item.cantidad), 0);
+        };
 
-        setFormData(prev => {
-            const nuevosItems = [...prev.Items];
-            nuevosItems[index].precio = Number(nuevoPrecio);
-            return { ...prev, Items: nuevosItems };
+        const handleCancel = () => {
+        showAlert("Si cancelas, perderás los datos ingresados.", {
+            type: "warning",
+            title: "¿Cancelar?",
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Sí, salir",
+            cancelButtonText: "No, continuar",
+        }).then((r) => {
+            if (r.isConfirmed) {
+                setFormData({
+                    Id_Cliente: "",
+                    Id_Usuario: usuario.id,
+                    Fecha_Registro: formData.Fecha_Registro,
+                    Metodo_Pago: "",
+                    Items: [],
+                });
+                setErrorCliente(false);
+                setErrorMetodoPago(false);
+                navigate("/admin/ventas");
+            }
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.Id_Cliente) {
             setErrorCliente(true);
             return;
         }
-        
+
         if (!formData.Metodo_Pago) {
             setErrorMetodoPago(true);
             return;
         }
 
-        if (formData.Items.length === 0) {
-            alert("Debes agregar al menos un producto o servicio");
+        if (formData.Metodo_Pago === "Transferencia" && !formData.DatosTransferencia?.trim()) {
+            await showAlert("Debes ingresar una referencia para pagos por transferencia", {
+                type: "warning",
+                title: "Falta información"
+            });
             return;
         }
 
+
+        if (formData.Items.length === 0) {
+            await showAlert("Debes agregar al menos un producto o servicio", {
+                type: "warning",
+                title: "Falta información"
+            });
+            return;
+        }
+
+        const hayItemDuplicado = formData.Items.some(
+            item => item.tipo !== "producto" && item.tipo !== "servicio"
+            );
+
+            if (hayItemDuplicado) {
+            await showAlert("Cada ítem debe ser solo producto o servicio, no ambos ni indefinido.", {
+                type: "warning",
+                title: "Datos incorrectos"
+            });
+            return;
+            }
+
+
         try {
-            // Calcular total
-            const total = formData.Items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            
+
             const ventaData = {
-                ...formData,
-                Total: total,
-                Detalles: formData.Items.map(item => ({
-                    Id_Producto: item.tipo === "producto" ? item.id : null,
+                Id_Cliente: formData.Id_Cliente,
+                Id_Empleados: formData.Id_Usuario,
+                Fecha: formData.Fecha_Registro,
+                M_Pago: formData.Metodo_Pago,
+                Referencia: formData.Metodo_Pago === "Transferencia" ? formData.DatosTransferencia : null,
+                Detalle_Venta: formData.Items.map((item) => ({
+                    Id_Productos: item.tipo === "producto" ? item.id : null,
                     Id_Servicio: item.tipo === "servicio" ? item.id : null,
                     Cantidad: item.cantidad,
-                    Precio_Unitario: item.precio,
-                    Subtotal: item.precio * item.cantidad
+                    Precio: item.precio,
+                    Subtotal: item.precio * item.cantidad,
+                    Id_Producto_Tallas: null,
+                    Id_Producto_Tamano_Insumos: null,
                 }))
             };
 
-            console.log("Datos a enviar:", ventaData);
-            // Descomenta cuando tengas el servicio configurado
-            // const response = await api.post("/ventas/", ventaData);
-            // console.log("Venta creada:", response.data);
-            alert("Venta registrada exitosamente");
-            // Aquí podrías redirigir o resetear el formulario
+            // console.log("VENTA A ENVIAR ===>", JSON.stringify(ventaData, null, 2));
+
+            await ventasService.crearVenta(ventaData);
+
+            await showAlert("Venta registrada exitosamente", {
+                type: "success",
+                duration: 1500,
+            });
+
+            navigate("/admin/ventas");
         } catch (error) {
             console.error("Error al registrar la venta:", error);
-            alert("Error al registrar la venta");
+            const mensaje = error.response?.data?.message || "Error al registrar la venta";
+            await showAlert(mensaje, {
+                title: "Error",
+                icon: "error",
+            });
         }
-    };
-
-    const calcularTotal = () => {
-        return formData.Items.reduce((total, item) => total + (item.precio * item.cantidad), 0);
     };
 
     return (
@@ -240,6 +311,7 @@ const AgregarVenta = () => {
             <h1 className="text-5xl ml-10 font-bold mb-5 text-black">Registrar Venta</h1>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10">
+
                 {/* Selector de Cliente */}
                 <div className="p-6 bg-white shadow border border-gray-200 rounded-lg">
                     <h3 className="text-2xl font-bold mb-3 text-black">
@@ -275,35 +347,70 @@ const AgregarVenta = () => {
 
                 {/* Método de Pago */}
                 <div className="p-6 bg-white shadow border border-gray-200 rounded-lg">
-                    <h3 className="text-2xl font-bold mb-3 text-black">
-                        Método de Pago <span className="text-red-500">*</span>
-                    </h3>
-                    <Select
-                        placeholder="Seleccione un método de pago"
-                        isClearable
-                        options={[
-                            { value: "Efectivo", label: "Efectivo" },
-                            { value: "Transferencia", label: "Transferencia" }
-                        ]}
-                        value={
-                            formData.Metodo_Pago
-                                ? {
-                                    value: formData.Metodo_Pago,
-                                    label: formData.Metodo_Pago,
-                                }
-                                : null
-                        }
-                        onChange={(opcion) => {
-                            setFormData((prev) => ({
-                                ...prev,
-                                Metodo_Pago: opcion ? opcion.value : "",
-                            }));
-                            setErrorMetodoPago(!opcion);
-                        }}
+                <h3 className="text-2xl font-bold mb-3 text-black">
+                    Método de Pago <span className="text-red-500">*</span>
+                </h3>
+
+                <Select
+                    placeholder="Seleccione un método de pago"
+                    isClearable
+                    options={[
+                    { value: "Efectivo", label: "Efectivo" },
+                    { value: "Transferencia", label: "Transferencia" },
+                    ]}
+                    value={
+                    formData.Metodo_Pago
+                        ? { value: formData.Metodo_Pago, label: formData.Metodo_Pago }
+                        : null
+                    }
+                    onChange={(opcion) => {
+                    const metodo = opcion ? opcion.value : "";
+                    setFormData((prev) => ({
+                        ...prev,
+                        Metodo_Pago: metodo,
+                        DatosTransferencia: metodo === "Transferencia" ? prev.DatosTransferencia : "",
+                    }));
+                    setErrorMetodoPago(!opcion);
+                    setErrorReferencia(false);
+                    }}
+                />
+
+                {errorMetodoPago && (
+                    <p className="text-red-500 text-sm mt-1">
+                    Debes seleccionar un método de pago
+                    </p>
+                )}
+
+                {/* Solo se muestra si selecciona Transferencia */}
+                {formData.Metodo_Pago === "Transferencia" && (
+                    <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Referencia<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                    type="text"
+                    className={`w-full border rounded p-2 ${
+                        errorReferencia ? "border-red-500" : "border-gray-300"
+                    }`}
+                    placeholder="Ej: ABC123"
+                    value={formData.DatosTransferencia}
+                    onChange={(e) => {
+                        const valor = e.target.value;
+                        const limpio = valor.replace(/[^a-zA-Z0-9]/g, "");
+                        setFormData((prev) => ({
+                        ...prev,
+                        DatosTransferencia: limpio,
+                        }));
+                        setErrorReferencia(valor !== limpio);
+                    }}
                     />
-                    {errorMetodoPago && (
-                        <p className="text-red-500 text-sm mt-1">Debes seleccionar un método de pago</p>
+                    {errorReferencia && (
+                    <p className="text-red-500 text-sm mt-1">
+                        Solo se permiten letras y números (sin espacios ni símbolos).
+                    </p>
                     )}
+                    </div>
+                )}
                 </div>
 
                 {/* Usuario que registra */}
@@ -415,7 +522,7 @@ const AgregarVenta = () => {
 
                 {/* Tabla de productos/servicios agregados */}
                 {formData.Items.length > 0 && (
-                    <div className="md:col-span-2 mt-6">
+                    <div className="bg-white p-6 rounded shadow border border-gray-200 md:col-span-2 space-y-4">
                         <h2 className="text-2xl font-bold mb-4">Items en la Venta</h2>
                         <div className="overflow-auto">
                             <table className="w-full border-collapse">
@@ -426,7 +533,7 @@ const AgregarVenta = () => {
                                         <th className="p-2 text-right">Precio Unitario</th>
                                         <th className="p-2 text-right">Cantidad</th>
                                         <th className="p-2 text-right">Subtotal</th>
-                                        <th className="p-2">Acciones</th>
+                                        <th className="p-2 text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -439,21 +546,24 @@ const AgregarVenta = () => {
                                                     type="number"
                                                     min="0"
                                                     step="0.01"
-                                                    value={item.precio === 0 ? "" : item.precio}
+                                                    placeholder="0"
+                                                    value={item.precio !== 0 ? parseFloat(item.precio).toString() : ""}
                                                     onChange={(e) => actualizarPrecio(index, e.target.value)}
-                                                    className="w-24 border p-1 rounded text-right"
+                                                    className="w-36 px-3 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-right shadow-sm transition-all"
                                                     onKeyDown={(e) => {
                                                         if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
                                                     }}
                                                 />
                                             </td>
+
                                             <td className="p-2 text-right">
                                                 <input
                                                     type="number"
                                                     min="1"
-                                                    value={item.cantidad === 0 ? "" : item.cantidad}
+                                                    placeholder="1"
+                                                    value={item.cantidad || ""}
                                                     onChange={(e) => actualizarCantidad(index, e.target.value)}
-                                                    className="w-20 border p-1 rounded text-right"
+                                                    className="w-20 px-2 py-1 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-right shadow-sm transition-all"
                                                     onKeyDown={(e) => {
                                                         if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
                                                     }}
@@ -461,18 +571,20 @@ const AgregarVenta = () => {
                                             </td>
                                             <td className="p-2 text-right">
                                                 ${(item.precio * item.cantidad).toLocaleString("es-CO", {
-                                                    minimumFractionDigits: 2,
+                                                    minimumFractionDigits: 0,
                                                     maximumFractionDigits: 2
                                                 })}
                                             </td>
                                             <td className="p-2 text-center">
-                                                <Button
-                                                    onClick={() => eliminarItem(index)}
-                                                    className="red"
-                                                    icon="fa-times"
-                                                >
-                                                    <div className="flex items-center gap-2">Eliminar</div>
-                                                </Button>
+                                                <div className="flex justify-center">
+                                                    <Button
+                                                        onClick={() => eliminarItem(index)}
+                                                        className="red"
+                                                        icon="fa-times"
+                                                    >
+                                                        <div className="flex items-center gap-2">Eliminar</div>
+                                                    </Button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -482,7 +594,7 @@ const AgregarVenta = () => {
                                         <td colSpan="4" className="p-2 text-right">Total:</td>
                                         <td className="p-2 text-right">
                                             ${calcularTotal().toLocaleString("es-CO", {
-                                                minimumFractionDigits: 2,
+                                                minimumFractionDigits: 0,
                                                 maximumFractionDigits: 2
                                             })}
                                         </td>
@@ -508,23 +620,14 @@ const AgregarVenta = () => {
                         type="button"
                         className="red"
                         icon="fa-times"
-                        onClick={() => {
-                            // Resetear formulario
-                            setFormData({
-                                Id_Cliente: "",
-                                Id_Usuario: usuario.id,
-                                Fecha_Registro: formData.Fecha_Registro,
-                                Metodo_Pago: "",
-                                Items: []
-                            });
-                            setErrorCliente(false);
-                            setErrorMetodoPago(false);
-                        }}
+                        onClick={handleCancel}
                     >
                         <div className="flex items-center gap-2">Cancelar</div>
                     </Button>
                 </div>
             </form>
+            <br />
+            <br />
         </>
     );
 };
