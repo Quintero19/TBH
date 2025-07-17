@@ -22,7 +22,7 @@ const Compras = () => {
 		try {
 			const response = await comprasService.obtenerCompras();
 			setCompras(transformData(response.data, proveedoresData));
-			console.log(response)
+			// console.log(response)
 		}catch (error) {
 			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 				showAlert(`Error: ${mensaje || error}`, {
@@ -48,6 +48,7 @@ const Compras = () => {
 		(lista) =>
 			lista.map((item) => ({
 			...item,
+				Id_Compras: `COM_${item.Id_Compras}`,
 				Total: item.Total ? formatCOP(item.Total) : "-",
 			})),
 		[]
