@@ -26,11 +26,13 @@ const Proveedores = () => {
 			const response = await proveedorService.obtenerProveedores();
 			setProveedores(transformData(response.data));
 		} catch (error) {
-					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-						showAlert(`Error: ${mensaje || error}`, {
-							title: "Error",
-							icon: "error",})
-					}
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",
+			});
+		}
 	}, []);
 
 	useEffect(() => {
@@ -86,7 +88,6 @@ const Proveedores = () => {
 
 	const handleVerDetalles = async (proveedor) => {
 		try {
-			
 			const html = `
 				<div class="space-y-6 text-gray-100">
 					<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-4">
@@ -104,14 +105,17 @@ const Proveedores = () => {
 							</div>
 						</div>
 
-						${proveedor.Tipo_Proveedor === "Empresa" ? `
+						${
+							proveedor.Tipo_Proveedor === "Empresa"
+								? `
 							<div class="relative col-span-2">
 								<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">NIT</label>
 								<div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
 									${proveedor.NIT}
 								</div>
 							</div>
-						` : `							
+						`
+								: `							
 							<div class="relative">
 								<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Tipo de Documento</label>
 								<div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
@@ -125,7 +129,8 @@ const Proveedores = () => {
 									${proveedor.Documento || "-"}
 								</div>
 							</div>
-						`}
+						`
+						}
 
 						<div class="relative">
 							<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">
@@ -145,7 +150,9 @@ const Proveedores = () => {
 							</div>
 						</div>
 
-						${proveedor.Tipo_Proveedor === "Empresa" ? `
+						${
+							proveedor.Tipo_Proveedor === "Empresa"
+								? `
 							<div class="relative">
 								<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">
 									Asesor
@@ -163,7 +170,9 @@ const Proveedores = () => {
 									${proveedor.Celular_Asesor || "-"}
 								</div>
 							</div>
-						` : ``}
+						`
+								: ``
+						}
 
 						<div class="relative">
 							<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">

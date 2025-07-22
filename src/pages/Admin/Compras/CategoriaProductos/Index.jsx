@@ -25,10 +25,12 @@ const CategoriasProducto = () => {
 			const response = await catProductoService.obtenerCategorias();
 			setCatsProducto(transformData(response.data));
 		} catch (error) {
-			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {
 				title: "Error",
-				icon: "error",})
+				icon: "error",
+			});
 		}
 	}, []);
 
@@ -135,7 +137,7 @@ const CategoriasProducto = () => {
 						<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
 							${
 								categoria.Productos.length > 0
-								? `
+									? `
 									<table class="w-full text-left text-base text-gray-200">
 										<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 text-sm uppercase tracking-wide shadow">
 											<tr>
@@ -144,16 +146,18 @@ const CategoriasProducto = () => {
 											</tr>
 										</thead>
 										<tbody>
-											${categoria.Productos.map(p => `
+											${categoria.Productos.map(
+												(p) => `
 												<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 													<td class="py-3 px-4">${p.Id_Productos}</td>
 													<td class="py-3 px-4">${p.Nombre}</td>
 												</tr>
-											`).join("")}
+											`,
+											).join("")}
 										</tbody>
 									</table>
 								`
-								: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
+									: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
 							}
 						</div>
 					</div>

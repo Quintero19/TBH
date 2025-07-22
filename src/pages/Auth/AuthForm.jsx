@@ -71,7 +71,7 @@ const AuthForm = () => {
 						window.location.href = "/usuario/index";
 					} else if (user.rol_id) {
 						window.location.href = "/admin/dashboard";
-					} 
+					}
 				} else {
 					setMessage("¡Registro exitoso!");
 				}

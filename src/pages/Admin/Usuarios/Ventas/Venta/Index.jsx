@@ -8,10 +8,10 @@ import { showAlert } from "@/components/AlertProvider";
 import { useNavigate } from "react-router-dom";
 
 const Ventas = () => {
-  const [ventas, setVentas] = useState([]);
-  const navigate = useNavigate();
+	const [ventas, setVentas] = useState([]);
+	const navigate = useNavigate();
 
-  const columns = [
+	const columns = [
 		{ header: "ID", accessor: "Id_Ventas" },
 		{ header: "Empleado", accessor: "Nombre_Empleado" },
 		{ header: "Fecha", accessor: "Fecha" },
@@ -27,7 +27,8 @@ const Ventas = () => {
 			setVentas(transformData(response.data));
 			// console.log(response);
 		} catch (error) {
-			const mensaje = error.response?.data?.message || "Error al obtener las ventas.";
+			const mensaje =
+				error.response?.data?.message || "Error al obtener las ventas.";
 			showAlert(`Error: ${mensaje}`, {
 				title: "Error",
 				icon: "error",
@@ -42,27 +43,27 @@ const Ventas = () => {
 	/*----------------------------------------------------------------*/
 
 	/*-----------------FORMATEAR LOS PRECIOS A COP---------------------*/
-		const formatCOP = (value) => {
-			if (!value && value !== 0) return "";
-			return `$ ${Number(value).toLocaleString("es-CO")}`;
-		};
+	const formatCOP = (value) => {
+		if (!value && value !== 0) return "";
+		return `$ ${Number(value).toLocaleString("es-CO")}`;
+	};
 
-		const transformData = useCallback(
-			(lista) =>
-				lista.map((item) => ({
+	const transformData = useCallback(
+		(lista) =>
+			lista.map((item) => ({
 				...item,
-					Id_Ventas: `VEN_${item.Id_Ventas}`,
-					Total: item.Total ? formatCOP(item.Total) : "-",
-				})),
-			[]
-		);
+				Id_Ventas: `VEN_${item.Id_Ventas}`,
+				Total: item.Total ? formatCOP(item.Total) : "-",
+			})),
+		[],
+	);
 
 	/*----------------------------------------------------------------*/
 
 	/*-----------------CAMBIAR EL ESTADO DE LA VENTA------------------*/
 
 	/*----------------------------------------------------------------*/
-	
+
 	/*---------------------AGREGAR------------------------------------*/
 
 	const handleAdd = () => {
@@ -72,92 +73,108 @@ const Ventas = () => {
 	/*----------------------------------------------------------------*/
 
 	/*---------------------Ver detalles------------------------------------*/
-	
 
-	
 	const handleVerDetalles = async (venta) => {
 		try {
 			if (!venta?.Id_Ventas) {
-			throw new Error("ID de venta no proporcionado");
+				throw new Error("ID de venta no proporcionado");
 			}
 
 			const ventaId = venta.Id_Ventas.replace("VEN_", "");
 			const detalleCompleto = await ventasService.obtenerVentaPorId(ventaId);
-			
+
 			if (!detalleCompleto?.data) {
-			throw new Error("Datos de venta no disponibles");
+				throw new Error("Datos de venta no disponibles");
 			}
 
 			let nombreCliente = "Consumidor Final";
 			const clienteId = venta.Id_Cliente || detalleCompleto.data?.Id_Cliente;
-			
+
 			if (clienteId) {
-			try {
-				const clienteData = await clienteService.listarClientePorId(clienteId);
-				nombreCliente = clienteData?.data?.Nombre || nombreCliente;
-			} catch (error) {
-				console.error("Error obteniendo cliente:", error);
-			}
+				try {
+					const clienteData =
+						await clienteService.listarClientePorId(clienteId);
+					nombreCliente = clienteData?.data?.Nombre || nombreCliente;
+				} catch (error) {
+					console.error("Error obteniendo cliente:", error);
+				}
 			}
 
 			const productos = [];
 			const servicios = [];
 
 			if (Array.isArray(detalleCompleto.data?.Detalle_Venta)) {
-			for (const det of detalleCompleto.data.Detalle_Venta) {
-				try {
-				if (det?.Id_Productos) {
-					let nombreProducto = `Producto ID: ${det.Id_Productos}`;
-					let precioUnitario = parseFloat(det.Precio_Unitario || det.Precio || 0);
-					
+				for (const det of detalleCompleto.data.Detalle_Venta) {
 					try {
-					const productoData = await productoService.obtenerProductoPorId(det.Id_Productos);
-					nombreProducto = productoData?.data?.Nombre || nombreProducto;
-					} catch (error) {
-					console.error(`Error obteniendo producto ${det.Id_Productos}:`, error);
-					}
+						if (det?.Id_Productos) {
+							let nombreProducto = `Producto ID: ${det.Id_Productos}`;
+							let precioUnitario = parseFloat(
+								det.Precio_Unitario || det.Precio || 0,
+							);
 
-					productos.push({
-					Nombre: nombreProducto,
-					Cantidad: parseInt(det.Cantidad || 1, 10),
-					Precio_Unitario: precioUnitario,
-					Subtotal: parseFloat(det.Subtotal || (precioUnitario * parseInt(det.Cantidad || 1, 10))),
-					});
-				} else if (det?.Id_Servicios) {
-					let nombreServicio = `Servicio ID: ${det.Id_Servicios}`;
-					let precioServicio = parseFloat(det.Precio_Unitario || det.Precio || 0);
-					
-					try {
-					const servicioData = await servicioService.obtenerServicioPorId(det.Id_Servicios);
-					nombreServicio = servicioData?.data?.Nombre || nombreServicio;
-					} catch (error) {
-					console.error(`Error obteniendo servicio ${det.Id_Servicios}:`, error);
-					}
+							try {
+								const productoData = await productoService.obtenerProductoPorId(
+									det.Id_Productos,
+								);
+								nombreProducto = productoData?.data?.Nombre || nombreProducto;
+							} catch (error) {
+								console.error(
+									`Error obteniendo producto ${det.Id_Productos}:`,
+									error,
+								);
+							}
 
-					servicios.push({
-					Nombre: nombreServicio,
-					Precio: precioServicio,
-					Subtotal: parseFloat(det.Subtotal || precioServicio),
-					});
+							productos.push({
+								Nombre: nombreProducto,
+								Cantidad: parseInt(det.Cantidad || 1, 10),
+								Precio_Unitario: precioUnitario,
+								Subtotal: parseFloat(
+									det.Subtotal ||
+										precioUnitario * parseInt(det.Cantidad || 1, 10),
+								),
+							});
+						} else if (det?.Id_Servicios) {
+							let nombreServicio = `Servicio ID: ${det.Id_Servicios}`;
+							let precioServicio = parseFloat(
+								det.Precio_Unitario || det.Precio || 0,
+							);
+
+							try {
+								const servicioData = await servicioService.obtenerServicioPorId(
+									det.Id_Servicios,
+								);
+								nombreServicio = servicioData?.data?.Nombre || nombreServicio;
+							} catch (error) {
+								console.error(
+									`Error obteniendo servicio ${det.Id_Servicios}:`,
+									error,
+								);
+							}
+
+							servicios.push({
+								Nombre: nombreServicio,
+								Precio: precioServicio,
+								Subtotal: parseFloat(det.Subtotal || precioServicio),
+							});
+						}
+					} catch (error) {
+						console.error("Error procesando detalle:", error);
+					}
 				}
-				} catch (error) {
-				console.error("Error procesando detalle:", error);
-				}
-			}
 			}
 
 			const totalVenta = parseFloat(
-			detalleCompleto.data?.Total || 
-			venta.Total || 
-			productos.reduce((sum, p) => sum + p.Subtotal, 0) + 
-			servicios.reduce((sum, s) => sum + s.Subtotal, 0)
+				detalleCompleto.data?.Total ||
+					venta.Total ||
+					productos.reduce((sum, p) => sum + p.Subtotal, 0) +
+						servicios.reduce((sum, s) => sum + s.Subtotal, 0),
 			);
 
 			const safeHtmlValue = (value) => value ?? "N/A";
 
 			const formatCurrency = (value) => {
-			const num = parseFloat(value) || 0;
-			return `$${num.toLocaleString("es-ES")}`.replace(/,00$/, "");
+				const num = parseFloat(value) || 0;
+				return `$${num.toLocaleString("es-ES")}`.replace(/,00$/, "");
 			};
 
 			const html = `
@@ -180,11 +197,15 @@ const Ventas = () => {
 				<div class="relative">
 					<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">Estado</label>
 					<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-					venta.Estado ?? detalleCompleto.data?.Estado ? "bg-[#112d25] border-emerald-500/30" : "bg-[#2c1a1d] border-rose-500/30"
+						(venta.Estado ?? detalleCompleto.data?.Estado)
+							? "bg-[#112d25] border-emerald-500/30"
+							: "bg-[#2c1a1d] border-rose-500/30"
 					}">
 					<div class="font-medium ${
-						venta.Estado ?? detalleCompleto.data?.Estado ? "text-emerald-300" : "text-rose-300"
-					}">${venta.Estado ?? detalleCompleto.data?.Estado ? "Activo" : "Anulada"}</div>
+						(venta.Estado ?? detalleCompleto.data?.Estado)
+							? "text-emerald-300"
+							: "text-rose-300"
+					}">${(venta.Estado ?? detalleCompleto.data?.Estado) ? "Activo" : "Anulada"}</div>
 					</div>
 				</div>
 
@@ -207,8 +228,8 @@ const Ventas = () => {
 					<div class="rounded-lg border border-gray-600/50 px-4 bg-[#111827] pt-4">
 					<div class="max-h-60 overflow-y-auto">
 						${
-						productos.length > 0
-							? `<table class="w-full table-fixed text-left text-sm text-gray-200">
+							productos.length > 0
+								? `<table class="w-full table-fixed text-left text-sm text-gray-200">
 								<thead class="bg-[#111827] text-gray-300 uppercase tracking-wide shadow">
 								<tr>
 									<th class="py-2 px-3 w-1/5">Nombre</th>
@@ -218,17 +239,21 @@ const Ventas = () => {
 								</tr>
 								</thead>
 								<tbody>
-								${productos.map(p => `
+								${productos
+									.map(
+										(p) => `
 									<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 									<td class="py-2 px-3">${safeHtmlValue(p.Nombre)}</td>
 									<td class="py-2 px-3">${safeHtmlValue(p.Cantidad)}</td>
 									<td class="py-2 px-3">${formatCurrency(p.Precio_Unitario)}</td>
 									<td class="py-2 px-3">${formatCurrency(p.Subtotal)}</td>
 									</tr>
-								`).join("")}
+								`,
+									)
+									.join("")}
 								</tbody>
 							</table>`
-							: `<p class="italic text-gray-400 text-base">No hay productos en esta venta</p>`
+								: `<p class="italic text-gray-400 text-base">No hay productos en esta venta</p>`
 						}
 					</div>
 					</div>
@@ -239,8 +264,8 @@ const Ventas = () => {
 					<div class="rounded-lg border border-gray-600/50 px-4 bg-[#111827] pt-4">
 					<div class="max-h-60 overflow-y-auto">
 						${
-						servicios.length > 0
-							? `<table class="w-full table-fixed text-left text-sm text-gray-200">
+							servicios.length > 0
+								? `<table class="w-full table-fixed text-left text-sm text-gray-200">
 								<thead class="bg-[#111827] text-gray-300 uppercase tracking-wide shadow">
 								<tr>
 									<th class="py-2 px-3 w-1/3">Nombre</th>
@@ -249,16 +274,20 @@ const Ventas = () => {
 								</tr>
 								</thead>
 								<tbody>
-								${servicios.map(s => `
+								${servicios
+									.map(
+										(s) => `
 									<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 									<td class="py-2 px-3">${safeHtmlValue(s.Nombre)}</td>
 									<td class="py-2 px-3">${formatCurrency(s.Precio)}</td>
 									<td class="py-2 px-3">${formatCurrency(s.Subtotal)}</td>
 									</tr>
-								`).join("")}
+								`,
+									)
+									.join("")}
 								</tbody>
 							</table>`
-							: `<p class="italic text-gray-400 text-base">No hay servicios en esta venta</p>`
+								: `<p class="italic text-gray-400 text-base">No hay servicios en esta venta</p>`
 						}
 					</div>
 					</div>
@@ -268,42 +297,37 @@ const Ventas = () => {
 			`;
 
 			await showAlert(html, {
-			type: "info",
-			showConfirmButton: true,
-			width: "60rem",
-			swalOptions: {
-				confirmButtonText: "Cerrar",
-				padding: "1rem",
-			},
+				type: "info",
+				showConfirmButton: true,
+				width: "60rem",
+				swalOptions: {
+					confirmButtonText: "Cerrar",
+					padding: "1rem",
+				},
 			});
-
 		} catch (error) {
 			console.error("Error:", error);
 			await showAlert(`No se pudieron cargar los detalles: ${error.message}`, {
-			type: "error",
-			title: "Error",
+				type: "error",
+				title: "Error",
 			});
 		}
-		};
+	};
 
 	/*----------------------------------------------------------------*/
 
+	return (
+		<GeneralTable
+			title="Ventas"
+			columns={columns}
+			data={ventas}
+			onAdd={handleAdd}
+			onView={handleVerDetalles}
+			// onCancel={handleToggleEstado}
+			idAccessor="Id_Ventas"
+			stateAccessor="Estado"
+		/>
+	);
+};
 
-
-
-
-  return (
-	<GeneralTable
-		title="Ventas"
-		columns={columns}
-		data={ventas}
-		onAdd={handleAdd}
-		onView={handleVerDetalles}
-		// onCancel={handleToggleEstado}
-		idAccessor="Id_Ventas"
-		stateAccessor="Estado"
-	/>
-  )
-}
-
-export default Ventas
+export default Ventas;

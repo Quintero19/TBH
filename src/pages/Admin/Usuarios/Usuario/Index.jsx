@@ -46,11 +46,13 @@ export default function Usuario() {
 
 			setUsuarios(normalizado);
 		} catch (error) {
-			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {
 				title: "Error",
-				icon: "error",})
-	}
+				icon: "error",
+			});
+		}
 	}, []);
 
 	const handleToggleEstado = async (id) => {

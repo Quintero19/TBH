@@ -25,44 +25,47 @@ const Tamanos = () => {
 			const response = await tamanosService.obtenerTamanos();
 			setTamanos(transformData(response.data));
 		} catch (error) {
-					const mensaje =error.response?.data?.message || "Error al obtener los tamaños.";
-						showAlert(`Error: ${mensaje || error}`, {
-							title: "Error",
-							icon: "error",})
-					}
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los tamaños.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",
+			});
+		}
 	}, []);
 
 	useEffect(() => {
 		fetchTamanos();
-	}, [fetchTamanos]
-	);
+	}, [fetchTamanos]);
 
 	/* ─────────────────────────────────── */
 
 	/* ───── Transformación de Datos ───── */
 
-const transformData = useCallback((lista) =>
-	lista.map((item) => {
-		const precio = Number(item.Precio_Venta) || 0;
+	const transformData = useCallback(
+		(lista) =>
+			lista.map((item) => {
+				const precio = Number(item.Precio_Venta) || 0;
 
-		const insumos = item.Insumos?.map((insumo) => ({
-			...insumo,
-			Cantidad: Math.floor(Number(insumo.Cantidad)),
-		})) || [];
+				const insumos =
+					item.Insumos?.map((insumo) => ({
+						...insumo,
+						Cantidad: Math.floor(Number(insumo.Cantidad)),
+					})) || [];
 
-		return {
-			...item,
-			Precio_Venta: precio.toLocaleString("es-CO", {
-				style: "currency",
-				currency: "COP",
-				minimumFractionDigits: 0,
-				maximumFractionDigits: 0,
+				return {
+					...item,
+					Precio_Venta: precio.toLocaleString("es-CO", {
+						style: "currency",
+						currency: "COP",
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0,
+					}),
+					Insumos: insumos,
+				};
 			}),
-			Insumos: insumos,
-		};
-	}), []
-);
-
+		[],
+	);
 
 	/* ─────────────────────────────────── */
 
@@ -95,7 +98,7 @@ const transformData = useCallback((lista) =>
 	/* ────────── Ver Detalles ──────────── */
 
 	const handleVerDetalles = async (tamano) => {
-		console.log(tamano)
+		console.log(tamano);
 		try {
 			const html = `
 				<div class="space-y-7 text-gray-100">
@@ -171,7 +174,7 @@ const transformData = useCallback((lista) =>
 							<div class="max-h-60 overflow-y-auto">
 								${
 									tamano.Insumos.length > 0
-									? `
+										? `
 								<table class="w-full table-fixed text-left text-base text-gray-200">
 									<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 text-sm uppercase tracking-wide shadow">
 										<tr>
@@ -181,17 +184,19 @@ const transformData = useCallback((lista) =>
 										</tr>
 									</thead>
 									<tbody>
-										${tamano.Insumos.map(i => `
+										${tamano.Insumos.map(
+											(i) => `
 											<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 												<td class="py-3 px-4">${i.Id_Insumos}</td>
 												<td class="py-3 px-4">${i.Nombre}</td>
 												<td class="py-3 px-10">${i.Cantidad}</td>
 											</tr>
-										`).join("")}
+										`,
+										).join("")}
 									</tbody>
 								</table>
 									`
-									: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
+										: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
 								}
 							</div>
 						</div>

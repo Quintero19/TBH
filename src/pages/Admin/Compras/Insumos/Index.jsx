@@ -20,24 +20,27 @@ const InsumoAdmin = () => {
 
 	// --- Función para cargar los insumos ---
 	const cargarInsumos = useCallback(async () => {
-	try {
-		setError(null);
-		const response = await insumoService.obtenerInsumos();
-		const datosProcesados = response.data.map((i) => ({
-			...i,
-			idVisual: `IN_${i.Id_Insumos}`,
-			CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
-			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
-		}));
-		setInsumos(datosProcesados);
-		// console.log("Insumos cargados:", datosProcesados);
-	} catch (error) {
-		const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+		try {
+			setError(null);
+			const response = await insumoService.obtenerInsumos();
+			const datosProcesados = response.data.map((i) => ({
+				...i,
+				idVisual: `IN_${i.Id_Insumos}`,
+				CategoriaNombre:
+					i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
+				StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
+			}));
+			setInsumos(datosProcesados);
+			// console.log("Insumos cargados:", datosProcesados);
+		} catch (error) {
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {
 				title: "Error",
-				icon: "error",})
+				icon: "error",
+			});
 		}
-}, []);
+	}, []);
 
 	// --- Cargar los insumos al montar el componente ---
 	useEffect(() => {
@@ -195,31 +198,29 @@ const InsumoAdmin = () => {
 		}
 	};
 
-
 	// --- Validación para edición y eliminación ---
 	const canEdit = (i) => i.Estado === true;
 	const canDelete = (insumo) => !insumo.TieneCompras;
 
-  // --- Renderizado del componente ---
-  return (
-    <>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <GeneralTable
-        title="Insumos"
-        columns={columns}
-        data={insumos}
-        onView={handleVerDetalles}
-        onToggleEstado={handleToggleEstado}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        idAccessor="Id_Insumos"
-      />
-    </>
-  );
-
+	// --- Renderizado del componente ---
+	return (
+		<>
+			{error && <div className="text-red-500 mb-4">{error}</div>}
+			<GeneralTable
+				title="Insumos"
+				columns={columns}
+				data={insumos}
+				onView={handleVerDetalles}
+				onToggleEstado={handleToggleEstado}
+				onAdd={handleAdd}
+				onEdit={handleEdit}
+				onDelete={handleDelete}
+				canEdit={canEdit}
+				canDelete={canDelete}
+				idAccessor="Id_Insumos"
+			/>
+		</>
+	);
 };
 
 export default InsumoAdmin;

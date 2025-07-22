@@ -1,4 +1,8 @@
-import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
+import {
+	showAlert,
+	showLoadingAlert,
+	closeAlert,
+} from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import React, { useState } from "react";
@@ -16,7 +20,7 @@ const AgregarCatProducto = () => {
 	});
 
 	/* ───── Validaciones Formulario ───── */
-	
+
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
@@ -25,8 +29,7 @@ const AgregarCatProducto = () => {
 				if (!value.trim()) {
 					newErrors[name] = "El nombre es obligatorio";
 				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
-					newErrors[name] =
-						"Solo letras y espacios. Entre 3 y 25 caracteres";
+					newErrors[name] = "Solo letras y espacios. Entre 3 y 25 caracteres";
 				} else {
 					delete newErrors[name];
 				}
@@ -99,7 +102,9 @@ const AgregarCatProducto = () => {
 		} catch (error) {
 			console.error("Error al agregar la categoria de producto:", error);
 			closeAlert();
-			const mensaje = error.response?.data?.message || "Error al agregar la categoria de producto";
+			const mensaje =
+				error.response?.data?.message ||
+				"Error al agregar la categoria de producto";
 			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
@@ -139,7 +144,7 @@ const AgregarCatProducto = () => {
 
 			<form
 				onSubmit={handleSubmit}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+				className="grid grid-cols-1 md:grid-cols-2 gap-6"
 			>
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
@@ -179,7 +184,7 @@ const AgregarCatProducto = () => {
 						onChange={handleChange}
 						rows={3}
 						className="w-full border border-gray-300 p-2 rounded resize-y overflow-y-auto max-h-40"
-				/>
+					/>
 					{errors.Descripcion && (
 						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
 					)}

@@ -26,5 +26,5 @@ export const ventasService = {
 	obtenerVentaPorId: async (id) => {
 		const res = await api.get(`${USER_URL}/${id}`);
 		return res.data;
-	}
+	},
 };

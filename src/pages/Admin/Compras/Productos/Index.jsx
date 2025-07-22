@@ -28,11 +28,13 @@ const Productos = () => {
 			const response = await productoService.obtenerProductoss();
 			setProductos(transformData(response.data));
 		} catch (error) {
-			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-				showAlert(`Error: ${mensaje || error}`, {
-					title: "Error",
-					icon: "error",})
-			}
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",
+			});
+		}
 	}, []);
 
 	useEffect(() => {
@@ -48,7 +50,6 @@ const Productos = () => {
 		return `$ ${Number(value).toLocaleString("es-CO")}`;
 	};
 
-
 	const transformData = useCallback(
 		(lista) =>
 			lista.map((item) => {
@@ -56,15 +57,10 @@ const Productos = () => {
 
 				if (item.Es_Perfume && item.Detalles?.tamanos?.length > 0) {
 					precioVenta = item.Detalles.tamanos
-						.map(
-							(tamano) =>
-								`${tamano.nombre} - ${formatCOP(tamano.precio)}`
-						)
+						.map((tamano) => `${tamano.nombre} - ${formatCOP(tamano.precio)}`)
 						.join("\n");
 				} else {
-					precioVenta = item.Precio_Venta
-						? formatCOP(item.Precio_Venta)
-						: "-";
+					precioVenta = item.Precio_Venta ? formatCOP(item.Precio_Venta) : "-";
 				}
 
 				return {
@@ -76,18 +72,16 @@ const Productos = () => {
 		[],
 	);
 
-
 	/* ─────────────────────────────────── */
 
 	const verImagenes = (producto) => {
-		  console.log("Producto recibido:", producto);
+		console.log("Producto recibido:", producto);
 		if (!producto?.Imagenes?.length) return;
 
 		const urls = producto.Imagenes.map((img) => img.URL); // ← aquí extraes solo las URLs
 		setImagenesActuales(urls);
 		setMostrarCarrusel(true);
 	};
-
 
 	/* ───────── Cambiar Estado ────────── */
 
@@ -132,7 +126,7 @@ const Productos = () => {
 							</div>
 						</div>
 
-						<div class="relative ${!producto.Es_Perfume ? 'md:col-span-2' : ''}">
+						<div class="relative ${!producto.Es_Perfume ? "md:col-span-2" : ""}">
 							<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">
 								Categoría
 							</label>
@@ -148,7 +142,9 @@ const Productos = () => {
 							</div>
 						</div>
 
-						${!producto.Es_Perfume ?`
+						${
+							!producto.Es_Perfume
+								? `
 							<div class="relative">
 								<label class="absolute -top-2.5 left-3 bg-[#111827] text-xs text-gray-400 font-semibold px-1 rounded-md z-10">Precio Venta</label>
 								<div class="bg-[#111827] border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 text-white font-medium">
@@ -168,7 +164,9 @@ const Productos = () => {
 									${producto.Stock}
 								</div>
 							</div>
-						` : ''}
+						`
+								: ""
+						}
 					</div>
 
 					<div class="relative">
@@ -178,7 +176,9 @@ const Productos = () => {
 						</div>
 					</div>
 
-					${producto.Es_Perfume && producto.Detalles?.tamanos?.length ? `
+					${
+						producto.Es_Perfume && producto.Detalles?.tamanos?.length
+							? `
 						<div class="relative md:col-span-2">
 							<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">Tamaños Asociaods</label>
 							<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
@@ -190,19 +190,27 @@ const Productos = () => {
 										</tr>
 									</thead>
 									<tbody>
-										${producto.Detalles.tamanos.map(t => `
+										${producto.Detalles.tamanos
+											.map(
+												(t) => `
 											<tr class="border-b border-gray-800">
 												<td class="py-2">${t.nombre}</td>
 												<td class="py-2">$${Number(t.precio).toLocaleString()}</td>
 											</tr>
-										`).join("")}
+										`,
+											)
+											.join("")}
 									</tbody>
 								</table>
 							</div>
 						</div>
-					` : ''}
+					`
+							: ""
+					}
 
-					${producto.Es_Ropa && producto.Detalles?.tallas?.length ? `
+					${
+						producto.Es_Ropa && producto.Detalles?.tallas?.length
+							? `
 						<div class="relative relative md:col-span-2">
 							<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">Tallas del Producto</label>
 							<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
@@ -214,17 +222,23 @@ const Productos = () => {
 										</tr>
 									</thead>
 									<tbody>
-										${producto.Detalles.tallas.map(t => `
+										${producto.Detalles.tallas
+											.map(
+												(t) => `
 											<tr class="border-b border-gray-800">
 												<td class="py-3 px-8">${t.nombre}</td>
 												<td class="py-3 px-8">${t.stock}</td>
 											</tr>
-										`).join("")}
+										`,
+											)
+											.join("")}
 									</tbody>
 								</table>
 							</div>
 						</div>
-					` : ''}
+					`
+							: ""
+					}
 				</div>
 			`;
 			await showAlert(html, {

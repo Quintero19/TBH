@@ -49,7 +49,7 @@ import DevolucionesAdmin from "../pages/Admin/Usuarios/Ventas/Devoluciones/Index
 import VentaAdmin from "../pages/Admin/Usuarios/Ventas/Venta/Index";
 import AgregarVenta from "../pages/Admin/Usuarios/Ventas/Venta/AgregarVenta";
 import AgregarNovedad from "../pages/Admin/Servicios/Horarios/AgregarNovedad";
-import EditarNovedad from "../pages/Admin/Servicios/Horarios/EditarNovedad"
+import EditarNovedad from "../pages/Admin/Servicios/Horarios/EditarNovedad";
 import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
 import Home from "../pages/Landing/Home";
@@ -102,8 +102,11 @@ function App() {
 				<Route path="servicios/editar/:id" element={<EditarServicios />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
-				<Route path="horarios-novedades/agregar"element={<AgregarNovedad />}/>
-				<Route path="horarios-novedades/editar/:id"element={<EditarNovedad />}/>
+				<Route path="horarios-novedades/agregar" element={<AgregarNovedad />} />
+				<Route
+					path="horarios-novedades/editar/:id"
+					element={<EditarNovedad />}
+				/>
 				<Route path="compras" element={<Compras />} />
 				<Route path="compras/agregar" element={<AgregarCompra />} />
 				<Route path="proveedores" element={<Proveedores />} />

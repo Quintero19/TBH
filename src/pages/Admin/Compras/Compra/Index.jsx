@@ -23,16 +23,18 @@ const Compras = () => {
 			const response = await comprasService.obtenerCompras();
 			setCompras(transformData(response.data, proveedoresData));
 			// console.log(response)
-		}catch (error) {
-			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-				showAlert(`Error: ${mensaje || error}`, {
-					title: "Error",
-					icon: "error",})
-				}
+		} catch (error) {
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",
+			});
+		}
 	}, []);
 
 	useEffect(() => {
-		fetchCompras()
+		fetchCompras();
 	}, [fetchCompras]);
 
 	/* ─────────────────────────────────── */
@@ -47,11 +49,11 @@ const Compras = () => {
 	const transformData = useCallback(
 		(lista) =>
 			lista.map((item) => ({
-			...item,
+				...item,
 				Id_Compras: `COM_${item.Id_Compras}`,
 				Total: item.Total ? formatCOP(item.Total) : "-",
 			})),
-		[]
+		[],
 	);
 
 	/* ─────────────────────────────────── */
@@ -121,10 +123,12 @@ const Compras = () => {
 				<div class="relative">
 					<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">Estado</label>
 					<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-						compra.Estado ? "bg-[#112d25] border-emerald-500/30" : "bg-[#2c1a1d] border-rose-500/30"
+						compra.Estado
+							? "bg-[#112d25] border-emerald-500/30"
+							: "bg-[#2c1a1d] border-rose-500/30"
 					}">
 						<div class="font-medium ${
-						compra.Estado ? "text-emerald-300" : "text-rose-300"
+							compra.Estado ? "text-emerald-300" : "text-rose-300"
 						}">${compra.Estado ? "Activo" : "Inactivo"}</div>
 					</div>
 				</div>
@@ -149,7 +153,7 @@ const Compras = () => {
 					<div class="max-h-60 overflow-y-auto">
 					${
 						compra.Insumos.length > 0
-						? `
+							? `
 						<table class="w-full table-fixed text-left text-sm text-gray-200">
 							<thead class="sticky top-0 z-20 bg-[#111827] text-gray-300 uppercase tracking-wide shadow">
 							<tr>
@@ -161,7 +165,8 @@ const Compras = () => {
 							</tr>
 							</thead>
 							<tbody>
-							${compra.Insumos.map(i => `
+							${compra.Insumos.map(
+								(i) => `
 								<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 								<td class="py-3 px-4">${i.Id_Insumos}</td>
 								<td class="py-3 px-4">${i.Nombre}</td>
@@ -169,10 +174,11 @@ const Compras = () => {
 								<td class="py-3 px-4">$${parseFloat(i.Precio_ml).toLocaleString()}</td>
 								<td class="py-3 px-4">$${parseFloat(i.Subtotal).toLocaleString()}</td>
 								</tr>
-							`).join("")}
+							`,
+							).join("")}
 							</tbody>
 						</table>`
-						: `<p class="italic text-gray-400 text-base">No hay insumos asociados</p>`
+							: `<p class="italic text-gray-400 text-base">No hay insumos asociados</p>`
 					}
 					</div>
 				</div>
@@ -184,7 +190,7 @@ const Compras = () => {
 					<div class="max-h-60 overflow-y-auto">
 					${
 						compra.Productos.length > 0
-						? `
+							? `
 						<table class="w-full table-fixed text-left text-sm text-gray-200">
 							<thead class="bg-[#111827] text-gray-300 uppercase tracking-wide shadow">
 							<tr>
@@ -196,7 +202,8 @@ const Compras = () => {
 							</tr>
 							</thead>
 							<tbody>
-							${compra.Productos.map(p => `
+							${compra.Productos.map(
+								(p) => `
 								<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 								<td class="py-2 px-3 font-semibold text-white">${p.Nombre}</td>
 								<td class="py-2 px-3">${p.Cantidad}</td>
@@ -205,17 +212,20 @@ const Compras = () => {
 								<td class="py-2 px-3">
 									${
 										p.Tallas && p.Tallas.length > 0
-										? p.Tallas.map(t => `${t.Talla}: ${t.Cantidad}`).join("<br>")
-										: "-"
+											? p.Tallas.map((t) => `${t.Talla}: ${t.Cantidad}`).join(
+													"<br>",
+												)
+											: "-"
 									}
 								</td>
 
 
 								</tr>
-							`).join("")}
+							`,
+							).join("")}
 							</tbody>
 						</table>`
-						: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
+							: `<p class="italic text-gray-400 text-base">No hay productos asociados</p>`
 					}
 					</div>
 				</div>
@@ -227,7 +237,7 @@ const Compras = () => {
 			await showAlert(html, {
 				type: "info",
 				showConfirmButton: true,
-				width: "60rem",	
+				width: "60rem",
 				swalOptions: {
 					confirmButtonText: "Cerrar",
 					padding: "1rem",

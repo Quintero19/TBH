@@ -1,4 +1,8 @@
-import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
+import {
+	showAlert,
+	showLoadingAlert,
+	closeAlert,
+} from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { insumoService } from "@/service/insumo.service";
 import { tamanosService } from "@/service/tamanos.service";
@@ -84,7 +88,7 @@ export default function EditarTamano() {
 	};
 
 	/* ─────────────────────────────────── */
-	
+
 	/* ─────────── Cargar Datos ────────── */
 
 	useEffect(() => {
@@ -129,7 +133,11 @@ export default function EditarTamano() {
 				);
 			} catch (e) {
 				console.error(e);
-				showAlert("Error al cargar datos", { type: "error" , title: "Error", duration: 2000});
+				showAlert("Error al cargar datos", {
+					type: "error",
+					title: "Error",
+					duration: 2000,
+				});
 			}
 		};
 		obtenerDatos();
@@ -144,18 +152,31 @@ export default function EditarTamano() {
 		if (field === "id_insumo") {
 			const id = Number(val);
 			if (list.some((i, i2) => i.Id_Insumos === id && i2 !== insumoIndex))
-				return showAlert("Insumo Duplicado", { type: "warning" , title: "Advertencia", duration: 2000});
+				return showAlert("Insumo Duplicado", {
+					type: "warning",
+					title: "Advertencia",
+					duration: 2000,
+				});
 			const encontrado = insumos.find((i) => i.Id_Insumos === id);
 			if (encontrado)
-				list[insumoIndex] = { ...list[insumoIndex], Id_Insumos: id, Nombre: encontrado.Nombre };
+				list[insumoIndex] = {
+					...list[insumoIndex],
+					Id_Insumos: id,
+					Nombre: encontrado.Nombre,
+				};
 		} else if (field === "cantidad" && (/^\d*$/.test(val) || val === "")) {
 			const nuevaCant = val === "" ? "" : Number(val);
 			const total = list.reduce(
-				(sum, i, i2) => sum + (i2 === insumoIndex ? nuevaCant : Number(i.Cantidad)),
+				(sum, i, i2) =>
+					sum + (i2 === insumoIndex ? nuevaCant : Number(i.Cantidad)),
 				0,
 			);
 			if (formData.Cantidad_Maxima && total > Number(formData.Cantidad_Maxima))
-				return showAlert("Excede la cantidad Maxima colocada", { type: "warning" , title: "Advertencia", duration: 2000});
+				return showAlert("Excede la cantidad Maxima colocada", {
+					type: "warning",
+					title: "Advertencia",
+					duration: 2000,
+				});
 			list[insumoIndex].Cantidad = val;
 		}
 		setInsumosSeleccionados(list);
@@ -164,16 +185,24 @@ export default function EditarTamano() {
 	/* ─────────────────────────────────── */
 
 	/* ─────────── +/- Insumos ─────────── */
-		
+
 	const addInsumo = () => {
 		const total = insumosSeleccionados.reduce(
 			(s, i) => s + Number(i.Cantidad || 0),
 			0,
 		);
 		if (total >= Number(formData.Cantidad_Maxima))
-			return showAlert("Máximo alcanzado", { type: "warning" , title: "Advertencia", duration: 2000});
+			return showAlert("Máximo alcanzado", {
+				type: "warning",
+				title: "Advertencia",
+				duration: 2000,
+			});
 		if (insumosSeleccionados.some((i) => !i.Id_Insumos))
-			return showAlert("Hay un insumo pendiente por completar", { type: "warning" , title: "Advertencia", duration: 2000});
+			return showAlert("Hay un insumo pendiente por completar", {
+				type: "warning",
+				title: "Advertencia",
+				duration: 2000,
+			});
 		setInsumosSeleccionados([
 			...insumosSeleccionados,
 			{ Id_Insumos: "", Nombre: "", Cantidad: "" },
@@ -186,9 +215,17 @@ export default function EditarTamano() {
 
 	const handleSubmit = async () => {
 		if (Object.keys(errors).length)
-			return showAlert("Corrige errores", { type: "warning", title: "Error", duration: 2000});
+			return showAlert("Corrige errores", {
+				type: "warning",
+				title: "Error",
+				duration: 2000,
+			});
 		if (!frascoSeleccionado)
-			return showAlert("Debe seleccionar al menos el frasco del tamaño", { type: "error", title: "Error", duration: 2000});
+			return showAlert("Debe seleccionar al menos el frasco del tamaño", {
+				type: "error",
+				title: "Error",
+				duration: 2000,
+			});
 
 		const payload = {
 			Id_Tamano: Number(id),
@@ -207,15 +244,18 @@ export default function EditarTamano() {
 		try {
 			showLoadingAlert("Editando Tamaño...");
 			await tamanosService.actualizarTamano(id, payload);
-			closeAlert()
-			showAlert("Actualizado", { type: "success", title: "¡Éxito!", duration: 2000}).then(() =>
-				navigate("/admin/tamanos"),
-			);
+			closeAlert();
+			showAlert("Actualizado", {
+				type: "success",
+				title: "¡Éxito!",
+				duration: 2000,
+			}).then(() => navigate("/admin/tamanos"));
 		} catch (error) {
 			console.error(error);
-			closeAlert()
-			const mensaje = error.response?.data?.message || "Error al editar el tamaño";
-			showAlert(mensaje, { type: "error", title: "Error", duration: 2000});
+			closeAlert();
+			const mensaje =
+				error.response?.data?.message || "Error al editar el tamaño";
+			showAlert(mensaje, { type: "error", title: "Error", duration: 2000 });
 		}
 	};
 
@@ -235,7 +275,7 @@ export default function EditarTamano() {
 	};
 
 	/* ──────────────────────────────────── */
-	
+
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
@@ -297,7 +337,10 @@ export default function EditarTamano() {
 					{/* Insumos dinámicos */}
 					<div className="space-y-4 mb-6">
 						{insumosSeleccionados.map((insumo, insumoIndex) => (
-							<div key={insumoIndex} className="grid grid-cols-4 gap-4 items-center">
+							<div
+								key={insumoIndex}
+								className="grid grid-cols-4 gap-4 items-center"
+							>
 								<select
 									className="col-span-2 border px-3 py-2 rounded-md"
 									value={insumo.Id_Insumos}

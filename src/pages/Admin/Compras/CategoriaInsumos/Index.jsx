@@ -34,11 +34,13 @@ const CategoriaInsumoAdmin = () => {
 			const response = await categoriaInsumoService.obtenerCategorias();
 			setCategorias(transformData(response.data));
 		} catch (error) {
-			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
 			showAlert(`Error: ${mensaje || error}`, {
 				title: "Error",
-				icon: "error",})
-	}
+				icon: "error",
+			});
+		}
 	}, []);
 
 	/**
@@ -49,16 +51,14 @@ const CategoriaInsumoAdmin = () => {
 		cargarCategorias();
 	}, [cargarCategorias]);
 
-
 	const transformData = useCallback(
-			(lista) =>
-				lista.map((item) => ({
+		(lista) =>
+			lista.map((item) => ({
 				...item,
-					Id_Categoria_Insumos: `CAT_${item.Id_Categoria_Insumos}`,
-				})),
-			[]
-		);
-	
+				Id_Categoria_Insumos: `CAT_${item.Id_Categoria_Insumos}`,
+			})),
+		[],
+	);
 
 	/**
 	 * Función para cambiar el estado activo/inactivo de una categoría.

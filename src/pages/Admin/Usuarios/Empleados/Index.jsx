@@ -29,11 +29,13 @@ const Empleados = () => {
 			const response = await empleadoService.obtenerEmpleados();
 			setEmpleados(transformData(response.data));
 		} catch (error) {
-					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-					showAlert(`Error: ${mensaje || error}`, {
-						title: "Error",
-						icon: "error",})
-			}
+			const mensaje =
+				error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+				title: "Error",
+				icon: "error",
+			});
+		}
 	}, [transformData]);
 
 	useEffect(() => {
@@ -58,8 +60,8 @@ const Empleados = () => {
 	};
 
 	const handleVerDetalles = async (empleado) => {
-	try {
-		const html = `
+		try {
+			const html = `
 		<div class="space-y-7 text-gray-100">
 			<!-- Encabezado -->
 			<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
@@ -164,31 +166,31 @@ const Empleados = () => {
 		</div>
 		`;
 
-		await showAlert(html, {
-			title: "",
-			width: "640px",
-			background: "#111827",
-			color: "#ffffff",
-			padding: "1.5rem",
-			confirmButtonText: "Cerrar",
-			confirmButtonColor: "#4f46e5",
-			customClass: {
-				popup: "rounded-xl shadow-2xl border border-gray-700/50",
-				confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
-			},
-		});
-	} catch (error) {
-		console.error(error);
-		await showAlert(`Error: ${error.message || error}`, {
-			title: "Error",
-			icon: "error",
-			background: "#1f2937",
-			color: "#ffffff",
-			width: "500px",
-			confirmButtonColor: "#dc2626",
-		});
-	}
-  };
+			await showAlert(html, {
+				title: "",
+				width: "640px",
+				background: "#111827",
+				color: "#ffffff",
+				padding: "1.5rem",
+				confirmButtonText: "Cerrar",
+				confirmButtonColor: "#4f46e5",
+				customClass: {
+					popup: "rounded-xl shadow-2xl border border-gray-700/50",
+					confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
+				},
+			});
+		} catch (error) {
+			console.error(error);
+			await showAlert(`Error: ${error.message || error}`, {
+				title: "Error",
+				icon: "error",
+				background: "#1f2937",
+				color: "#ffffff",
+				width: "500px",
+				confirmButtonColor: "#dc2626",
+			});
+		}
+	};
 
 	const handleEdit = (empleado) => {
 		navigate(`/admin/empleado/editar/${empleado.Id_Empleados}`);
@@ -204,7 +206,7 @@ const Empleados = () => {
 				showCancelButton: true,
 				confirmButtonText: "Sí, eliminar",
 				cancelButtonText: "Cancelar",
-			}
+			},
 		);
 
 		if (result.isConfirmed) {

@@ -33,7 +33,8 @@ const EditarCatInsumo = () => {
 			case "Descripcion":
 				if (!val) newErrors.Descripcion = "La descripción es obligatoria";
 				else if (val.length < 5) newErrors.Descripcion = "Mínimo 5 caracteres";
-				else if (val.length > 100) newErrors.Descripcion = "Máximo 100 caracteres";
+				else if (val.length > 100)
+					newErrors.Descripcion = "Máximo 100 caracteres";
 				else newErrors.Descripcion = undefined;
 				break;
 
@@ -107,7 +108,8 @@ const EditarCatInsumo = () => {
 
 		const sinCambios =
 			formData.Nombre.trim() === categoriaOriginal.Nombre.trim() &&
-			formData.Descripcion.trim() === (categoriaOriginal.Descripcion || "").trim() &&
+			formData.Descripcion.trim() ===
+				(categoriaOriginal.Descripcion || "").trim() &&
 			formData.Estado === categoriaOriginal.Estado;
 
 		if (sinCambios) {
@@ -136,7 +138,6 @@ const EditarCatInsumo = () => {
 			});
 		}
 	};
-
 
 	const handleCancel = () => {
 		showAlert("¿Estás seguro de cancelar los cambios?", {
