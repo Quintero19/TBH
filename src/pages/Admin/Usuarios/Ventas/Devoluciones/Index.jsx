@@ -25,9 +25,12 @@ const Devolucion = () => {
 		} catch (error) {
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {
-							title: "Error",
-							icon: "error",})
-					}
+								duration: 2500,
+								title: "Error",
+								icon: "error",
+								didClose: () => {navigate(-1)},
+							})
+						}
 	}, []);
 	useEffect(() => {
 		fetchDevolucion();

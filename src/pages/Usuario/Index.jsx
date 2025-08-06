@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/sideBar";
+import NavbarClient from "../../components/sideBarCliente";
+import Footer from "../../components/Footer";
 
 export default function Dashboard() {
 	const navigate = useNavigate();
@@ -19,13 +20,14 @@ export default function Dashboard() {
 
 	return (
 		<>
-			<Sidebar />
+			<NavbarClient />
 			<div className="flex-1 md:ml-64 p-4 md:p-8">
 				<h1>Bienvenido al Usuario</h1>
 				<button type="button" onClick={handleLogout}>
 					Cerrar Sesión
 				</button>
 			</div>
+			<Footer />
 		</>
 	);
 }

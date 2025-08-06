@@ -24,12 +24,14 @@ const Ventas = () => {
 			setVentas(transformData(response.data));
 			console.log(response);
 		} catch (error) {
-			const mensaje = error.response?.data?.message || "Error al obtener las ventas.";
-			showAlert(`Error: ${mensaje}`, {
-				title: "Error",
-				icon: "error",
-			});
-		}
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+								duration: 2500,
+								title: "Error",
+								icon: "error",
+								didClose: () => {navigate(-1)},
+							})
+						}
 	}, []);
 
 	useEffect(() => {

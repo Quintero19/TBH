@@ -1,5 +1,5 @@
 import { React, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate  } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { rolService } from "@/service/roles.service";
@@ -33,8 +33,14 @@ export default function Rol() {
 
 			setRoles(normalizado);
 		} catch (error) {
-			console.error("Error al obtener los roles:", error);
-		}
+			const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+				showAlert(`Error: ${mensaje || error}`, {
+						duration: 2500,
+						title: "Error",
+						icon: "error",
+						didClose: () => {navigate(-1)},
+					})
+				}
 	}, []);
 
 	const handleToggleEstado = async (id) => {
