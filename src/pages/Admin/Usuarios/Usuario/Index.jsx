@@ -2,7 +2,7 @@ import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { rolService } from "@/service/roles.service.js";
 import { userService } from "@/service/usuario.service";
-import { React, useCallback, useEffect, useMemo, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Usuario() {
@@ -46,13 +46,16 @@ export default function Usuario() {
 
 			setUsuarios(normalizado);
 		} catch (error) {
-			const mensaje =
-				error.response?.data?.message || "Error al obtener los usuarios.";
-			showAlert(`Error: ${mensaje || error}`, {
-				title: "Error",
-				icon: "error",
-			});
-		}
+
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+								duration: 2500,
+								title: "Error",
+								icon: "error",
+								didClose: () => {navigate(-1)},
+							})
+						}
+
 	}, []);
 
 	const handleToggleEstado = async (id) => {

@@ -32,6 +32,7 @@ export function AlertProvider({ children }) {
 		return Swal.fire({
 			icon: config.icon,
 			title: options.title || "",
+			didClose: options.didClose || undefined,
 			html: message,
 			timerProgressBar: true,
 			showConfirmButton: options.showConfirmButton ?? false,

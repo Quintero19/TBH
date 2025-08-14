@@ -25,13 +25,16 @@ const Tamanos = () => {
 			const response = await tamanosService.obtenerTamanos();
 			setTamanos(transformData(response.data));
 		} catch (error) {
-			const mensaje =
-				error.response?.data?.message || "Error al obtener los tamaños.";
-			showAlert(`Error: ${mensaje || error}`, {
-				title: "Error",
-				icon: "error",
-			});
-		}
+
+					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+						showAlert(`Error: ${mensaje || error}`, {
+								duration: 2500,
+								title: "Error",
+								icon: "error",
+								didClose: () => {navigate(-1)},
+							})
+						}
+
 	}, []);
 
 	useEffect(() => {

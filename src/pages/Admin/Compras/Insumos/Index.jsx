@@ -19,28 +19,29 @@ const InsumoAdmin = () => {
 	const navigate = useNavigate();
 
 	// --- Función para cargar los insumos ---
-	const cargarInsumos = useCallback(async () => {
-		try {
-			setError(null);
-			const response = await insumoService.obtenerInsumos();
-			const datosProcesados = response.data.map((i) => ({
-				...i,
-				idVisual: `IN_${i.Id_Insumos}`,
-				CategoriaNombre:
-					i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
-				StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
-			}));
-			setInsumos(datosProcesados);
-			// console.log("Insumos cargados:", datosProcesados);
-		} catch (error) {
-			const mensaje =
-				error.response?.data?.message || "Error al obtener los usuarios.";
-			showAlert(`Error: ${mensaje || error}`, {
-				title: "Error",
-				icon: "error",
-			});
-		}
-	}, []);
+	const cargarInsumos = useCallback(async () =
+                                    
+	try {
+		setError(null);
+		const response = await insumoService.obtenerInsumos();
+		const datosProcesados = response.data.map((i) => ({
+			...i,
+			CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
+			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
+		}));
+		setInsumos(datosProcesados);
+		// console.log("Insumos cargados:", datosProcesados);
+	} catch (error) {
+				const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+					showAlert(`Error: ${mensaje || error}`, {
+							duration: 2500,
+							title: "Error",
+							icon: "error",
+							didClose: () => {navigate(-1)},
+						})
+					}
+}, []);
+
 
 	// --- Cargar los insumos al montar el componente ---
 	useEffect(() => {

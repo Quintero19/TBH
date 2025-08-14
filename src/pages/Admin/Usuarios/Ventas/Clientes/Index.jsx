@@ -37,30 +37,32 @@ export default function Clientes() {
 	const canEdit = (cliente) => cliente.Estado === true;
 	const canDelete = (cliente) => cliente.Estado === true;
 
-	const obtenerClientes = useCallback(async () => {
-		try {
-			const response = await clienteService.listarClientes();
-			const normalizado = response.data.map((cliente) => ({
-				Id_Cliente: cliente.Id_Cliente,
-				Tipo_Documento: cliente.Tipo_Documento,
-				Documento: cliente.Documento,
-				Nombre: cliente.Nombre,
-				Correo: cliente.Correo,
-				Celular: cliente.Celular,
-				Direccion: cliente.Direccion,
-				F_Nacimiento: cliente.F_Nacimiento,
-				Estado: cliente.Estado,
-			}));
-			setClientes(normalizado);
-		} catch (error) {
-			console.error("Error al obtener los clientes:", error);
-			showAlert("Error al cargar los clientes.", {
-				type: "error",
-				title: "Error de Carga",
-				duration: 2500,
-			});
-		}
-	}, []);
+    const obtenerClientes = useCallback(async () => {
+        try {
+            const response = await clienteService.listarClientes();
+            const normalizado = response.data.map((cliente) => ({
+                Id_Cliente: cliente.Id_Cliente,
+                Tipo_Documento: cliente.Tipo_Documento,
+                Documento: cliente.Documento,
+                Nombre: cliente.Nombre,
+                Correo: cliente.Correo,
+                Celular: cliente.Celular,
+                Direccion: cliente.Direccion,
+                F_Nacimiento: cliente.F_Nacimiento,
+                Estado: cliente.Estado,
+            }));
+            setClientes(normalizado);
+        } catch (error) {
+                    const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+                        showAlert(`Error: ${mensaje || error}`, {
+                                duration: 2500,
+                                title: "Error",
+                                icon: "error",
+                                didClose: () => {navigate(-1)},
+                            })
+                        }
+    }, []);
+
 
 	useEffect(() => {
 		obtenerClientes();
