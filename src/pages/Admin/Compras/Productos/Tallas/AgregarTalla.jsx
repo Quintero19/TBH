@@ -1,4 +1,8 @@
-import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
+import {
+	showAlert,
+	showLoadingAlert,
+	closeAlert,
+} from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import { tallasService } from "@/service/tallas.service";
@@ -67,7 +71,7 @@ const AgregarTalla = () => {
 	};
 
 	/* ─────────────────────────────────── */
-	
+
 	/* ─────── Cargar Categorias ───────── */
 
 	useEffect(() => {
@@ -113,7 +117,8 @@ const AgregarTalla = () => {
 		} catch (error) {
 			console.error("Error al agregar la Talla:", error);
 			closeAlert();
-			const mensaje = error.response?.data?.message || "Error al agregar la talla";
+			const mensaje =
+				error.response?.data?.message || "Error al agregar la talla";
 			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
@@ -192,13 +197,20 @@ const AgregarTalla = () => {
 							</option>
 						))}
 					</select>
-						{errors.Id_Categoria_Producto && (
-							<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Producto}</p>
-						)}
+					{errors.Id_Categoria_Producto && (
+						<p className="text-red-500 text-sm mt-1">
+							{errors.Id_Categoria_Producto}
+						</p>
+					)}
 				</div>
 
 				<div className="md:col-span-2 flex gap-2 ml-7">
-					<Button type="submit" className="green" icon="fa-floppy-o" disabled={Object.keys(errors).length > 0}>
+					<Button
+						type="submit"
+						className="green"
+						icon="fa-floppy-o"
+						disabled={Object.keys(errors).length > 0}
+					>
 						Guardar
 					</Button>
 					<Button className="red" onClick={handleCancel} icon="fa-times">

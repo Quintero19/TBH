@@ -1,4 +1,8 @@
-import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
+import {
+	showAlert,
+	showLoadingAlert,
+	closeAlert,
+} from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { insumoService } from "@/service/insumo.service";
 import { tamanosService } from "@/service/tamanos.service";
@@ -101,7 +105,7 @@ function AgregarTamano() {
 	};
 
 	/* ─────────────────────────────────── */
-	
+
 	/* ─────────── Cargar Datos ────────── */
 
 	const obtenerDatos = useCallback(async () => {
@@ -230,7 +234,7 @@ function AgregarTamano() {
 				await tamanosService.crearRelaciones({ Id_Tamano, ...frasco });
 			}
 
-			closeAlert()
+			closeAlert();
 			showAlert("Tamaño guardado correctamente", {
 				title: "¡Éxito!",
 				type: "success",
@@ -238,8 +242,9 @@ function AgregarTamano() {
 			}).then(() => navigate("/admin/tamanos"));
 		} catch (error) {
 			console.error("Error al agregar el Tamaño:", error);
-			closeAlert()
-			const mensaje = error.response?.data?.message || "Error al agregar el tamaño";
+			closeAlert();
+			const mensaje =
+				error.response?.data?.message || "Error al agregar el tamaño";
 			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
@@ -345,7 +350,10 @@ function AgregarTamano() {
 					{/* Insumos dinámicos */}
 					<div className="space-y-4 mb-6">
 						{insumosSeleccionados.map((insumo, insumoIndex) => (
-							<div key={insumoIndex} className="grid grid-cols-4 gap-4 items-center">
+							<div
+								key={insumoIndex}
+								className="grid grid-cols-4 gap-4 items-center"
+							>
 								<select
 									className="col-span-2 border border-gray-300 px-3 py-2 rounded-md"
 									value={insumo.Id_Insumos}

@@ -35,11 +35,9 @@ const AgregarCatInsumo = () => {
 			newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
 		} else if (descripcion.length > 100) {
 			newErrors.Descripcion = "Máximo 100 caracteres permitidos";
-		}
-		else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
+		} else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
 			newErrors.Nombre = "Solo letras y números, sin espacios";
 		}
-
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -75,15 +73,12 @@ const AgregarCatInsumo = () => {
 		setErrors(newErrors);
 	};
 
-
-
 	/* ---------- Manejo de cambios ---------- */
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 		validateField(name, value);
 	};
-
 
 	/* ---------- Guardar ---------- */
 	const handleSubmit = async (e) => {
@@ -100,9 +95,12 @@ const AgregarCatInsumo = () => {
 
 		try {
 			// Verificar si ya existe una categoría con el mismo nombre
-			const categoriasExistentes = await categoriaInsumoService.obtenerCategorias();
+			const categoriasExistentes =
+				await categoriaInsumoService.obtenerCategorias();
 			const yaExiste = categoriasExistentes.data.some(
-				(c) => c.Nombre.toLowerCase().trim() === formData.Nombre.toLowerCase().trim()
+				(c) =>
+					c.Nombre.toLowerCase().trim() ===
+					formData.Nombre.toLowerCase().trim(),
 			);
 
 			if (yaExiste) {
@@ -121,18 +119,16 @@ const AgregarCatInsumo = () => {
 				duration: 1500,
 			});
 			navigate("/admin/categoriainsumo");
-
 		} catch (err) {
 			console.error(err);
-			const mensaje = err.response?.data?.message || "Ocurrió un error al guardar";
+			const mensaje =
+				err.response?.data?.message || "Ocurrió un error al guardar";
 			showAlert(`Error al guardar: ${mensaje}`, {
 				type: "error",
 				title: "Error",
 			});
 		}
 	};
-
-
 
 	/* ---------- Cancelar ---------- */
 	const handleCancel = () => {

@@ -46,6 +46,7 @@ export default function Usuario() {
 
 			setUsuarios(normalizado);
 		} catch (error) {
+
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {
 								duration: 2500,
@@ -54,6 +55,7 @@ export default function Usuario() {
 								didClose: () => {navigate(-1)},
 							})
 						}
+
 	}, []);
 
 	const handleToggleEstado = async (id) => {

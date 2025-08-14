@@ -21,4 +21,10 @@ export const ventasService = {
 		const res = await api.put(`${USER_URL}/estado/${id}`);
 		return res.data;
 	},
+
+	// Obtener una venta por ID
+	obtenerVentaPorId: async (id) => {
+		const res = await api.get(`${USER_URL}/${id}`);
+		return res.data;
+	},
 };

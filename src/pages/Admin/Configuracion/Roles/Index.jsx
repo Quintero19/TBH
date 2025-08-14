@@ -3,8 +3,8 @@ import { useNavigate  } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import GeneralTable from "@/components/GeneralTable";
 import { rolService } from "@/service/roles.service";
-import { permisoService } from '@/service/permisos.service';
-import { rolPermisoService } from '@/service/asignacionPermiso';
+import { permisoService } from "@/service/permisos.service";
+import { rolPermisoService } from "@/service/asignacionPermiso";
 
 export default function Rol() {
 	const navigate = useNavigate();
@@ -44,33 +44,32 @@ export default function Rol() {
 	}, []);
 
 	const handleToggleEstado = async (id) => {
-	try {
-		const rolId = await rolService.cambiarEstadoRoles(id);
-		await obtenerRoles();
+		try {
+			const rolId = await rolService.cambiarEstadoRoles(id);
+			await obtenerRoles();
 
-		await showAlert(
-			`El rol ha sido ${rolId.Estado ? 'desactivado' : 'activado'} correctamente.`,
-			{
-				type: "success",
-				title: "Estado actualizado",
-				showConfirmButton: false,
-				timer: 2000,
-			}
-		);
-	} catch (error) {
-		console.error("Error cambiando estado:", error);
+			await showAlert(
+				`El rol ha sido ${rolId.Estado ? "desactivado" : "activado"} correctamente.`,
+				{
+					type: "success",
+					title: "Estado actualizado",
+					showConfirmButton: false,
+					timer: 2000,
+				},
+			);
+		} catch (error) {
+			console.error("Error cambiando estado:", error);
 
-		const errorMessage =
-			error.response?.data?.message || "Error al cambiar el estado del rol.";
+			const errorMessage =
+				error.response?.data?.message || "Error al cambiar el estado del rol.";
 
-		await showAlert(errorMessage, {
-			type: "error",
-			title: "Error",
-			duration: 2500,
-		});
-	}
-};
-
+			await showAlert(errorMessage, {
+				type: "error",
+				title: "Error",
+				duration: 2500,
+			});
+		}
+	};
 
 	const handleDelete = async (rol) => {
 		const result = await showAlert(
@@ -105,33 +104,35 @@ export default function Rol() {
 					title: "Error",
 					duration: 2500,
 				});
-	}
+			}
 		}
 	};
 
 	async function verDetalleRol(rol) {
-			let relaciones = [];
+		let relaciones = [];
+		try {
+			const response = await rolPermisoService.listarPermisosPorRol(rol.Id);
+			relaciones = response.data || [];
+		} catch (error) {
+			console.error("Error al obtener permisos del rol:", error);
+		}
+
+		const permisos = [];
+
+		for (const rel of relaciones) {
 			try {
-				const response = await rolPermisoService.listarPermisosPorRol(rol.Id);
-				relaciones = response.data || [];
-			} catch (error) {
-				console.error("Error al obtener permisos del rol:", error);
-			}
-
-			const permisos = [];
-
-			for (const rel of relaciones) {
-				try {
-				const permisoResp = await permisoService.listarPermisosId(rel.Permiso_Id);
+				const permisoResp = await permisoService.listarPermisosId(
+					rel.Permiso_Id,
+				);
 				if (permisoResp?.Nombre) {
 					permisos.push(permisoResp.Nombre);
 				}
-				} catch (err) {
+			} catch (err) {
 				console.warn(`Permiso con ID ${rel.Permiso_Id} no encontrado`, err);
-				}
 			}
+		}
 
-			const html = `
+		const html = `
 				<div class="space-y-7 text-gray-100">
 				<!-- Encabezado -->
 				<div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
@@ -154,10 +155,12 @@ export default function Rol() {
 					<div class="relative">
 					<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 bg-[#111827] rounded-md z-10">Estado</label>
 					<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-						rol.Estado ? 'bg-[#112d25] border-emerald-500/30' : 'bg-[#2c1a1d] border-rose-500/30'
+						rol.Estado
+							? "bg-[#112d25] border-emerald-500/30"
+							: "bg-[#2c1a1d] border-rose-500/30"
 					}">
 						<div class="font-medium ${
-						rol.Estado ? 'text-emerald-300' : 'text-rose-300'
+							rol.Estado ? "text-emerald-300" : "text-rose-300"
 						}">
 						${rol.Estado ? "Activo" : "Inactivo"}
 						</div>
@@ -168,7 +171,7 @@ export default function Rol() {
 					<div class="relative md:col-span-2">
 					<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 bg-[#111827] rounded-md z-10">Descripción</label>
 					<div class="rounded-lg border border-gray-600/50 pt-4 pb-2.5 px-4 bg-[#111827] min-h-12">
-						<div class="text-gray-200 ${!rol.Descripcion ? 'italic text-gray-400' : ''}">
+						<div class="text-gray-200 ${!rol.Descripcion ? "italic text-gray-400" : ""}">
 						${rol.Descripcion || "No hay descripción disponible"}
 						</div>
 					</div>
@@ -181,8 +184,8 @@ export default function Rol() {
 						<ul class="list-disc pl-5 space-y-1 text-gray-200">
 						${
 							permisos.length > 0
-							? permisos.map(p => `<li>${p}</li>`).join("")
-							: `<li class="italic text-gray-400">No hay permisos asignados</li>`
+								? permisos.map((p) => `<li>${p}</li>`).join("")
+								: `<li class="italic text-gray-400">No hay permisos asignados</li>`
 						}
 						</ul>
 					</div>
@@ -191,20 +194,20 @@ export default function Rol() {
 				</div>
 			`;
 
-			await showAlert(html, {
-				title: '',
-				width: '640px',
-				background: '#111827',
-				color: '#ffffff',
-				padding: '1.5rem',
-				confirmButtonText: 'Cerrar',
-				confirmButtonColor: '#4f46e5',
-				customClass: {
-				popup: 'rounded-xl shadow-2xl border border-gray-700/50',
-				confirmButton: 'px-6 py-2 font-medium rounded-lg mt-4'
-				}
-			});
-			}
+		await showAlert(html, {
+			title: "",
+			width: "640px",
+			background: "#111827",
+			color: "#ffffff",
+			padding: "1.5rem",
+			confirmButtonText: "Cerrar",
+			confirmButtonColor: "#4f46e5",
+			customClass: {
+				popup: "rounded-xl shadow-2xl border border-gray-700/50",
+				confirmButton: "px-6 py-2 font-medium rounded-lg mt-4",
+			},
+		});
+	}
 
 	const handleEdit = (rol) => {
 		navigate(`/admin/roles/editar/${rol.Id}`);

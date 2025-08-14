@@ -92,7 +92,11 @@ const EditarInsumo = () => {
 		e.preventDefault();
 
 		let newErrors = validateField("Nombre", formData.Nombre, {});
-		newErrors = validateField("Id_Categoria_Insumos", formData.Id_Categoria_Insumos, newErrors);
+		newErrors = validateField(
+			"Id_Categoria_Insumos",
+			formData.Id_Categoria_Insumos,
+			newErrors,
+		);
 
 		setErrors(newErrors);
 
@@ -104,11 +108,12 @@ const EditarInsumo = () => {
 			});
 			return;
 		}
-		
+
 		const duplicado = insumosExistentes.find(
 			(i) =>
-				i.Nombre.trim().toLowerCase() === formData.Nombre.trim().toLowerCase() &&
-				i.Id_Insumos.toString() !== id
+				i.Nombre.trim().toLowerCase() ===
+					formData.Nombre.trim().toLowerCase() &&
+				i.Id_Insumos.toString() !== id,
 		);
 
 		if (duplicado) {
@@ -157,7 +162,9 @@ const EditarInsumo = () => {
 
 	return (
 		<>
-			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">Editar Insumo</h1>
+			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
+				Editar Insumo
+			</h1>
 
 			<form
 				onSubmit={handleSubmit}
@@ -176,7 +183,9 @@ const EditarInsumo = () => {
 						onChange={handleChange}
 						className={`w-full border p-2 rounded ${errors.Nombre ? "border-red-500" : "border-gray-300"}`}
 					/>
-					{errors.Nombre && <p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>}
+					{errors.Nombre && (
+						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
+					)}
 				</div>
 
 				{/* Campo: Categoría */}
@@ -192,13 +201,18 @@ const EditarInsumo = () => {
 					>
 						<option value="">Seleccione una categoría</option>
 						{categorias.map((cat) => (
-							<option key={cat.Id_Categoria_Insumos} value={cat.Id_Categoria_Insumos}>
+							<option
+								key={cat.Id_Categoria_Insumos}
+								value={cat.Id_Categoria_Insumos}
+							>
 								{cat.Nombre}
 							</option>
 						))}
 					</select>
 					{errors.Id_Categoria_Insumos && (
-						<p className="text-red-500 text-sm mt-1">{errors.Id_Categoria_Insumos}</p>
+						<p className="text-red-500 text-sm mt-1">
+							{errors.Id_Categoria_Insumos}
+						</p>
 					)}
 				</div>
 
@@ -206,7 +220,13 @@ const EditarInsumo = () => {
 				<input type="hidden" name="Stock" value={formData.Stock} />
 
 				{/* Campo oculto: Estado */}
-				<input type="checkbox" name="Estado" checked={formData.Estado} disabled className="hidden" />
+				<input
+					type="checkbox"
+					name="Estado"
+					checked={formData.Estado}
+					disabled
+					className="hidden"
+				/>
 
 				{/* Botones */}
 				<div className="md:col-span-2 flex gap-4">

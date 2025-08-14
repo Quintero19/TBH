@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 // --- Columnas para la tabla ---
 const columns = [
-	{ header: "ID", accessor: "Id_Insumos" },
+	{ header: "ID", accessor: "idVisual" },
 	{ header: "Nombre", accessor: "Nombre" },
 	{ header: "Categoría", accessor: "CategoriaNombre" },
 	{ header: "Stock (Unidades)", accessor: "StockFormateado" },
@@ -19,7 +19,8 @@ const InsumoAdmin = () => {
 	const navigate = useNavigate();
 
 	// --- Función para cargar los insumos ---
-	const cargarInsumos = useCallback(async () => {
+	const cargarInsumos = useCallback(async () =
+                                    
 	try {
 		setError(null);
 		const response = await insumoService.obtenerInsumos();
@@ -40,6 +41,7 @@ const InsumoAdmin = () => {
 						})
 					}
 }, []);
+
 
 	// --- Cargar los insumos al montar el componente ---
 	useEffect(() => {
@@ -197,31 +199,29 @@ const InsumoAdmin = () => {
 		}
 	};
 
-
 	// --- Validación para edición y eliminación ---
 	const canEdit = (i) => i.Estado === true;
 	const canDelete = (insumo) => !insumo.TieneCompras;
 
-  // --- Renderizado del componente ---
-  return (
-    <>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <GeneralTable
-        title="Insumos"
-        columns={columns}
-        data={insumos}
-        onView={handleVerDetalles}
-        onToggleEstado={handleToggleEstado}
-        onAdd={handleAdd}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        idAccessor="Id_Insumos"
-      />
-    </>
-  );
-
+	// --- Renderizado del componente ---
+	return (
+		<>
+			{error && <div className="text-red-500 mb-4">{error}</div>}
+			<GeneralTable
+				title="Insumos"
+				columns={columns}
+				data={insumos}
+				onView={handleVerDetalles}
+				onToggleEstado={handleToggleEstado}
+				onAdd={handleAdd}
+				onEdit={handleEdit}
+				onDelete={handleDelete}
+				canEdit={canEdit}
+				canDelete={canDelete}
+				idAccessor="Id_Insumos"
+			/>
+		</>
+	);
 };
 
 export default InsumoAdmin;

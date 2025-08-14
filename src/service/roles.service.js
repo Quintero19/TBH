@@ -13,7 +13,7 @@ export const rolService = {
 		return res.data;
 	},
 
-	listarRolesId: async (id) => {
+	obtenerRolPorId: async (id) => {
 		const res = await api.get(`${ROL_URL}/${id}`);
 		return res.data;
 	},

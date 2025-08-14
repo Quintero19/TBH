@@ -30,26 +30,29 @@ const CarruselImagenes = ({ imagenes, visible, onClose }) => {
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-            <div
-                ref={contenedorRef}
-                className="relative bg-transparent w-fit max-w-[90vw] max-h-[90vh] flex flex-col items-center justify-center"
-            >
-
+			<div
+				ref={contenedorRef}
+				className="relative bg-transparent w-fit max-w-[90vw] max-h-[90vh] flex flex-col items-center justify-center"
+			>
 				<div className="absolute top-20 right-4 z-50">
 					<Button onClick={onClose} className="red" icon="fa-times" />
 				</div>
 
-                <img
-                    src={imagenes[indice]?.URL || imagenes[indice]}
-                    alt={`Imagen ${indice + 1}`}
-                    className="max-h-[80vh] max-w-[90vw] object-contain rounded shadow-lg"
-                />
+				<img
+					src={imagenes[indice]?.URL || imagenes[indice]}
+					alt={`Imagen ${indice + 1}`}
+					className="max-h-[80vh] max-w-[90vw] object-contain rounded shadow-lg"
+				/>
 
 				<div className="absolute left-4 top-1/2 -translate-y-1/2 z-40">
 					<Button onClick={anterior} className="gray" icon="fa-chevron-left" />
 				</div>
 				<div className="absolute right-4 top-1/2 -translate-y-1/2 z-40">
-					<Button onClick={siguiente} className="gray" icon="fa-chevron-right" />
+					<Button
+						onClick={siguiente}
+						className="gray"
+						icon="fa-chevron-right"
+					/>
 				</div>
 
 				<div className="text-center mt-4 text-gray-300 text-sm">

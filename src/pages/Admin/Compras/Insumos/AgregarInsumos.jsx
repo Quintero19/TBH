@@ -80,14 +80,13 @@ const AgregarInsumo = () => {
 
 	// --- Manejo de cambios ---
 	const handleChange = (e) => {
-			const { name, value } = e.target;
-			setFormData((prev) => ({ ...prev, [name]: value }));
-			validateField(name, value);
-		};
+		const { name, value } = e.target;
+		setFormData((prev) => ({ ...prev, [name]: value }));
+		validateField(name, value);
+	};
 
-
-		// --- Guardar insumo ---
-		const handleSubmit = async (e) => {
+	// --- Guardar insumo ---
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		if (!validateForm()) {
@@ -101,8 +100,10 @@ const AgregarInsumo = () => {
 
 		try {
 			const existentes = await insumoService.obtenerInsumos();
-			const yaExiste = existentes.data.some(i =>
-				i.Nombre.trim().toLowerCase() === formData.Nombre.trim().toLowerCase()
+			const yaExiste = existentes.data.some(
+				(i) =>
+					i.Nombre.trim().toLowerCase() ===
+					formData.Nombre.trim().toLowerCase(),
 			);
 
 			if (yaExiste) {

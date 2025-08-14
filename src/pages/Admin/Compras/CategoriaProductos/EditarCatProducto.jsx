@@ -1,4 +1,8 @@
-import { showAlert, showLoadingAlert, closeAlert } from "@/components/AlertProvider";
+import {
+	showAlert,
+	showLoadingAlert,
+	closeAlert,
+} from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
 import { catProductoService } from "@/service/categoriaProducto.service";
 import React, { useState, useEffect } from "react";
@@ -27,8 +31,7 @@ const EditarCatProducto = () => {
 				if (!value.trim()) {
 					newErrors[name] = "El nombre es obligatorio";
 				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
-					newErrors[name] =
-						"Solo letras y espacios. Entre 3 y 25 caracteres";
+					newErrors[name] = "Solo letras y espacios. Entre 3 y 25 caracteres";
 				} else {
 					delete newErrors[name];
 				}
@@ -124,7 +127,9 @@ const EditarCatProducto = () => {
 		} catch (error) {
 			console.error("Error al actualizar la categoria:", error);
 			closeAlert();
-			const mensaje = error.response?.data?.message || "Error al editar la categoria de producto";
+			const mensaje =
+				error.response?.data?.message ||
+				"Error al editar la categoria de producto";
 			showAlert(mensaje, {
 				type: "error",
 				title: "Error",
@@ -204,7 +209,7 @@ const EditarCatProducto = () => {
 						onChange={handleChange}
 						rows={3}
 						className="w-full border border-gray-300 p-2 rounded resize-y overflow-y-auto max-h-40"
-				/>
+					/>
 					{errors.Descripcion && (
 						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
 					)}

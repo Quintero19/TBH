@@ -33,6 +33,7 @@ const Tallas = () => {
 								didClose: () => {navigate(-1)},
 							})
 						}
+
 	}, []);
 
 	useEffect(() => {

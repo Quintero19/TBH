@@ -51,24 +51,27 @@ export function AlertProvider({ children }) {
 		});
 	}, []);
 
-	const showLoadingAlert = useCallback((message = "Cargando...", options = {}) => {
-		return Swal.fire({
-			title: options.title || "Por favor espere",
-			html: message,
-			allowOutsideClick: false,
-			allowEscapeKey: false,
-			showConfirmButton: false,
-			background: "#000000",
-			color: "#ffffff",
-			customClass: {
-				confirmButton: "swal-confirm-button",
-			},
-			...options.swalOptions,
-			didOpen: () => {
-				Swal.showLoading();
-			},
-		});
-	}, []);
+	const showLoadingAlert = useCallback(
+		(message = "Cargando...", options = {}) => {
+			return Swal.fire({
+				title: options.title || "Por favor espere",
+				html: message,
+				allowOutsideClick: false,
+				allowEscapeKey: false,
+				showConfirmButton: false,
+				background: "#000000",
+				color: "#ffffff",
+				customClass: {
+					confirmButton: "swal-confirm-button",
+				},
+				...options.swalOptions,
+				didOpen: () => {
+					Swal.showLoading();
+				},
+			});
+		},
+		[],
+	);
 
 	const closeAlert = () => {
 		Swal.close();
@@ -93,7 +96,6 @@ export function AlertProvider({ children }) {
 			window.closeAlert = undefined;
 		};
 	}, [openAlert, showLoadingAlert]);
-
 
 	return (
 		<AlertContext.Provider value={{ openAlert, showLoadingAlert }}>
@@ -130,4 +132,3 @@ export const closeAlert = () => {
 	}
 	console.warn("AlertProvider no está montado todavía.");
 };
-

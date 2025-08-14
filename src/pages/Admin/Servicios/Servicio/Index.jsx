@@ -37,6 +37,7 @@ const Servicios = () => {
 			console.log(response);
 			setServicios(transformData(response.data));
 		} catch (error) {
+
 					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
 						showAlert(`Error: ${mensaje || error}`, {
 								duration: 2500,
@@ -45,6 +46,8 @@ const Servicios = () => {
 								didClose: () => {navigate(-1)},
 							})
 						}
+
+
 	}, []);
 
 	const handleToggleEstado = async (id) => {
@@ -65,11 +68,9 @@ const Servicios = () => {
 		navigate("/admin/servicios/agregar");
 	};
 
-	
-
 	const handleVerDetalles = async (Servicios) => {
-  try {
-    const html = `
+		try {
+			const html = `
     <div class="space-y-7 text-gray-100">
       <!-- Encabezado -->
       <div class="flex items-center justify-between border-b border-gray-600/50 pb-3 mb-5">
@@ -128,13 +129,13 @@ const Servicios = () => {
             Estado
           </label>
           <div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-            Servicios.Estado
-              ? "bg-[#112d25] border-emerald-500/30"
-              : "bg-[#2c1a1d] border-rose-500/30"
-          }">
+						Servicios.Estado
+							? "bg-[#112d25] border-emerald-500/30"
+							: "bg-[#2c1a1d] border-rose-500/30"
+					}">
             <div class="font-medium ${
-              Servicios.Estado ? "text-emerald-300" : "text-rose-300"
-            }">
+							Servicios.Estado ? "text-emerald-300" : "text-rose-300"
+						}">
               ${Servicios.Estado ? "Activo" : "Inactivo"}
             </div>
           </div>
@@ -144,28 +145,28 @@ const Servicios = () => {
     </div>
     `;
 
-    Swal.fire({
-      title: `Detalles del Servicio`,
-      html: html,
-      icon: "info",
-      showConfirmButton: false,  // Esta línea elimina el botón "Cerrar"
-      padding: "1rem",
-      background: "#111827",
-      color: "#fff",
-      width: "600px",
-      timer: 3000  // La ventana se cerrará automáticamente después de 3 segundos
-    });
-  } catch (error) {
-    console.error("Error al obtener el Servicio:", error);
-    Swal.fire({
-      title: "Error",
-      text: "No se pudieron cargar los detalles del Servicio",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 3000
-    });
-  }
-};
+			Swal.fire({
+				title: `Detalles del Servicio`,
+				html: html,
+				icon: "info",
+				showConfirmButton: false, // Esta línea elimina el botón "Cerrar"
+				padding: "1rem",
+				background: "#111827",
+				color: "#fff",
+				width: "600px",
+				timer: 3000, // La ventana se cerrará automáticamente después de 3 segundos
+			});
+		} catch (error) {
+			console.error("Error al obtener el Servicio:", error);
+			Swal.fire({
+				title: "Error",
+				text: "No se pudieron cargar los detalles del Servicio",
+				icon: "error",
+				showConfirmButton: false,
+				timer: 3000,
+			});
+		}
+	};
 
 	const handleEdit = (Servicios) => {
 		navigate(`/admin/servicios/editar/${Servicios.Id_Servicios}`);
@@ -219,15 +220,13 @@ const Servicios = () => {
 	};
 
 	const verImagenes = (servicio) => {
-	console.log("Servicio recibido:", servicio);
-	if (!servicio?.Imagenes?.length) return;
+		console.log("Servicio recibido:", servicio);
+		if (!servicio?.Imagenes?.length) return;
 
-	const urls = servicio.Imagenes.map((img) => img.URL);
-	setImagenesActuales(urls);
-	setMostrarCarrusel(true);
+		const urls = servicio.Imagenes.map((img) => img.URL);
+		setImagenesActuales(urls);
+		setMostrarCarrusel(true);
 	};
-
-
 
 	return (
 		<>
@@ -247,10 +246,10 @@ const Servicios = () => {
 				verImagenes={verImagenes}
 			/>
 			<CarruselImagenes
-							imagenes={imagenesActuales}
-							visible={mostrarCarrusel}
-							onClose={() => setMostrarCarrusel(false)}
-						/>
+				imagenes={imagenesActuales}
+				visible={mostrarCarrusel}
+				onClose={() => setMostrarCarrusel(false)}
+			/>
 		</>
 	);
 };

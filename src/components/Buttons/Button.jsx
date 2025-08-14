@@ -20,14 +20,14 @@ const Button = ({
 		gray: "bg-gray-500 border-gray-400 hover:bg-gray-600",
 	};
 	const colorKey = Object.keys(colors).find((key) =>
-    className.split(" ").includes(key)
-  	);
+		className.split(" ").includes(key),
+	);
 	const colorClass = colors[colorKey] || colors.gray;
 
 	const buttonClasses = `${baseClasses} ${colorClass} ${className
-    .split(" ")
-    .filter((c) => c !== colorKey)
-    .join(" ")}`;
+		.split(" ")
+		.filter((c) => c !== colorKey)
+		.join(" ")}`;
 
 	const content = (
 		<span className="flex items-center gap-x-3">
