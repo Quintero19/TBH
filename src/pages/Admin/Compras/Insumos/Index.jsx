@@ -19,8 +19,7 @@ const InsumoAdmin = () => {
 	const navigate = useNavigate();
 
 	// --- Función para cargar los insumos ---
-	const cargarInsumos = useCallback(async () =
-                                    
+	const cargarInsumos = useCallback(async () => {                           
 	try {
 		setError(null);
 		const response = await insumoService.obtenerInsumos();
@@ -28,18 +27,19 @@ const InsumoAdmin = () => {
 			...i,
 			CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
 			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
-		}));
+		}))
 		setInsumos(datosProcesados);
-		// console.log("Insumos cargados:", datosProcesados);
 	} catch (error) {
-				const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-					showAlert(`Error: ${mensaje || error}`, {
-							duration: 2500,
-							title: "Error",
-							icon: "error",
-							didClose: () => {navigate(-1)},
-						})
-					}
+		const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
+			showAlert(`Error: ${mensaje || error}`, {
+					duration: 2500,
+					title: "Error",
+					icon: "error",
+					didClose: () => {navigate(-1)},
+				})
+			}
+
+		// console.log("Insumos cargados:", datosProcesados);
 }, []);
 
 
