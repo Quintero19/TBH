@@ -543,36 +543,38 @@ const AgregarCompra = () => {
 
 					{detalleActual.tipo === "Producto" &&
 						detalleActual.tallas.length > 0 && (
-							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-								|
-								{detalleActual.tallas.map((talla, i) => (
-									<div key={i}>
-										<h3 className="text-xl font-bold mb-3 text-black">
-											{talla.nombre}
-										</h3>
-										<input
-											type="number"
-											min="0"
-											value={talla.cantidad === 0 ? "" : talla.cantidad}
-											onChange={(e) =>
-												actualizarCantidadTalla(i, e.target.value)
-											}
-											placeholder="Cantidad"
-											onKeyDown={(e) => {
-												if (["e", "E", "+", "-"].includes(e.key))
-													e.preventDefault();
-											}}
-											onPaste={(e) => {
-												const pasted = e.clipboardData.getData("text");
-												if (/[eE\+\-]/.test(pasted)) {
-													e.preventDefault();
+							<>
+								<h3 className="text-2xl font-bold mb-3 text-black">Tallas</h3>
+								<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+									{detalleActual.tallas.map((talla, i) => (
+										<div key={i}>
+											<h3 className="text-xl font-bold mb-3 text-black">
+												{talla.nombre}
+											</h3>
+											<input
+												type="number"
+												min="0"
+												value={talla.cantidad === 0 ? "" : talla.cantidad}
+												onChange={(e) =>
+													actualizarCantidadTalla(i, e.target.value)
 												}
-											}}
-											className="border p-2 rounded w-full h-[38px]"
-										/>
-									</div>
-								))}
-							</div>
+												placeholder="Cantidad"
+												onKeyDown={(e) => {
+													if (["e", "E", "+", "-"].includes(e.key))
+														e.preventDefault();
+												}}
+												onPaste={(e) => {
+													const pasted = e.clipboardData.getData("text");
+													if (/[eE\+\-]/.test(pasted)) {
+														e.preventDefault();
+													}
+												}}
+												className="border p-2 rounded w-full h-[38px]"
+											/>
+										</div>
+									))}
+								</div>
+							</>
 						)}
 				</div>
 
