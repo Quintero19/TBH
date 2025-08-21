@@ -111,8 +111,8 @@ function AgregarTamano() {
 	const obtenerDatos = useCallback(async () => {
 		try {
 			const [resInsumos, resFrascos] = await Promise.all([
-				insumoService.obtenerInsumosBase(),
-				insumoService.obtenerInsumosFrascos(),
+				insumoService.obtenerInsumosPorCategoria("Base"),
+				insumoService.obtenerInsumosPorCategoria("Frasco"),
 			]);
 			setInsumos(resInsumos.data);
 			setFrascos(resFrascos.data);
@@ -183,6 +183,14 @@ function AgregarTamano() {
 	/* ─────────── +/- Insumos ─────────── */
 
 	const addInsumo = () => {
+
+		if (!frasco.Id_Insumos) {
+			return mostrarAlerta(
+				"Frasco requerido",
+				"Debes seleccionar un frasco antes de agregar insumos."
+			);
+		}
+		
 		const total = insumosSeleccionados.reduce(
 			(sum, i) => sum + Number(i.Cantidad),
 			0,
@@ -325,7 +333,7 @@ function AgregarTamano() {
 								value={frasco.Id_Insumos}
 								onChange={handleFrascoChange}
 							>
-								<option value="">Seleccione un Frasco</option>
+								<option value="">Seleccione un Frasco <span className="text-red-500">*</span></option>
 								{frascos.map((i) => (
 									<option key={i.Id_Insumos} value={i.Id_Insumos}>
 										{i.Nombre}

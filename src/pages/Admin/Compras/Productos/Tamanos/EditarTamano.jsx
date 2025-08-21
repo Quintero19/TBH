@@ -95,8 +95,8 @@ export default function EditarTamano() {
 		const obtenerDatos = async () => {
 			try {
 				const [insumosRes, frascosRes, tamanoRes] = await Promise.all([
-					insumoService.obtenerInsumosBase(),
-					insumoService.obtenerInsumosFrascos(),
+				insumoService.obtenerInsumosPorCategoria("Base"),
+				insumoService.obtenerInsumosPorCategoria("Frasco"),
 					tamanosService.obtenerTamanoPorId(id),
 				]);
 
@@ -187,6 +187,15 @@ export default function EditarTamano() {
 	/* ─────────── +/- Insumos ─────────── */
 
 	const addInsumo = () => {
+
+		if (!frascos.Id_Insumos) {
+			return showAlert("Frasco requerido",{
+					type: "warning",
+					title: "Advertencia",
+					duration: 2000,
+				}
+			);
+		}
 		const total = insumosSeleccionados.reduce(
 			(s, i) => s + Number(i.Cantidad || 0),
 			0,
