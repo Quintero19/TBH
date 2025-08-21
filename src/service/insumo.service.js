@@ -23,18 +23,8 @@ export const insumoService = {
 		return res.data;
 	},
 
-	obtenerInsumosBase: async () => {
-		const res = await api.get(`${RESOURCE_URL}/base`);
-		return res.data;
-	},
-
-	obtenerInsumosFrascos: async () => {
-		const res = await api.get(`${RESOURCE_URL}/frascos`);
-		return res.data;
-	},
-
-	obtenerInsumosFragancia: async () => {
-		const res = await api.get(`${RESOURCE_URL}/fragancias`);
+	obtenerInsumosPorCategoria: async (nombre) => {
+		const res = await api.get(`${RESOURCE_URL}/categoria/${nombre}`);
 		return res.data;
 	},
 

@@ -42,8 +42,8 @@ const AgregarProducto = () => {
 			case "Nombre":
 				if (!value.trim()) {
 					newErrors[name] = "El nombre es obligatorio";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
-					newErrors[name] = "Solo letras y espacios. Entre 3 y 25 caracteres";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,40}$/.test(value)) {
+					newErrors[name] = "Solo letras y espacios. Entre 3 y 40 caracteres";
 				} else {
 					delete newErrors[name];
 				}
@@ -224,7 +224,7 @@ const AgregarProducto = () => {
 
 		const fetchFragancias = async () => {
 			try {
-				const response = await insumoService.obtenerInsumosFragancia();
+				const response = await insumoService.obtenerInsumosPorCategoria("Fragancia");
 				setFragancias(response.data);
 			} catch (error) {
 				console.error("Error al obtener categorías:", error);

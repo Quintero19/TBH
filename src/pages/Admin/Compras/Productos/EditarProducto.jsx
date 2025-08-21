@@ -43,8 +43,8 @@ const EditarProducto = () => {
 			case "Nombre":
 				if (!value.trim()) {
 					newErrors[name] = "El nombre es obligatorio";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,25}$/.test(value)) {
-					newErrors[name] = "Solo letras y espacios. Entre 3 y 25 caracteres";
+				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{3,40}$/.test(value)) {
+					newErrors[name] = "Solo letras y espacios. Entre 3 y 40 caracteres";
 				} else {
 					delete newErrors[name];
 				}
@@ -261,7 +261,7 @@ const EditarProducto = () => {
 		try {
 			const [catRes, fragRes, prodRes] = await Promise.all([
 				catProductoService.obtenerCategorias(),
-				insumoService.obtenerInsumosFragancia(),
+				insumoService.obtenerInsumosPorCategoria("Fragancia"),
 				productoService.obtenerProductoPorId(id),
 			]);
 

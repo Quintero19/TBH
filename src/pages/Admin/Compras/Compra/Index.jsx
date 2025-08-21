@@ -198,9 +198,10 @@ const Compras = () => {
 							<tr>
 								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Nombre</th>
 								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Cantidad</th>
+								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Tallas</th>
 								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Precio Unitario</th>
 								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Subtotal</th>
-								<th class="py-2 px-3 w-1/5 whitespace-nowrap">Tallas</th>
+
 							</tr>
 							</thead>
 							<tbody>
@@ -209,8 +210,6 @@ const Compras = () => {
 								<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 								<td class="py-2 px-3 font-semibold text-white">${p.Nombre}</td>
 								<td class="py-2 px-3">${p.Cantidad}</td>
-								<td class="py-2 px-3">$${parseFloat(p.Precio_Unitario).toLocaleString()}</td>
-								<td class="py-2 px-3">$${parseFloat(p.Subtotal).toLocaleString()}</td>
 								<td class="py-2 px-3">
 									${
 										p.Tallas && p.Tallas.length > 0
@@ -220,7 +219,8 @@ const Compras = () => {
 											: "-"
 									}
 								</td>
-
+								<td class="py-2 px-3">$${parseFloat(p.Precio_Unitario).toLocaleString()}</td>
+								<td class="py-2 px-3">$${parseFloat(p.Subtotal).toLocaleString()}</td>
 
 								</tr>
 							`,
