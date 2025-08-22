@@ -8,6 +8,8 @@ import { rolService } from "@/service/roles.service";
 import { clienteService } from "@/service/clientes.service";
 import { showAlert } from "@/components/AlertProvider";
 import { ventasService } from "@/service/ventas.service";
+import { productoService } from "@/service/productos.service";
+import { servicioService } from "@/service/serviciosService";
 
 const AgregarVenta = () => {
 	const [clientes, setClientes] = useState([]);
@@ -36,6 +38,10 @@ const AgregarVenta = () => {
 		precio: 0,
 	});
 	const [cantidad, setCantidad] = useState(1);
+	
+	// Estado para manejar tallas de productos de ropa
+	const [tallasDisponibles, setTallasDisponibles] = useState([]);
+	const [cantidadesPorTalla, setCantidadesPorTalla] = useState({});
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -77,20 +83,18 @@ const AgregarVenta = () => {
 				setClientes(resClientes.data || []);
 
 				// Productos
-				const resProductos = await api.get("/productos");
-				if (Array.isArray(resProductos.data?.data)) {
-					setProductosDisponibles(resProductos.data.data);
+				const resProductos = await productoService.obtenerProductoss();
+				if (Array.isArray(resProductos?.data)) {
+					setProductosDisponibles(resProductos.data);
 				} else {
-					console.warn("Formato de productos inválido:", resProductos.data);
 					setProductosDisponibles([]);
 				}
 
 				// Servicios
-				const resServicios = await api.get("/servicios");
-				if (Array.isArray(resServicios.data?.data)) {
-					setServiciosDisponibles(resServicios.data.data);
+				const resServicios = await servicioService.obtenerServicios();
+				if (Array.isArray(resServicios?.data)) {
+					setServiciosDisponibles(resServicios.data);
 				} else {
-					console.warn("Formato de servicios inválido:", resServicios.data);
 					setServiciosDisponibles([]);
 				}
 
@@ -99,8 +103,7 @@ const AgregarVenta = () => {
 					Id_Usuario: user?.id || "",
 					Fecha_Registro: today,
 				}));
-			} catch (error) {
-				console.error("Error al obtener datos:", error);
+			} catch {
 				setClientes([]);
 				setProductosDisponibles([]);
 				setServiciosDisponibles([]);
@@ -127,22 +130,67 @@ const AgregarVenta = () => {
 						: item.Id_Servicios || item.id || "";
 
 				const nombre = item.Nombre || item.nombre || "Sin nombre";
-				const precio = item.Precio || item.precio || 0;
+				
+				// Buscar precio en diferentes posibles campos
+				const precio = item.Precio || item.precio || item.Precio_Venta || item.precio_venta || item.Valor || item.valor || 0;
 
 				return {
 					value: id,
 					label: `${nombre} - $${precio.toLocaleString("es-CO")}`,
 					precio: precio,
+					esRopa: item.Es_Ropa || false,
+					detalles: item.Detalles || {},
 				};
 			});
-		} catch (error) {
-			console.error("Error al obtener opciones de items:", error);
+		} catch {
 			return [];
+		}
+	};
+
+	// Función para cargar tallas cuando se selecciona un producto de ropa
+	const cargarTallasProducto = (productoId) => {
+		if (tipoItem !== "producto") {
+			setTallasDisponibles([]);
+			setCantidadesPorTalla({});
+			return;
+		}
+
+		const producto = productosDisponibles.find(p => p.Id_Productos === productoId);
+		if (producto?.Es_Ropa && producto?.Detalles?.tallas) {
+			setTallasDisponibles(producto.Detalles.tallas);
+			// Inicializar cantidades en 0 para cada talla
+			const cantidadesIniciales = {};
+			producto.Detalles.tallas.forEach((talla, index) => {
+				cantidadesIniciales[index] = 0;
+			});
+			setCantidadesPorTalla(cantidadesIniciales);
+		} else {
+			setTallasDisponibles([]);
+			setCantidadesPorTalla({});
 		}
 	};
 
 	const agregarItem = () => {
 		if (!itemSeleccionado.id || cantidad <= 0) return;
+
+		// Si es un producto de ropa, verificar que se hayan seleccionado tallas
+		if (tipoItem === "producto" && tallasDisponibles.length > 0) {
+			const totalTallas = Object.values(cantidadesPorTalla).reduce((sum, cant) => sum + cant, 0);
+			if (totalTallas === 0) {
+				showAlert("Debes seleccionar al menos una talla para productos de ropa", {
+					type: "warning",
+					title: "Falta información",
+				});
+				return;
+			}
+			if (totalTallas !== cantidad) {
+				showAlert("La suma de cantidades por talla debe coincidir con la cantidad total", {
+					type: "warning",
+					title: "Cantidades inconsistentes",
+				});
+				return;
+			}
+		}
 
 		const nuevoItem = {
 			tipo: tipoItem,
@@ -150,6 +198,12 @@ const AgregarVenta = () => {
 			nombre: itemSeleccionado.nombre,
 			precio: itemSeleccionado.precio,
 			cantidad: cantidad,
+			tallas: tallasDisponibles.length > 0 ? Object.entries(cantidadesPorTalla)
+				.filter(([, cant]) => cant > 0)
+				.map(([index, cant]) => ({
+					Id_Producto_Tallas: tallasDisponibles[parseInt(index)].Id_Producto_Tallas,
+					Cantidad: cant,
+				})) : [],
 		};
 
 		setFormData((prev) => ({
@@ -159,6 +213,8 @@ const AgregarVenta = () => {
 
 		setItemSeleccionado({ id: "", nombre: "", precio: 0 });
 		setCantidad(1);
+		setTallasDisponibles([]);
+		setCantidadesPorTalla({});
 	};
 
 	const eliminarItem = (index) => {
@@ -186,6 +242,15 @@ const AgregarVenta = () => {
 			nuevosItems[index].precio = Number(nuevoPrecio);
 			return { ...prev, Items: nuevosItems };
 		});
+	};
+
+	// Función para actualizar cantidad por talla
+	const actualizarCantidadTalla = (index, cantidad) => {
+		const cantidadNumerica = cantidad === "" ? 0 : Number(cantidad);
+		setCantidadesPorTalla(prev => ({
+			...prev,
+			[index]: cantidadNumerica
+		}));
 	};
 
 	const calcularTotal = () => {
@@ -285,8 +350,9 @@ const AgregarVenta = () => {
 					Cantidad: item.cantidad,
 					Precio: item.precio,
 					Subtotal: item.precio * item.cantidad,
-					Id_Producto_Tallas: null,
+					Id_Producto_Tallas: item.tallas && item.tallas.length > 0 ? item.tallas[0].Id_Producto_Tallas : null,
 					Id_Producto_Tamano_Insumos: null,
+					Tallas: item.tallas || [],
 				})),
 			};
 
@@ -301,7 +367,6 @@ const AgregarVenta = () => {
 
 			navigate("/admin/ventas");
 		} catch (error) {
-			console.error("Error al registrar la venta:", error);
 			const mensaje =
 				error.response?.data?.message || "Error al registrar la venta";
 			await showAlert(mensaje, {
@@ -501,8 +566,14 @@ const AgregarVenta = () => {
 											nombre: opcion.label.split(" - ")[0],
 											precio: opcion.precio,
 										});
+										// Cargar tallas si es un producto de ropa
+										if (tipoItem === "producto") {
+											cargarTallasProducto(opcion.value);
+										}
 									} else {
 										setItemSeleccionado({ id: "", nombre: "", precio: 0 });
+										setTallasDisponibles([]);
+										setCantidadesPorTalla({});
 									}
 								}}
 							/>
@@ -538,6 +609,34 @@ const AgregarVenta = () => {
 							</Button>
 						</div>
 					</div>
+
+					{/* Sección de tallas para productos de ropa */}
+					{tipoItem === "producto" && tallasDisponibles.length > 0 && (
+						<div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+							<h3 className="text-lg font-bold mb-3 text-black">Tallas Disponibles</h3>
+														<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+								{tallasDisponibles.map((talla, index) => (
+									<div key={`${talla.nombre}-${index}`} className="flex flex-col">
+																					<label className="text-sm font-medium text-gray-700 mb-1">
+											Talla {talla.nombre}: {talla.stock || 0} unidades disponibles
+										</label>
+										<input
+											type="number"
+											min="0"
+											max={talla.stock || 0}
+											value={cantidadesPorTalla[index] === 0 ? "" : cantidadesPorTalla[index]}
+											onChange={(e) => actualizarCantidadTalla(index, e.target.value)}
+											placeholder="0"
+											className="w-full border p-2 rounded text-sm"
+											onKeyDown={(e) => {
+												if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+											}}
+										/>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
 				</div>
 
 				{/* Tabla de productos/servicios agregados */}
@@ -552,6 +651,9 @@ const AgregarVenta = () => {
 										<th className="p-2 text-left">Nombre</th>
 										<th className="p-2 text-right">Precio Unitario</th>
 										<th className="p-2 text-right">Cantidad</th>
+										{formData.Items.some(item => item.tallas && item.tallas.length > 0) && (
+											<th className="p-2 text-center">Tallas</th>
+										)}
 										<th className="p-2 text-right">Subtotal</th>
 										<th className="p-2 text-center">Acciones</th>
 									</tr>
@@ -601,6 +703,26 @@ const AgregarVenta = () => {
 													}}
 												/>
 											</td>
+											{formData.Items.some(item => item.tallas && item.tallas.length > 0) && (
+												<td className="p-2 text-center">
+													{item.tallas && item.tallas.length > 0 ? (
+														<div className="text-xs">
+															{item.tallas.map((talla, i) => {
+																// Buscar el nombre de la talla
+																const producto = productosDisponibles.find(p => p.Id_Productos === item.id);
+																const tallaInfo = producto?.Detalles?.tallas?.find(t => t.Id_Producto_Tallas === talla.Id_Producto_Tallas);
+																return (
+																	<div key={i}>
+																		{tallaInfo?.nombre || `Talla ${talla.Id_Producto_Tallas}`}: {talla.Cantidad}
+																	</div>
+																);
+															})}
+														</div>
+													) : (
+														"-"
+													)}
+												</td>
+											)}
 											<td className="p-2 text-right">
 												$
 												{(item.precio * item.cantidad).toLocaleString("es-CO", {
@@ -626,7 +748,7 @@ const AgregarVenta = () => {
 								</tbody>
 								<tfoot>
 									<tr className="font-bold">
-										<td colSpan="4" className="p-2 text-right">
+										<td colSpan={formData.Items.some(item => item.tallas && item.tallas.length > 0) ? "5" : "4"} className="p-2 text-right">
 											Total:
 										</td>
 										<td className="p-2 text-right">

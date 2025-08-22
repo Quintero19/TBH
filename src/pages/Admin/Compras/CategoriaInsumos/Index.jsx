@@ -72,9 +72,12 @@ const CategoriaInsumoAdmin = () => {
 		);
 		if (!categoria) return;
 
+		// Extraer el ID numérico removiendo el prefijo "CAT_"
+		const idNumerico = categoriaId.replace("CAT_", "");
+
 		try {
 			await categoriaInsumoService.actualizarEstadoCategoria(
-				categoriaId,
+				idNumerico,
 				!categoria.Estado,
 			);
 			await cargarCategorias();
@@ -103,7 +106,9 @@ const CategoriaInsumoAdmin = () => {
 	 */
 
 	const handleEdit = (categoria) => {
-		navigate(`/admin/categoriainsumo/editar/${categoria.Id_Categoria_Insumos}`);
+		// Extraer el ID numérico removiendo el prefijo "CAT_"
+		const idNumerico = categoria.Id_Categoria_Insumos.replace("CAT_", "");
+		navigate(`/admin/categoriainsumo/editar/${idNumerico}`);
 	};
 
 	/*----------------------------------------------------------------------------------*/
@@ -129,9 +134,9 @@ const CategoriaInsumoAdmin = () => {
 			);
 
 			if (result.isConfirmed) {
-				await categoriaInsumoService.eliminarCategoria(
-					categoria.Id_Categoria_Insumos,
-				);
+				// Extraer el ID numérico removiendo el prefijo "CAT_"
+				const idNumerico = categoria.Id_Categoria_Insumos.replace("CAT_", "");
+				await categoriaInsumoService.eliminarCategoria(idNumerico);
 
 				await showAlert("Categoría eliminada correctamente.", {
 					type: "success",
