@@ -173,12 +173,26 @@ const GeneralTable = ({
 														<div className="text-center font-semibold">
 															<span
 																className={
-																	row[stateAccessor]
+																	row[stateAccessor] === 3
+																		? "text-yellow-600"
+																		: row[stateAccessor] === 1
+																		? "text-green-600"
+																		: row[stateAccessor] === 2
+																		? "text-red-600"
+																		: row[stateAccessor]
 																		? "text-green-600"
 																		: "text-red-600"
 																}
 															>
-																{row[stateAccessor] ? "Completada" : "Anulada"}
+																{row[stateAccessor] === 3
+																	? "Pendiente"
+																	: row[stateAccessor] === 1
+																	? "Completada"
+																	: row[stateAccessor] === 2
+																	? "Anulada"
+																	: row[stateAccessor]
+																	? "Completada"
+																	: "Anulada"}
 															</span>
 														</div>
 													)
@@ -232,7 +246,30 @@ const GeneralTable = ({
 														/>
 													)}
 
-												{(title === "Compras" || title === "Ventas") &&
+												{/* Botones para ventas pendientes (estado 3) */}
+												{title === "Ventas" &&
+													row[stateAccessor] === 3 && (
+														<>
+															<Button
+																className="green"
+																onClick={() => rest.onCompletar(row)}
+																icon="fa-check"
+																title="Completar Venta"
+															/>
+															<Button
+																className="red"
+																onClick={() => rest.onAnular(row)}
+																icon="fa-times"
+																title="Anular Venta"
+															/>
+														</>
+													)}
+													
+												{/* Ventas completadas (estado 1) - sin botones, solo ver */}
+												{/* No se pueden anular ventas completadas según el backend */}
+													
+												{/* Botón para compras completadas (estado true) */}
+												{title === "Compras" &&
 													row[stateAccessor] === true && (
 														<Button
 															className="red"
@@ -280,9 +317,12 @@ GeneralTable.propTypes = {
 	data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onAdd: PropTypes.func.isRequired,
 	onView: PropTypes.func.isRequired,
-	onEdit: PropTypes.func.isRequired,
-	onDelete: PropTypes.func.isRequired,
-	onToggleEstado: PropTypes.func.isRequired,
+	onEdit: PropTypes.func,
+	onDelete: PropTypes.func,
+	onToggleEstado: PropTypes.func,
+	onCompletar: PropTypes.func,
+	onAnular: PropTypes.func,
+	onCancel: PropTypes.func,
 	idAccessor: PropTypes.string,
 	stateAccessor: PropTypes.string,
 	itemsPerPage: PropTypes.number,

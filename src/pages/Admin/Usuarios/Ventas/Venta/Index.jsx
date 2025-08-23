@@ -64,6 +64,44 @@ const Ventas = () => {
 	/*----------------------------------------------------------------*/
 
 	/*-----------------CAMBIAR EL ESTADO DE LA VENTA------------------*/
+	
+	const handleCompletarVenta = async (venta) => {
+		try {
+			const ventaId = venta.Id_Ventas.replace("VEN_", "");
+			await ventasService.marcarVentaCompletada(ventaId);
+			await fetchVentas(); // Recargar la lista
+			await showAlert("Venta completada exitosamente", {
+				type: "success",
+				duration: 1500,
+			});
+		} catch (error) {
+			console.error("Error completando venta:", error);
+			const mensaje = error.response?.data?.message || "Error al completar la venta";
+			await showAlert(mensaje, {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
+
+	const handleAnularVenta = async (venta) => {
+		try {
+			const ventaId = venta.Id_Ventas.replace("VEN_", "");
+			await ventasService.anularVenta(ventaId);
+			await fetchVentas(); // Recargar la lista
+			await showAlert("Venta anulada exitosamente", {
+				type: "success",
+				duration: 1500,
+			});
+		} catch (error) {
+			console.error("Error anulando venta:", error);
+			const mensaje = error.response?.data?.message || "Error al anular la venta";
+			await showAlert(mensaje, {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
 
 	/*----------------------------------------------------------------*/
 
@@ -200,15 +238,37 @@ const Ventas = () => {
 				<div class="relative">
 					<label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">Estado</label>
 					<div class="rounded-lg border pt-4 pb-2.5 px-4 ${
-						(venta.Estado ?? detalleCompleto.data?.Estado)
+						(venta.Estado ?? detalleCompleto.data?.Estado) === 3
+							? "bg-[#1a1d2c] border-yellow-500/30"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 1
+							? "bg-[#112d25] border-emerald-500/30"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 2
+							? "bg-[#2c1a1d] border-rose-500/30"
+							: (venta.Estado ?? detalleCompleto.data?.Estado)
 							? "bg-[#112d25] border-emerald-500/30"
 							: "bg-[#2c1a1d] border-rose-500/30"
 					}">
 					<div class="font-medium ${
-						(venta.Estado ?? detalleCompleto.data?.Estado)
+						(venta.Estado ?? detalleCompleto.data?.Estado) === 3
+							? "text-yellow-300"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 1
+							? "text-emerald-300"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 2
+							? "text-rose-300"
+							: (venta.Estado ?? detalleCompleto.data?.Estado)
 							? "text-emerald-300"
 							: "text-rose-300"
-					}">${(venta.Estado ?? detalleCompleto.data?.Estado) ? "Activo" : "Anulada"}</div>
+					}">${
+						(venta.Estado ?? detalleCompleto.data?.Estado) === 3
+							? "Pendiente"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 1
+							? "Completada"
+							: (venta.Estado ?? detalleCompleto.data?.Estado) === 2
+							? "Anulada"
+							: (venta.Estado ?? detalleCompleto.data?.Estado)
+							? "Completada"
+							: "Anulada"
+					}</div>
 					</div>
 				</div>
 
@@ -326,7 +386,11 @@ const Ventas = () => {
 			data={ventas}
 			onAdd={handleAdd}
 			onView={handleVerDetalles}
-			// onCancel={handleToggleEstado}
+			onCompletar={handleCompletarVenta}
+			onAnular={handleAnularVenta}
+			onEdit={() => {}} // No se usa para ventas
+			onDelete={() => {}} // No se usa para ventas
+			onToggleEstado={() => {}} // No se usa para ventas
 			idAccessor="Id_Ventas"
 			stateAccessor="Estado"
 		/>

@@ -16,7 +16,19 @@ export const ventasService = {
 		return res.data;
 	},
 
-	// Cambiar el estado (anular) de una venta
+	// Marcar venta como completada (cambiar estado de 3 a 1)
+	marcarVentaCompletada: async (id) => {
+		const res = await api.patch(`${USER_URL}/${id}/completar`);
+		return res.data;
+	},
+
+	// Anular venta (cambiar estado de 3 a 2)
+	anularVenta: async (id) => {
+		const res = await api.patch(`${USER_URL}/${id}/anular`);
+		return res.data;
+	},
+
+	// Cambiar el estado (anular) de una venta (método legacy)
 	cambiarEstadoVenta: async (id) => {
 		const res = await api.put(`${USER_URL}/estado/${id}`);
 		return res.data;
