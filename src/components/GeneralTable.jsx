@@ -203,8 +203,9 @@ const GeneralTable = ({
 														icon="fa-image"
 													/>
 												)}
+												
 
-												{title === "Roles" && row[stateAccessor] && (
+												{title === "Roles" && row[stateAccessor] && row.Nombre !== "Cliente" && (
 													<Button
 														className="green"
 														onClick={() => onAssignPermissions(row)}

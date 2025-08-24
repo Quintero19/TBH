@@ -36,25 +36,25 @@ const EditarUsuario = () => {
 				const { data } = await userService.listarUsuarioPorId(id);
 				const { Password, ...resto } = data;
 
-				// Carga los roles
+				
 				const rolesData = await rolService.listarRoles();
 				const rolesArray = rolesData.data;
 				const rolesActivos = rolesArray.filter((rol) => rol.Estado === true);
 				setRoles(rolesActivos);
 
-				// Detectar el nombre del rol
+				
 				const rolEncontrado = rolesArray.find((r) => r.Id === data.Rol_Id);
 				const nombreRol = rolEncontrado?.Nombre || "";
 				setRolNombreSeleccionado(nombreRol);
 
-				// Prepara datos del usuario base
+				
 				let datosFinales = {
 					...resto,
 					Password: "",
 					confirmPassword: "",
 				};
 
-				// Si es Cliente o Empleado, busca más datos por documento
+				
 				if (["Cliente", "Empleado"].includes(nombreRol)) {
 					try {
 						const resultado =

@@ -108,10 +108,8 @@ export default function AgregarUsuario() {
 		}
 
 		if (
-			Password.length < 8 ||
-			!/[A-Z]/.test(Password) ||
-			!/[0-9]/.test(Password) ||
-			!/[!@#$%^&*(),.?":{}|<>]/.test(Password)
+			Password.length < 7 ||
+			!/[0-9]/.test(Password)
 		) {
 			return showAlert(
 				"La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.",

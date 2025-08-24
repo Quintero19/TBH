@@ -48,6 +48,7 @@ export default function Clientes() {
                 Correo: cliente.Correo,
                 Celular: cliente.Celular,
                 Direccion: cliente.Direccion,
+				Sexo : cliente.Sexo,
                 F_Nacimiento: cliente.F_Nacimiento,
                 Estado: cliente.Estado,
             }));
@@ -242,6 +243,14 @@ export default function Clientes() {
                         </label>
                         <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
                             <div class="font-medium text-white">${fechaNacimientoFormateada}</div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
+                            Sexo
+                        </label>
+                        <div class="border border-gray-600/50 rounded-lg px-4 pt-4 pb-2.5 bg-[#111827]">
+                            <div class="font-medium text-white">${cliente.Sexo ?? 'No tiene Sexo'}</div>
                         </div>
                     </div>
                     <!-- Estado -->

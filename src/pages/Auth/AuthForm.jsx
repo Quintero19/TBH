@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import styles from "@/styles/css/AuthForm.module.css";
 import api from "@/utils/api";
+import { showAlert } from "@/components/AlertProvider";
 
 const ENDPOINTS = {
 	login: "/auth/login",
@@ -33,21 +34,29 @@ const AuthForm = () => {
 		setMessage("");
 
 		if (!isLogin && password !== confirmPassword) {
-			setMessage("Las contraseñas no coinciden.");
-			setLoading(false);
-			return;
+			return showAlert("Las contraseñas no coinciden." , {
+				type: "error",
+				title: "Datos inválidos",
+			},setLoading(false))
 		}
 
 		if (!isLogin && (documento.length < 7 || documento.length > 15)) {
-			setMessage("El documento debe tener entre 7 y 15 números.");
-			setLoading(false);
-			return;
+			return showAlert("El documento debe tener entre 7 y 15 números.",{
+				type: "error",
+				title: "Datos inválidos",
+			},setLoading(false))
 		}
 
-		if (password.length < 6) {
-			setMessage("La contraseña debe tener al menos 6 caracteres.");
-			setLoading(false);
-			return;
+		if (password.length < 6 ||
+			!/[0-9]/.test(password) 
+		) {
+			return showAlert(
+				"La contraseña debe tener al menos 6 caracteres, un número y un carácter especial.",
+				{
+					type: "error",
+					title: "Datos inválidos",
+				},setLoading(false)
+			);
 		}
 
 		await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -60,9 +69,12 @@ const AuthForm = () => {
 		try {
 			const response = await api.post(endpoint, payload);
 
-			if (response.status === 200) {
+			if (response.status === 200 || response.status === 201) {
 				if (isLogin) {
-					setMessage("¡Login exitoso!");
+					showAlert("¡Login exitoso!",{
+						type: "success",
+						duration: 2500,
+					});
 
 					const meResponse = await api.get(ENDPOINTS.me);
 					const { user } = meResponse.data;
@@ -73,18 +85,29 @@ const AuthForm = () => {
 						window.location.href = "/admin/dashboard";
 					}
 				} else {
-					setMessage("¡Registro exitoso!");
+					showAlert("Registro exitoso!",{
+						type: "success",
+						duration: 2500,
+						
+					});
 				}
 			}
 		} catch (error) {
-			const errorMessage =
-				error.response?.data?.error || "Error al conectar con el servidor.";
-			console.error("Error:", errorMessage);
-			alert(errorMessage);
-			setMessage(errorMessage);
-		} finally {
-			setLoading(false);
-		}
+				const errorMessage = error.response?.data?.error || "Error al conectar con el servidor.";
+				console.error("Error:", errorMessage);
+
+				showAlert(`Error: ${errorMessage}`, {
+					duration: 2500,
+					title: "Error",
+					icon: "error",
+					didClose: () => { navigate(-1) },
+				});
+
+				setMessage(errorMessage);
+			} finally {
+				setLoading(false);
+			}
+
 	};
 
 	return (
@@ -99,19 +122,17 @@ const AuthForm = () => {
 						<div className={styles["input-box"]}>
 							<input
 								type="text"
-								inputMode="numeric"
-								pattern="\d{7,15}"
 								placeholder="Documento"
-								required
 								value={documento}
 								onChange={(e) => {
 									const value = e.target.value;
-									if (/^\d{0,15}$/.test(value)) {
+									
+									if (/^\d*$/.test(value)) {
 										setDocumento(value);
 									}
 								}}
-								title="Solo números, mínimo 7 y máximo 15 dígitos"
 							/>
+
 
 							<i className={styles.icon}>
 								<FontAwesomeIcon icon={faIdCard} />
@@ -137,7 +158,6 @@ const AuthForm = () => {
 							type={showPassword ? "text" : "password"}
 							placeholder="Contraseña"
 							required
-							minLength={6}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
@@ -165,7 +185,6 @@ const AuthForm = () => {
 								type={showPassword ? "text" : "password"}
 								placeholder="Confirmar contraseña"
 								required
-								minLength={6}
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 							/>
