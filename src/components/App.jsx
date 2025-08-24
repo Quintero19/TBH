@@ -57,6 +57,7 @@ import UsuarioIndex from "../pages/Usuario/Index";
 
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
+import AgregarDevolucion from "../pages/Admin/Usuarios/Ventas/Devoluciones/AgregarDevolucion"
 
 function App() {
 	return (
@@ -152,6 +153,7 @@ function App() {
 				<Route path="clientes/agregar" element={<ClientesAgregar />} />
 				<Route path="clientes/editar/:id" element={<ClientesEditar />} />
 				<Route path="devoluciones" element={<DevolucionesAdmin />} />
+				<Route path="devoluciones/agregar" element={<AgregarDevolucion />} />
 			</Route>
 		</Routes>
 	);
