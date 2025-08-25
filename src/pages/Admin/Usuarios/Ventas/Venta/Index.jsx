@@ -28,18 +28,15 @@ const Ventas = () => {
 		try {
 			const response = await ventasService.obtenerVentas();
 			setVentas(transformData(response.data));
-			// console.log(response);
 		} catch (error) {
-
-					const mensaje =error.response?.data?.message || "Error al obtener los usuarios.";
-						showAlert(`Error: ${mensaje || error}`, {
-								duration: 2500,
-								title: "Error",
-								icon: "error",
-								didClose: () => {navigate(-1)},
-							})
-						}
-
+			const mensaje = error.response?.data?.message || "Error al obtener las ventas.";
+			showAlert(`Error: ${mensaje}`, {
+				duration: 2500,
+				title: "Error",
+				icon: "error",
+				didClose: () => {navigate(-1)},
+			});
+		}
 	}, []);
 
 	useEffect(() => {
@@ -153,16 +150,12 @@ const Ventas = () => {
 
 			const productos = [];
 			const servicios = [];
-
-			console.log("Detalle completo de la venta:", detalleCompleto.data);
 			
 			// Procesar los datos de la venta usando el servicio
 			const ventaProcesada = ventasService.procesarDatosVenta(detalleCompleto.data);
-			console.log("Venta procesada:", ventaProcesada);
 			
 			if (Array.isArray(ventaProcesada?.Detalle_Venta)) {
 				for (const det of ventaProcesada.Detalle_Venta) {
-					console.log("Procesando detalle:", det);
 					try {
 						if (det?.Id_Productos) {
 							let nombreProducto = `Producto ID: ${det.Id_Productos}`;
@@ -181,12 +174,10 @@ const Ventas = () => {
 								// Obtener tallas y tamaños de los datos procesados
 								if (det.Tallas && Array.isArray(det.Tallas) && det.Tallas.length > 0) {
 									tallas = det.Tallas;
-									console.log("Tallas encontradas:", tallas);
 								}
 								
 								if (det.Tamanos && Array.isArray(det.Tamanos) && det.Tamanos.length > 0) {
 									tamanos = det.Tamanos;
-									console.log("Tamaños encontrados:", tamanos);
 								}
 							} catch (error) {
 								console.error(
@@ -209,16 +200,6 @@ const Ventas = () => {
 								Tallas: tallas,
 								Tamanos: tamanos,
 							};
-							
-							console.log(`Producto: ${nombreProducto}`);
-							console.log(`  - Cantidad: ${cantidad}`);
-							console.log(`  - Precio Unitario: ${precioUnitario}`);
-							console.log(`  - Subtotal: ${subtotal}`);
-							console.log(`  - Subtotal de BD: ${det.Subtotal}`);
-							
-							console.log("Producto final a mostrar:", productoFinal);
-							console.log("Tallas del producto:", productoFinal.Tallas);
-							console.log("Tamaños del producto:", productoFinal.Tamanos);
 							
 							productos.push(productoFinal);
 						} else if (det?.Id_Servicios) {
@@ -245,11 +226,6 @@ const Ventas = () => {
 								Precio: precioServicio,
 								Subtotal: subtotalServicio,
 							});
-							
-							console.log(`Servicio: ${nombreServicio}`);
-							console.log(`  - Precio: ${precioServicio}`);
-							console.log(`  - Subtotal: ${subtotalServicio}`);
-							console.log(`  - Subtotal de BD: ${det.Subtotal}`);
 						}
 					} catch (error) {
 						console.error("Error procesando detalle:", error);
@@ -260,16 +236,7 @@ const Ventas = () => {
 			// Calcular el total correctamente sumando todos los subtotales
 			const totalProductos = productos.reduce((sum, p) => sum + p.Subtotal, 0);
 			const totalServicios = servicios.reduce((sum, s) => sum + s.Subtotal, 0);
-			const totalCalculado = totalProductos + totalServicios;
-			
-			// Usar el total calculado en lugar del total de la base de datos
-			const totalVenta = totalCalculado;
-			
-			console.log("Total productos:", totalProductos);
-			console.log("Total servicios:", totalServicios);
-			console.log("Total calculado:", totalCalculado);
-			console.log("Total de la base de datos:", detalleCompleto.data?.Total);
-			console.log("Total de la venta en lista:", venta.Total);
+			const totalVenta = totalProductos + totalServicios;
 
 			const safeHtmlValue = (value) => value ?? "N/A";
 
@@ -537,8 +504,7 @@ const Ventas = () => {
 				document.body.removeChild(tempDiv);
 			}
 
-		} catch (error) {
-			console.error("Error generando factura PDF:", error);
+		} catch {
 			await showAlert("Error al generar la factura PDF", {
 				type: "error",
 				title: "Error",
