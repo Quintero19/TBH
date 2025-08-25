@@ -24,9 +24,9 @@ const EditarCatInsumo = () => {
 		switch (name) {
 			case "Nombre":
 				if (!val) newErrors.Nombre = "El nombre es obligatorio";
-				else if (val.length < 3) newErrors.Nombre = "Mínimo 3 letras";
-				else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(val))
-					newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
+				else if (val.length < 3) newErrors.Nombre = "Mínimo 3 caracteres";
+				else if (!/^[a-zA-Z0-9]+$/.test(val))
+					newErrors.Nombre = "Solo letras y números, sin espacios";
 				else newErrors.Nombre = undefined;
 				break;
 
@@ -78,6 +78,14 @@ const EditarCatInsumo = () => {
 		const val = type === "checkbox" ? checked : value;
 
 		setFormData((prev) => ({ ...prev, [name]: val }));
+		setErrors((prevErrors) => validateField(name, val, prevErrors));
+	};
+
+	/* ---------- Validación al perder foco (onBlur) ---------- */
+	const handleBlur = (e) => {
+		const { name, value, type, checked } = e.target;
+		const val = type === "checkbox" ? checked : value;
+		// Validación adicional al perder foco
 		setErrors((prevErrors) => validateField(name, val, prevErrors));
 	};
 
@@ -177,10 +185,12 @@ const EditarCatInsumo = () => {
 						name="Nombre"
 						value={formData.Nombre}
 						onChange={handleChange}
+						onBlur={handleBlur}
 						required
 						className={`w-full border p-2 rounded ${
 							errors.Nombre ? "border-red-500" : "border-gray-300"
 						}`}
+						placeholder="Ingrese el nombre de la categoría"
 					/>
 					{errors.Nombre && (
 						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
@@ -195,16 +205,21 @@ const EditarCatInsumo = () => {
 						name="Descripcion"
 						value={formData.Descripcion}
 						onChange={handleChange}
+						onBlur={handleBlur}
 						required
 						maxLength={100}
 						className={`w-full border p-2 rounded ${
 							errors.Descripcion ? "border-red-500" : "border-gray-300"
 						}`}
 						style={{ resize: "vertical" }}
+						placeholder="Ingrese la descripción de la categoría"
 					/>
 					{errors.Descripcion && (
 						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
 					)}
+					<p className="text-gray-500 text-xs mt-1">
+						{formData.Descripcion.length}/100 caracteres
+					</p>
 				</div>
 
 				<input
@@ -217,7 +232,12 @@ const EditarCatInsumo = () => {
 				/>
 
 				<div className="md:col-span-2 flex gap-4">
-					<Button icon="fa fa-save" className="green" type="submit">
+					<Button 
+						icon="fa fa-save" 
+						className="green" 
+						type="submit"
+						disabled={Object.keys(errors).some(key => errors[key] !== undefined)}
+					>
 						Guardar Cambios
 					</Button>
 					<Button icon="fa fa-times" className="red" onClick={handleCancel}>

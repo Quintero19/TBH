@@ -4,6 +4,8 @@ import { ventasService } from "@/service/ventas.service";
 import { clienteService } from "@/service/clientes.service";
 import { productoService } from "@/service/productos.service";
 import { servicioService } from "@/service/serviciosservice";
+import { tallasService } from "@/service/tallas.service";
+import { tamanosService } from "@/service/tamanos.service";
 import { showAlert } from "@/components/AlertProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -144,20 +146,164 @@ const Ventas = () => {
 			const productos = [];
 			const servicios = [];
 
+			console.log("Detalle completo de la venta:", detalleCompleto.data);
+			
 			if (Array.isArray(detalleCompleto.data?.Detalle_Venta)) {
 				for (const det of detalleCompleto.data.Detalle_Venta) {
+					console.log("Procesando detalle:", det);
 					try {
 						if (det?.Id_Productos) {
 							let nombreProducto = `Producto ID: ${det.Id_Productos}`;
 							let precioUnitario = parseFloat(
 								det.Precio_Unitario || det.Precio || 0,
 							);
+							let esRopa = false;
+							let esPerfume = false;
+							let tallas = [];
+							let tamanos = [];
 
 							try {
 								const productoData = await productoService.obtenerProductoPorId(
 									det.Id_Productos,
 								);
 								nombreProducto = productoData?.data?.Nombre || nombreProducto;
+								
+								// Intentar obtener Es_Ropa y Es_Perfume del producto
+								esRopa = productoData?.data?.Es_Ropa || false;
+								esPerfume = productoData?.data?.Es_Perfume || false;
+								
+								// Si no están configurados, intentar determinarlo por categoría
+								if (!esRopa && !esPerfume) {
+									const categoria = productoData?.data?.Categoria || productoData?.data?.Id_Categoria_Producto_Categoria_Producto;
+									console.log("Categoría del producto:", categoria);
+									
+									// Determinar por nombre de categoría o ID
+									if (categoria) {
+										const nombreCategoria = typeof categoria === 'string' ? categoria : categoria?.Nombre || '';
+										const idCategoria = typeof categoria === 'object' ? categoria?.Id_Categoria_Producto : null;
+										
+										// Lógica para determinar si es ropa o perfume basado en categoría
+										if (nombreCategoria.toLowerCase().includes('ropa') || 
+											nombreCategoria.toLowerCase().includes('vestimenta') ||
+											nombreCategoria.toLowerCase().includes('camisa') ||
+											nombreCategoria.toLowerCase().includes('pantalón') ||
+											idCategoria === 1) { // Asumiendo que ID 1 es ropa
+											esRopa = true;
+											console.log("Producto identificado como ropa por categoría:", nombreCategoria);
+										} else if (nombreCategoria.toLowerCase().includes('perfume') || 
+												   nombreCategoria.toLowerCase().includes('loción') ||
+												   nombreCategoria.toLowerCase().includes('cosmético') ||
+												   idCategoria === 3) { // Asumiendo que ID 3 es perfumes
+											esPerfume = true;
+											console.log("Producto identificado como perfume por categoría:", nombreCategoria);
+										}
+									}
+								}
+								
+								console.log("Producto:", nombreProducto, "Es_Ropa:", esRopa, "Es_Perfume:", esPerfume);
+								console.log("Det.Tallas:", det.Tallas);
+								console.log("Det.Tamanos:", det.Tamanos);
+								
+								// Obtener tallas si es ropa
+								if (esRopa) {
+									// Primero intentar obtener de los campos Tallas
+									if (det.Tallas && Array.isArray(det.Tallas) && det.Tallas.length > 0) {
+										tallas = det.Tallas;
+										console.log("Tallas encontradas en det.Tallas:", tallas);
+									} else if (det.tallas && Array.isArray(det.tallas) && det.tallas.length > 0) {
+										tallas = det.tallas;
+										console.log("Tallas encontradas en det.tallas:", tallas);
+									} else if (det.Id_Producto_Tallas) {
+										// Si solo tenemos un ID de talla, obtener los datos completos
+										try {
+											const tallaData = await tallasService.obtenerTallaPorId(det.Id_Producto_Tallas);
+											if (tallaData?.data) {
+												tallas = [{ 
+													nombre: tallaData.data.Nombre || "Talla",
+													Cantidad: det.Cantidad 
+												}];
+												console.log("Talla encontrada:", tallaData.data);
+											} else {
+												tallas = [{ nombre: "Talla seleccionada", Cantidad: det.Cantidad }];
+												console.log("Talla encontrada por ID:", det.Id_Producto_Tallas);
+											}
+										} catch (error) {
+											console.error("Error obteniendo talla:", error);
+											tallas = [{ nombre: "Talla seleccionada", Cantidad: det.Cantidad }];
+										}
+									}
+								}
+								
+								// Obtener tamaños si es perfume
+								if (esPerfume) {
+									// Primero intentar obtener de los campos Tamanos
+									if (det.Tamanos && Array.isArray(det.Tamanos) && det.Tamanos.length > 0) {
+										tamanos = det.Tamanos;
+										console.log("Tamaños encontrados en det.Tamanos:", tamanos);
+									} else if (det.tamanos && Array.isArray(det.tamanos) && det.tamanos.length > 0) {
+										tamanos = det.tamanos;
+										console.log("Tamaños encontrados en det.tamanos:", tamanos);
+									} else if (det.Id_Producto_Tamano_Insumos) {
+										// Si solo tenemos un ID de tamaño, obtener los datos completos
+										try {
+											// Usar los datos que ya vienen en la respuesta
+											if (det.Id_Producto_Tamano_Insumos_Producto_Tamano_Insumo) {
+												const tamanoId = det.Id_Producto_Tamano_Insumos_Producto_Tamano_Insumo.Id_Producto_Tamano;
+												
+												// Intentar obtener el nombre del tamaño desde el servicio
+												try {
+													const tamanoData = await tamanosService.obtenerTamanoPorId(tamanoId);
+													if (tamanoData?.data) {
+														// Si la cantidad es mayor a 1, podría ser que se llevaron varios tamaños
+														// pero el backend solo guardó uno. Mostrar información adicional
+														const nombreTamaño = tamanoData.data.Nombre || `Tamaño ${tamanoId}`;
+														tamanos = [{ 
+															nombre: nombreTamaño,
+															Cantidad: det.Cantidad 
+														}];
+														
+																											// Si la cantidad es alta, intentar obtener todos los tamaños del producto
+													if (det.Cantidad > 1) {
+														console.log(`Nota: Se llevaron ${det.Cantidad} unidades del tamaño ${nombreTamaño}. Es posible que se hayan seleccionado múltiples tamaños pero el backend solo guardó uno.`);
+														
+														// Intentar obtener todos los tamaños del producto para mostrar información adicional
+														try {
+															const productoDetallado = await productoService.obtenerProductoPorId(det.Id_Productos);
+															if (productoDetallado?.data?.Detalles?.tamanos) {
+																console.log("Tamaños disponibles del producto:", productoDetallado.data.Detalles.tamanos);
+																// Agregar información de tamaños disponibles
+																const tamanosDisponibles = productoDetallado.data.Detalles.tamanos.map(t => t.nombre).join(", ");
+																console.log(`Tamaños disponibles: ${tamanosDisponibles}`);
+															}
+														} catch (error) {
+															console.error("Error obteniendo tamaños del producto:", error);
+														}
+													}
+														
+														console.log("Tamaño encontrado con nombre:", tamanoData.data);
+													} else {
+														tamanos = [{ 
+															nombre: `Tamaño ID: ${tamanoId}`,
+															Cantidad: det.Cantidad 
+														}];
+													}
+												} catch (tamanoError) {
+													console.error("Error obteniendo datos del tamaño:", tamanoError);
+													tamanos = [{ 
+														nombre: `Tamaño ID: ${tamanoId}`,
+														Cantidad: det.Cantidad 
+													}];
+												}
+											} else {
+												tamanos = [{ nombre: "Tamaño seleccionado", Cantidad: det.Cantidad }];
+												console.log("Tamaño encontrado por ID:", det.Id_Producto_Tamano_Insumos);
+											}
+										} catch (error) {
+											console.error("Error obteniendo tamaño:", error);
+											tamanos = [{ nombre: "Tamaño seleccionado", Cantidad: det.Cantidad }];
+										}
+									}
+								}
 							} catch (error) {
 								console.error(
 									`Error obteniendo producto ${det.Id_Productos}:`,
@@ -173,6 +319,10 @@ const Ventas = () => {
 									det.Subtotal ||
 										precioUnitario * parseInt(det.Cantidad || 1, 10),
 								),
+								Es_Ropa: esRopa,
+								Es_Perfume: esPerfume,
+								Tallas: tallas,
+								Tamanos: tamanos,
 							});
 						} else if (det?.Id_Servicios) {
 							let nombreServicio = `Servicio ID: ${det.Id_Servicios}`;
@@ -295,23 +445,53 @@ const Ventas = () => {
 								? `<table class="w-full table-fixed text-left text-sm text-gray-200">
 								<thead class="bg-[#111827] text-gray-300 uppercase tracking-wide shadow">
 								<tr>
-									<th class="py-2 px-3 w-1/5">Nombre</th>
-									<th class="py-2 px-3 w-1/5">Cantidad</th>
-									<th class="py-2 px-3 w-1/5">Precio Unitario</th>
-									<th class="py-2 px-3 w-1/5">Subtotal</th>
+									<th class="py-2 px-3 w-1/6">Nombre</th>
+									<th class="py-2 px-3 w-1/6">Cantidad</th>
+									<th class="py-2 px-3 w-1/6">Precio Unitario</th>
+									<th class="py-2 px-3 w-1/6">Subtotal</th>
+									<th class="py-2 px-3 w-1/6">Tallas/Tamaños</th>
 								</tr>
 								</thead>
 								<tbody>
 								${productos
 									.map(
-										(p) => `
+										(p) => {
+											let tallasTamanosHtml = "";
+											
+											// Mostrar tallas si es ropa
+											if (p.Es_Ropa && p.Tallas && p.Tallas.length > 0) {
+												tallasTamanosHtml = p.Tallas.map(talla => 
+													`<span class="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${talla.nombre}: ${talla.Cantidad} uds</span>`
+												).join("");
+											}
+											
+											// Mostrar tamaños si es perfume
+											if (p.Es_Perfume && p.Tamanos && p.Tamanos.length > 0) {
+												tallasTamanosHtml = p.Tamanos.map(tamano => 
+													`<span class="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${tamano.nombre}: ${tamano.Cantidad} uds</span>`
+												).join("");
+												
+												// Si solo hay un tamaño pero la cantidad es alta, agregar una nota
+												if (p.Tamanos.length === 1 && p.Tamanos[0].Cantidad > 1) {
+													tallasTamanosHtml += `<br><span class="text-orange-400 text-xs italic">Nota: Es posible que se hayan seleccionado múltiples tamaños</span>`;
+												}
+											}
+											
+											return `
 									<tr class="border-b border-gray-700 hover:bg-gray-700/30 transition">
 									<td class="py-2 px-3">${safeHtmlValue(p.Nombre)}</td>
 									<td class="py-2 px-3">${safeHtmlValue(p.Cantidad)}</td>
 									<td class="py-2 px-3">${formatCurrency(p.Precio_Unitario)}</td>
 									<td class="py-2 px-3">${formatCurrency(p.Subtotal)}</td>
+									<td class="py-2 px-3">
+										${tallasTamanosHtml || 
+											(p.Es_Ropa ? '<span class="text-orange-400 text-xs">Ropa sin tallas registradas</span>' : 
+											 p.Es_Perfume ? '<span class="text-orange-400 text-xs">Perfume sin tamaños registrados</span>' : 
+											 '<span class="text-gray-400 text-xs">Sin tallas/tamaños</span>')}
+									</td>
 									</tr>
-								`,
+								`;
+										}
 									)
 									.join("")}
 								</tbody>

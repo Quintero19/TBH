@@ -214,7 +214,7 @@ const Productos = () => {
 					${
 						producto.Es_Ropa && producto.Detalles?.tallas?.length
 							? `
-						<div class="relative relative md:col-span-2">
+						<div class="relative md:col-span-2">
 							<label class="absolute -top-4 left-3 px-1 text-sm font-semibold text-gray-400 bg-[#111827] rounded-md z-30">Tallas del Producto</label>
 							<div class="rounded-lg border border-gray-600/50 pb-3 px-4 bg-[#111827] max-h-48 overflow-y-auto">
 								<table class="w-full text-left text-base text-gray-200">
