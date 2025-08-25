@@ -679,27 +679,18 @@ const AgregarVenta = () => {
 		}
 
 		try {
-			const ventaData = {
-				Id_Cliente: formData.Id_Cliente,
-				Id_Empleados: formData.Id_Usuario,
-				Fecha: formData.Fecha_Registro,
-				M_Pago: formData.Metodo_Pago,
-				Referencia:
-					formData.Metodo_Pago === "Transferencia"
-						? formData.DatosTransferencia
-						: null,
-				Detalle_Venta: formData.Items.map((item) => ({
-					Id_Productos: item.tipo === "producto" ? item.id : null,
-					Id_Servicio: item.tipo === "servicio" ? item.id : null,
-					Cantidad: item.cantidad,
-					Precio: item.precio,
-					Subtotal: item.precio * item.cantidad,
-					Id_Producto_Tallas: item.tallas && item.tallas.length > 0 ? item.tallas[0].Id_Producto_Tallas : null,
-					Id_Producto_Tamano_Insumos: item.tamanos && item.tamanos.length > 0 ? item.tamanos[0].index : null,
-					Tallas: item.tallas || [],
-					Tamanos: item.tamanos || [],
-				})),
-			};
+			// Usar las nuevas funciones del servicio mejorado
+			const ventaData = ventasService.prepararDatosCrearVenta(formData);
+			
+			// Validar datos antes de enviar
+			const validacion = ventasService.validarDatosVenta(ventaData);
+			if (!validacion.valido) {
+				await showAlert(`Errores de validación:\n${validacion.errores.join('\n')}`, {
+					type: "error",
+					title: "Datos inválidos",
+				});
+				return;
+			}
 
 			console.log("VENTA A ENVIAR ===>", JSON.stringify(ventaData, null, 2));
 
@@ -724,7 +715,7 @@ const AgregarVenta = () => {
 	return (
 		<>
 			<h1 className="text-5xl ml-10 font-bold mb-5 text-black">
-				Registrar VentaTamaño ID: 2: 4 uds
+				Registrar Venta
 			</h1>
 
 			<form

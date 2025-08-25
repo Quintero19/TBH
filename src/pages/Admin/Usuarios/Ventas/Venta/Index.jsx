@@ -4,8 +4,7 @@ import { ventasService } from "@/service/ventas.service";
 import { clienteService } from "@/service/clientes.service";
 import { productoService } from "@/service/productos.service";
 import { servicioService } from "@/service/serviciosservice";
-import { tallasService } from "@/service/tallas.service";
-import { tamanosService } from "@/service/tamanos.service";
+
 import { showAlert } from "@/components/AlertProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -55,11 +54,18 @@ const Ventas = () => {
 
 	const transformData = useCallback(
 		(lista) =>
-			lista.map((item) => ({
-				...item,
-				Id_Ventas: `VEN_${item.Id_Ventas}`,
-				Total: item.Total ? formatCOP(item.Total) : "-",
-			})),
+			lista.map((item) => {
+				// Procesar datos de venta usando el servicio mejorado
+				const ventaProcesada = ventasService.procesarDatosVenta(item);
+				
+				return {
+					...ventaProcesada,
+					Id_Ventas: `VEN_${item.Id_Ventas}`,
+					Total: item.Total ? formatCOP(item.Total) : "-",
+					Estado: ventasService.obtenerDescripcionEstado(item.Estado),
+					M_Pago: ventasService.obtenerDescripcionMetodoPago(item.M_Pago),
+				};
+			}),
 		[],
 	);
 
@@ -148,8 +154,12 @@ const Ventas = () => {
 
 			console.log("Detalle completo de la venta:", detalleCompleto.data);
 			
-			if (Array.isArray(detalleCompleto.data?.Detalle_Venta)) {
-				for (const det of detalleCompleto.data.Detalle_Venta) {
+			// Procesar los datos de la venta usando el servicio
+			const ventaProcesada = ventasService.procesarDatosVenta(detalleCompleto.data);
+			console.log("Venta procesada:", ventaProcesada);
+			
+			if (Array.isArray(ventaProcesada?.Detalle_Venta)) {
+				for (const det of ventaProcesada.Detalle_Venta) {
 					console.log("Procesando detalle:", det);
 					try {
 						if (det?.Id_Productos) {
@@ -157,8 +167,6 @@ const Ventas = () => {
 							let precioUnitario = parseFloat(
 								det.Precio_Unitario || det.Precio || 0,
 							);
-							let esRopa = false;
-							let esPerfume = false;
 							let tallas = [];
 							let tamanos = [];
 
@@ -168,141 +176,15 @@ const Ventas = () => {
 								);
 								nombreProducto = productoData?.data?.Nombre || nombreProducto;
 								
-								// Intentar obtener Es_Ropa y Es_Perfume del producto
-								esRopa = productoData?.data?.Es_Ropa || false;
-								esPerfume = productoData?.data?.Es_Perfume || false;
-								
-								// Si no están configurados, intentar determinarlo por categoría
-								if (!esRopa && !esPerfume) {
-									const categoria = productoData?.data?.Categoria || productoData?.data?.Id_Categoria_Producto_Categoria_Producto;
-									console.log("Categoría del producto:", categoria);
-									
-									// Determinar por nombre de categoría o ID
-									if (categoria) {
-										const nombreCategoria = typeof categoria === 'string' ? categoria : categoria?.Nombre || '';
-										const idCategoria = typeof categoria === 'object' ? categoria?.Id_Categoria_Producto : null;
-										
-										// Lógica para determinar si es ropa o perfume basado en categoría
-										if (nombreCategoria.toLowerCase().includes('ropa') || 
-											nombreCategoria.toLowerCase().includes('vestimenta') ||
-											nombreCategoria.toLowerCase().includes('camisa') ||
-											nombreCategoria.toLowerCase().includes('pantalón') ||
-											idCategoria === 1) { // Asumiendo que ID 1 es ropa
-											esRopa = true;
-											console.log("Producto identificado como ropa por categoría:", nombreCategoria);
-										} else if (nombreCategoria.toLowerCase().includes('perfume') || 
-												   nombreCategoria.toLowerCase().includes('loción') ||
-												   nombreCategoria.toLowerCase().includes('cosmético') ||
-												   idCategoria === 3) { // Asumiendo que ID 3 es perfumes
-											esPerfume = true;
-											console.log("Producto identificado como perfume por categoría:", nombreCategoria);
-										}
-									}
+								// Obtener tallas y tamaños de los datos procesados
+								if (det.Tallas && Array.isArray(det.Tallas) && det.Tallas.length > 0) {
+									tallas = det.Tallas;
+									console.log("Tallas encontradas:", tallas);
 								}
 								
-								console.log("Producto:", nombreProducto, "Es_Ropa:", esRopa, "Es_Perfume:", esPerfume);
-								console.log("Det.Tallas:", det.Tallas);
-								console.log("Det.Tamanos:", det.Tamanos);
-								
-								// Obtener tallas si es ropa
-								if (esRopa) {
-									// Primero intentar obtener de los campos Tallas
-									if (det.Tallas && Array.isArray(det.Tallas) && det.Tallas.length > 0) {
-										tallas = det.Tallas;
-										console.log("Tallas encontradas en det.Tallas:", tallas);
-									} else if (det.tallas && Array.isArray(det.tallas) && det.tallas.length > 0) {
-										tallas = det.tallas;
-										console.log("Tallas encontradas en det.tallas:", tallas);
-									} else if (det.Id_Producto_Tallas) {
-										// Si solo tenemos un ID de talla, obtener los datos completos
-										try {
-											const tallaData = await tallasService.obtenerTallaPorId(det.Id_Producto_Tallas);
-											if (tallaData?.data) {
-												tallas = [{ 
-													nombre: tallaData.data.Nombre || "Talla",
-													Cantidad: det.Cantidad 
-												}];
-												console.log("Talla encontrada:", tallaData.data);
-											} else {
-												tallas = [{ nombre: "Talla seleccionada", Cantidad: det.Cantidad }];
-												console.log("Talla encontrada por ID:", det.Id_Producto_Tallas);
-											}
-										} catch (error) {
-											console.error("Error obteniendo talla:", error);
-											tallas = [{ nombre: "Talla seleccionada", Cantidad: det.Cantidad }];
-										}
-									}
-								}
-								
-								// Obtener tamaños si es perfume
-								if (esPerfume) {
-									// Primero intentar obtener de los campos Tamanos
-									if (det.Tamanos && Array.isArray(det.Tamanos) && det.Tamanos.length > 0) {
-										tamanos = det.Tamanos;
-										console.log("Tamaños encontrados en det.Tamanos:", tamanos);
-									} else if (det.tamanos && Array.isArray(det.tamanos) && det.tamanos.length > 0) {
-										tamanos = det.tamanos;
-										console.log("Tamaños encontrados en det.tamanos:", tamanos);
-									} else if (det.Id_Producto_Tamano_Insumos) {
-										// Si solo tenemos un ID de tamaño, obtener los datos completos
-										try {
-											// Usar los datos que ya vienen en la respuesta
-											if (det.Id_Producto_Tamano_Insumos_Producto_Tamano_Insumo) {
-												const tamanoId = det.Id_Producto_Tamano_Insumos_Producto_Tamano_Insumo.Id_Producto_Tamano;
-												
-												// Intentar obtener el nombre del tamaño desde el servicio
-												try {
-													const tamanoData = await tamanosService.obtenerTamanoPorId(tamanoId);
-													if (tamanoData?.data) {
-														// Si la cantidad es mayor a 1, podría ser que se llevaron varios tamaños
-														// pero el backend solo guardó uno. Mostrar información adicional
-														const nombreTamaño = tamanoData.data.Nombre || `Tamaño ${tamanoId}`;
-														tamanos = [{ 
-															nombre: nombreTamaño,
-															Cantidad: det.Cantidad 
-														}];
-														
-																											// Si la cantidad es alta, intentar obtener todos los tamaños del producto
-													if (det.Cantidad > 1) {
-														console.log(`Nota: Se llevaron ${det.Cantidad} unidades del tamaño ${nombreTamaño}. Es posible que se hayan seleccionado múltiples tamaños pero el backend solo guardó uno.`);
-														
-														// Intentar obtener todos los tamaños del producto para mostrar información adicional
-														try {
-															const productoDetallado = await productoService.obtenerProductoPorId(det.Id_Productos);
-															if (productoDetallado?.data?.Detalles?.tamanos) {
-																console.log("Tamaños disponibles del producto:", productoDetallado.data.Detalles.tamanos);
-																// Agregar información de tamaños disponibles
-																const tamanosDisponibles = productoDetallado.data.Detalles.tamanos.map(t => t.nombre).join(", ");
-																console.log(`Tamaños disponibles: ${tamanosDisponibles}`);
-															}
-														} catch (error) {
-															console.error("Error obteniendo tamaños del producto:", error);
-														}
-													}
-														
-														console.log("Tamaño encontrado con nombre:", tamanoData.data);
-													} else {
-														tamanos = [{ 
-															nombre: `Tamaño ID: ${tamanoId}`,
-															Cantidad: det.Cantidad 
-														}];
-													}
-												} catch (tamanoError) {
-													console.error("Error obteniendo datos del tamaño:", tamanoError);
-													tamanos = [{ 
-														nombre: `Tamaño ID: ${tamanoId}`,
-														Cantidad: det.Cantidad 
-													}];
-												}
-											} else {
-												tamanos = [{ nombre: "Tamaño seleccionado", Cantidad: det.Cantidad }];
-												console.log("Tamaño encontrado por ID:", det.Id_Producto_Tamano_Insumos);
-											}
-										} catch (error) {
-											console.error("Error obteniendo tamaño:", error);
-											tamanos = [{ nombre: "Tamaño seleccionado", Cantidad: det.Cantidad }];
-										}
-									}
+								if (det.Tamanos && Array.isArray(det.Tamanos) && det.Tamanos.length > 0) {
+									tamanos = det.Tamanos;
+									console.log("Tamaños encontrados:", tamanos);
 								}
 							} catch (error) {
 								console.error(
@@ -311,7 +193,7 @@ const Ventas = () => {
 								);
 							}
 
-							productos.push({
+							const productoFinal = {
 								Nombre: nombreProducto,
 								Cantidad: parseInt(det.Cantidad || 1, 10),
 								Precio_Unitario: precioUnitario,
@@ -319,11 +201,15 @@ const Ventas = () => {
 									det.Subtotal ||
 										precioUnitario * parseInt(det.Cantidad || 1, 10),
 								),
-								Es_Ropa: esRopa,
-								Es_Perfume: esPerfume,
 								Tallas: tallas,
 								Tamanos: tamanos,
-							});
+							};
+							
+							console.log("Producto final a mostrar:", productoFinal);
+							console.log("Tallas del producto:", productoFinal.Tallas);
+							console.log("Tamaños del producto:", productoFinal.Tamanos);
+							
+							productos.push(productoFinal);
 						} else if (det?.Id_Servicios) {
 							let nombreServicio = `Servicio ID: ${det.Id_Servicios}`;
 							let precioServicio = parseFloat(
@@ -458,23 +344,18 @@ const Ventas = () => {
 										(p) => {
 											let tallasTamanosHtml = "";
 											
-											// Mostrar tallas si es ropa
-											if (p.Es_Ropa && p.Tallas && p.Tallas.length > 0) {
+											// Mostrar tallas si existen
+											if (p.Tallas && Array.isArray(p.Tallas) && p.Tallas.length > 0) {
 												tallasTamanosHtml = p.Tallas.map(talla => 
-													`<span class="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${talla.nombre}: ${talla.Cantidad} uds</span>`
+													`<span class="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${talla.talla || talla.nombre || 'Talla'}: ${talla.cantidad || talla.Cantidad || 1} uds</span>`
 												).join("");
 											}
 											
-											// Mostrar tamaños si es perfume
-											if (p.Es_Perfume && p.Tamanos && p.Tamanos.length > 0) {
+											// Mostrar tamaños si existen
+											if (p.Tamanos && Array.isArray(p.Tamanos) && p.Tamanos.length > 0) {
 												tallasTamanosHtml = p.Tamanos.map(tamano => 
-													`<span class="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${tamano.nombre}: ${tamano.Cantidad} uds</span>`
+													`<span class="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">${tamano.nombre || 'Tamaño'}: ${tamano.Cantidad || tamano.cantidad || 1} uds</span>`
 												).join("");
-												
-												// Si solo hay un tamaño pero la cantidad es alta, agregar una nota
-												if (p.Tamanos.length === 1 && p.Tamanos[0].Cantidad > 1) {
-													tallasTamanosHtml += `<br><span class="text-orange-400 text-xs italic">Nota: Es posible que se hayan seleccionado múltiples tamaños</span>`;
-												}
 											}
 											
 											return `
@@ -484,10 +365,7 @@ const Ventas = () => {
 									<td class="py-2 px-3">${formatCurrency(p.Precio_Unitario)}</td>
 									<td class="py-2 px-3">${formatCurrency(p.Subtotal)}</td>
 									<td class="py-2 px-3">
-										${tallasTamanosHtml || 
-											(p.Es_Ropa ? '<span class="text-orange-400 text-xs">Ropa sin tallas registradas</span>' : 
-											 p.Es_Perfume ? '<span class="text-orange-400 text-xs">Perfume sin tamaños registrados</span>' : 
-											 '<span class="text-gray-400 text-xs">Sin tallas/tamaños</span>')}
+										${tallasTamanosHtml || '<span class="text-gray-400 text-xs">Sin tallas/tamaños</span>'}
 									</td>
 									</tr>
 								`;
@@ -542,11 +420,18 @@ const Ventas = () => {
 			await showAlert(html, {
 				type: "info",
 				showConfirmButton: true,
+				showDenyButton: true,
 				width: "60rem",
 				swalOptions: {
-					confirmButtonText: "Cerrar",
+					confirmButtonText: "📄 Descargar Factura",
+					denyButtonText: "Cerrar",
 					padding: "1rem",
 				},
+			}).then((result) => {
+				if (result.isConfirmed) {
+					// Generar factura PDF directamente
+					generarFacturaPDF(venta);
+				}
 			});
 		} catch (error) {
 			console.error("Error:", error);
@@ -559,21 +444,216 @@ const Ventas = () => {
 
 	/*----------------------------------------------------------------*/
 
+	/*---------------------Generar Factura PDF------------------------------------*/
+	const generarFacturaPDF = async (venta) => {
+		try {
+			// Obtener datos completos de la venta
+			const ventaId = venta.Id_Ventas.replace("VEN_", "");
+			const ventaCompleta = await ventasService.obtenerVentaPorId(ventaId);
+			
+			if (!ventaCompleta?.data) {
+				throw new Error("No se pudieron obtener los datos de la venta");
+			}
+
+			const datosVenta = ventasService.procesarDatosVenta(ventaCompleta.data);
+
+			// Crear contenido HTML para la factura
+			const contenidoHTML = generarHTMLFactura(datosVenta);
+
+			// Abrir en nueva ventana para imprimir
+			const newWindow = window.open('', '_blank');
+			newWindow.document.write(contenidoHTML);
+			newWindow.document.close();
+			
+			await showAlert("Factura generada exitosamente. Se abrirá en una nueva ventana para imprimir.", {
+				type: "success",
+				title: "Éxito",
+				timer: 3000,
+			});
+
+		} catch (error) {
+			console.error("Error generando factura:", error);
+			await showAlert("Error al generar la factura", {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
+
+	const generarHTMLFactura = (datosVenta) => {
+		const productos = datosVenta.Detalle_Venta?.filter(item => item.Id_Productos) || [];
+		const servicios = datosVenta.Detalle_Venta?.filter(item => item.Id_Servicio) || [];
+
+		const formatCOP = (value) => {
+			if (!value && value !== 0) return "$0";
+			return `$${Number(value).toLocaleString("es-CO")}`;
+		};
+
+		const formatFecha = (fecha) => {
+			return new Date(fecha).toLocaleDateString('es-ES', {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+		};
+
+		return `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<meta charset="utf-8">
+				<title>Factura ${datosVenta.Id_Ventas}</title>
+				<style>
+					@media print {
+						body { margin: 0; padding: 20px; }
+						.no-print { display: none; }
+					}
+					body { font-family: Arial, sans-serif; margin: 20px; }
+					.header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+					.company-name { font-size: 24px; font-weight: bold; color: #333; }
+					.factura-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
+					.info-section { flex: 1; }
+					.info-section h3 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+					table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+					th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+					th { background-color: #f5f5f5; font-weight: bold; }
+					.total-section { text-align: right; margin-top: 30px; }
+					.total { font-size: 18px; font-weight: bold; }
+					.footer { margin-top: 50px; text-align: center; color: #666; font-size: 12px; }
+					.talla-tamano { font-size: 11px; color: #666; }
+					.print-button { 
+						position: fixed; 
+						top: 20px; 
+						right: 20px; 
+						padding: 10px 20px; 
+						background: #007bff; 
+						color: white; 
+						border: none; 
+						border-radius: 5px; 
+						cursor: pointer; 
+					}
+				</style>
+			</head>
+			<body>
+				<button class="print-button no-print" onclick="window.print()">🖨️ Imprimir Factura</button>
+				
+				<div class="header">
+					<div class="company-name">TBH - Tienda de Belleza y Hogar</div>
+					<div>FACTURA</div>
+				</div>
+
+				<div class="factura-info">
+					<div class="info-section">
+						<h3>Información de la Venta</h3>
+						<p><strong>Factura #:</strong> ${datosVenta.Id_Ventas}</p>
+						<p><strong>Fecha:</strong> ${formatFecha(datosVenta.Fecha)}</p>
+						<p><strong>Estado:</strong> ${ventasService.obtenerDescripcionEstado(datosVenta.Estado)}</p>
+						<p><strong>Método de Pago:</strong> ${ventasService.obtenerDescripcionMetodoPago(datosVenta.M_Pago)}</p>
+						${datosVenta.Referencia ? `<p><strong>Referencia:</strong> ${datosVenta.Referencia}</p>` : ''}
+					</div>
+					<div class="info-section">
+						<h3>Empleado</h3>
+						<p><strong>Nombre:</strong> ${datosVenta.Nombre_Empleado || 'No especificado'}</p>
+						<p><strong>ID:</strong> ${datosVenta.Id_Empleados}</p>
+					</div>
+				</div>
+
+				${productos.length > 0 ? `
+				<h3>Productos</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Producto</th>
+							<th>Cantidad</th>
+							<th>Precio Unitario</th>
+							<th>Subtotal</th>
+						</tr>
+					</thead>
+					<tbody>
+						${productos.map(item => `
+							<tr>
+								<td>
+									${item.Id_Productos_Producto?.Nombre || 'Producto'}
+									${item.Tallas && Array.isArray(item.Tallas) && item.Tallas.length > 0 ? `
+										<div class="talla-tamano">
+											Tallas: ${item.Tallas.map(t => `${t.talla || t.nombre || 'Talla'}(${t.cantidad || t.Cantidad || 1})`).join(', ')}
+										</div>
+									` : ''}
+									${item.Tamanos && Array.isArray(item.Tamanos) && item.Tamanos.length > 0 ? `
+										<div class="talla-tamano">
+											Tamaños: ${item.Tamanos.map(t => `${t.nombre || 'Tamaño'}(${t.Cantidad || t.cantidad || 1})`).join(', ')}
+										</div>
+									` : ''}
+								</td>
+								<td>${item.Cantidad}</td>
+								<td>${formatCOP(item.Precio)}</td>
+								<td>${formatCOP(item.Subtotal)}</td>
+							</tr>
+						`).join('')}
+					</tbody>
+				</table>
+				` : ''}
+
+				${servicios.length > 0 ? `
+				<h3>Servicios</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Servicio</th>
+							<th>Cantidad</th>
+							<th>Precio Unitario</th>
+							<th>Subtotal</th>
+						</tr>
+					</thead>
+					<tbody>
+						${servicios.map(item => `
+							<tr>
+								<td>${item.Id_Servicios_Servicio?.Nombre || 'Servicio'}</td>
+								<td>${item.Cantidad}</td>
+								<td>${formatCOP(item.Precio)}</td>
+								<td>${formatCOP(item.Subtotal)}</td>
+							</tr>
+						`).join('')}
+					</tbody>
+				</table>
+				` : ''}
+
+				<div class="total-section">
+					<div class="total">
+						<strong>TOTAL: ${formatCOP(datosVenta.Total)}</strong>
+					</div>
+				</div>
+
+				<div class="footer">
+					<p>Gracias por su compra</p>
+					<p>TBH - Tienda de Belleza y Hogar</p>
+					<p>Factura generada el ${formatFecha(new Date())}</p>
+				</div>
+			</body>
+			</html>
+		`;
+	};
+
+	/*----------------------------------------------------------------*/
+
 	return (
-		<GeneralTable
-			title="Ventas"
-			columns={columns}
-			data={ventas}
-			onAdd={handleAdd}
-			onView={handleVerDetalles}
-			onCompletar={handleCompletarVenta}
-			onAnular={handleAnularVenta}
-			onEdit={() => {}} // No se usa para ventas
-			onDelete={() => {}} // No se usa para ventas
-			onToggleEstado={() => {}} // No se usa para ventas
-			idAccessor="Id_Ventas"
-			stateAccessor="Estado"
-		/>
+			<GeneralTable
+				title="Ventas"
+				columns={columns}
+				data={ventas}
+				onAdd={handleAdd}
+				onView={handleVerDetalles}
+				onCompletar={handleCompletarVenta}
+				onAnular={handleAnularVenta}
+				onGenerarFactura={generarFacturaPDF}
+				onEdit={() => {}} // No se usa para ventas
+				onDelete={() => {}} // No se usa para ventas
+				onToggleEstado={() => {}} // No se usa para ventas
+				idAccessor="Id_Ventas"
+				stateAccessor="Estado"
+			/>
 	);
 };
 

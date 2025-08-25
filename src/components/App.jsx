@@ -144,7 +144,6 @@ function App() {
 				<Route path="insumo/editar/:id" element={<EditarInsumo />} />
 
 				{/* Rutas de ventas */}
-
 				<Route path="ventas" element={<VentaAdmin />} />
 				<Route path="ventas/agregar" element={<AgregarVenta />} />
 
