@@ -463,6 +463,7 @@ const AgregarVenta = () => {
 				});
 				return;
 			}
+			// Para ropa, la cantidad total debe ser la suma de las tallas seleccionadas
 			if (totalTallas !== cantidad) {
 				showAlert("La suma de cantidades por talla debe coincidir con la cantidad total", {
 					type: "warning",
@@ -491,31 +492,55 @@ const AgregarVenta = () => {
 			}
 		}
 
-		// Calcular precio total si hay tamaños (solo precio del tamaño)
-		let precioTotal = itemSeleccionado.precio;
+		// Para productos con tamaños, el precio unitario debe ser el precio del tamaño seleccionado
+		// Para productos normales, usar el precio del producto
+		let precioUnitario = itemSeleccionado.precio;
+		
+		// Si hay tamaños disponibles, usar el precio del primer tamaño seleccionado como precio unitario
 		if (tamanosDisponibles.length > 0) {
-			precioTotal = Object.entries(cantidadesPorTamano)
-				.filter(([, cant]) => cant > 0)
-				.reduce((total, [index, cant]) => {
+			const tamanosSeleccionados = Object.entries(cantidadesPorTamano)
+				.filter(([, cant]) => cant > 0);
+			
+			if (tamanosSeleccionados.length > 0) {
+				// Tomar el precio del primer tamaño seleccionado como precio unitario
+				const primerTamanoIndex = parseInt(tamanosSeleccionados[0][0]);
+				const primerTamano = tamanosDisponibles[primerTamanoIndex];
+				precioUnitario = Number(primerTamano.precio);
+				
+				// Si hay múltiples tamaños seleccionados, verificar que tengan el mismo precio
+				const preciosUnicos = tamanosSeleccionados.map(([index, ]) => {
 					const tamano = tamanosDisponibles[parseInt(index)];
-					// Solo precio del tamaño (sin precio base)
-					const precioPorUnidad = Number(tamano.precio);
-					return total + (precioPorUnidad * cant);
-				}, 0);
+					return Number(tamano.precio);
+				});
+				
+				const precioUnico = preciosUnicos[0];
+				const todosMismoPrecio = preciosUnicos.every(precio => precio === precioUnico);
+				
+				if (!todosMismoPrecio) {
+					showAlert("Todos los tamaños seleccionados deben tener el mismo precio para calcular correctamente el precio unitario", {
+						type: "warning",
+						title: "Precios diferentes",
+					});
+					return;
+				}
+			}
 		}
 
 		const nuevoItem = {
 			tipo: tipoItem,
 			id: itemSeleccionado.id,
 			nombre: itemSeleccionado.nombre,
-			precio: precioTotal,
+			precio: precioUnitario,
 			cantidad: cantidad,
+			// Para productos de ropa, incluir las tallas específicas con sus cantidades
 			tallas: tallasDisponibles.length > 0 ? Object.entries(cantidadesPorTalla)
 				.filter(([, cant]) => cant > 0)
 				.map(([index, cant]) => ({
 					Id_Producto_Tallas: tallasDisponibles[parseInt(index)].Id_Producto_Tallas,
+					nombre: tallasDisponibles[parseInt(index)].nombre,
 					Cantidad: cant,
 				})) : [],
+			// Para productos tipo loción/perfume, incluir los tamaños específicos con sus cantidades
 			tamanos: tamanosDisponibles.length > 0 ? Object.entries(cantidadesPorTamano)
 				.filter(([, cant]) => cant > 0)
 				.map(([index, cant]) => ({
@@ -523,7 +548,7 @@ const AgregarVenta = () => {
 					nombre: tamanosDisponibles[parseInt(index)].nombre,
 					Cantidad: cant,
 					PrecioTamano: Number(tamanosDisponibles[parseInt(index)].precio),
-					PrecioTotal: Number(tamanosDisponibles[parseInt(index)].precio),
+					PrecioTotal: Number(tamanosDisponibles[parseInt(index)].precio) * cant,
 				})) : [],
 		};
 
@@ -574,10 +599,18 @@ const AgregarVenta = () => {
 	// Función para actualizar cantidad por talla
 	const actualizarCantidadTalla = (index, cantidad) => {
 		const cantidadNumerica = cantidad === "" ? 0 : Number(cantidad);
-		setCantidadesPorTalla(prev => ({
-			...prev,
-			[index]: cantidadNumerica
-		}));
+		setCantidadesPorTalla(prev => {
+			const newCantidades = {
+				...prev,
+				[index]: cantidadNumerica
+			};
+			
+			// Actualizar la cantidad total automáticamente
+			const totalCantidad = Object.values(newCantidades).reduce((sum, cant) => sum + cant, 0);
+			setCantidad(totalCantidad);
+			
+			return newCantidades;
+		});
 	};
 
 	// Función para actualizar cantidad por tamaño
@@ -930,16 +963,16 @@ const AgregarVenta = () => {
 								value={cantidad === 0 ? "" : cantidad}
 								onChange={(e) => setCantidad(Number(e.target.value))}
 								className={`w-full border p-2 rounded h-[38px] ${
-									tamanosDisponibles.length > 0 ? "bg-gray-100 cursor-not-allowed" : ""
+									(tamanosDisponibles.length > 0 || tallasDisponibles.length > 0) ? "bg-gray-100 cursor-not-allowed" : ""
 								}`}
-								disabled={tamanosDisponibles.length > 0}
+								disabled={tamanosDisponibles.length > 0 || tallasDisponibles.length > 0}
 								onKeyDown={(e) => {
 									if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
 								}}
 							/>
-							{tamanosDisponibles.length > 0 && (
+							{(tamanosDisponibles.length > 0 || tallasDisponibles.length > 0) && (
 								<p className="text-xs text-gray-500 mt-1">
-									La cantidad se calcula automáticamente según los tamaños seleccionados
+									La cantidad se calcula automáticamente según los {tallasDisponibles.length > 0 ? 'tallas' : 'tamaños'} seleccionados
 								</p>
 							)}
 						</div>
@@ -964,6 +997,9 @@ const AgregarVenta = () => {
 					{tipoItem === "producto" && tallasDisponibles.length > 0 && (
 						<div className="mt-4 p-4 bg-gray-50 rounded-lg border">
 							<h3 className="text-lg font-bold mb-3 text-black">Tallas Disponibles</h3>
+							<p className="text-sm text-gray-600 mb-3">
+								Selecciona la cantidad de cada talla que deseas agregar a la venta
+							</p>
 							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
 								{tallasDisponibles.map((talla, index) => (
 									<div key={`${talla.nombre}-${index}`} className="flex flex-col">
@@ -984,6 +1020,9 @@ const AgregarVenta = () => {
 										/>
 									</div>
 								))}
+							</div>
+							<div className="mt-3 text-sm text-gray-600 bg-white p-2 rounded border">
+								<strong>Total seleccionado:</strong> {Object.values(cantidadesPorTalla).reduce((sum, cant) => sum + cant, 0)} unidades
 							</div>
 						</div>
 					)}
@@ -1044,10 +1083,10 @@ const AgregarVenta = () => {
 										<th className="p-2 text-left">Nombre</th>
 										<th className="p-2 text-right">Precio Unitario</th>
 										<th className="p-2 text-right">Cantidad</th>
-										{(formData.Items.some(item => item.tallas && item.tallas.length > 0) || 
-										  formData.Items.some(item => item.tamanos && item.tamanos.length > 0)) && (
-											<th className="p-2 text-center">Tallas/Tamaños</th>
-										)}
+																					{(formData.Items.some(item => item.tallas && item.tallas.length > 0) || 
+											  formData.Items.some(item => item.tamanos && item.tamanos.length > 0)) && (
+												<th className="p-2 text-center">Detalles (Tallas/Tamaños)</th>
+											)}
 										<th className="p-2 text-right">Subtotal</th>
 										<th className="p-2 text-center">Acciones</th>
 									</tr>
@@ -1102,30 +1141,24 @@ const AgregarVenta = () => {
 												<td className="p-2 text-center">
 													{item.tallas && item.tallas.length > 0 ? (
 														<div className="text-xs">
-															{item.tallas.map((talla, i) => {
-																// Buscar el nombre de la talla
-																const producto = productosDisponibles.find(p => p.Id_Productos === item.id);
-																const tallaInfo = producto?.Detalles?.tallas?.find(t => t.Id_Producto_Tallas === talla.Id_Producto_Tallas);
-																return (
-																	<div key={i}>
-																		{tallaInfo?.nombre || `Talla ${talla.Id_Producto_Tallas}`}: {talla.Cantidad}
-																	</div>
-																);
-															})}
+															{item.tallas.map((talla, i) => (
+																<div key={i} className="mb-1">
+																	<span className="font-medium">{talla.nombre}</span>
+																	<span className="text-gray-600">: {talla.Cantidad} uds</span>
+																</div>
+															))}
 														</div>
 													) : item.tamanos && item.tamanos.length > 0 ? (
 														<div className="text-xs">
-															{item.tamanos.map((tamano, i) => {
-																return (
-																	<div key={i} className="mb-1">
-																		<span className="font-medium">{tamano.nombre}</span>
-																		<span className="text-gray-600">: {tamano.Cantidad} uds</span>
-																		<span className="text-green-600 ml-1">
-																			(${Number(tamano.PrecioTotal || 0).toLocaleString("es-CO")})
-																		</span>
-																	</div>
-																);
-															})}
+															{item.tamanos.map((tamano, i) => (
+																<div key={i} className="mb-1">
+																	<span className="font-medium">{tamano.nombre}</span>
+																	<span className="text-gray-600">: {tamano.Cantidad} uds</span>
+																	<span className="text-green-600 ml-1">
+																		(${Number(tamano.PrecioTamano || 0).toLocaleString("es-CO")})
+																	</span>
+																</div>
+															))}
 														</div>
 													) : (
 														"-"

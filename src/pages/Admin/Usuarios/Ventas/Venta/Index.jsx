@@ -4,6 +4,8 @@ import { ventasService } from "@/service/ventas.service";
 import { clienteService } from "@/service/clientes.service";
 import { productoService } from "@/service/productos.service";
 import { servicioService } from "@/service/serviciosservice";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 import { showAlert } from "@/components/AlertProvider";
 import { useNavigate } from "react-router-dom";
@@ -193,17 +195,26 @@ const Ventas = () => {
 								);
 							}
 
+							const cantidad = parseInt(det.Cantidad || 1, 10);
+							const subtotal = parseFloat(
+								det.Subtotal ||
+									precioUnitario * cantidad,
+							);
+							
 							const productoFinal = {
 								Nombre: nombreProducto,
-								Cantidad: parseInt(det.Cantidad || 1, 10),
+								Cantidad: cantidad,
 								Precio_Unitario: precioUnitario,
-								Subtotal: parseFloat(
-									det.Subtotal ||
-										precioUnitario * parseInt(det.Cantidad || 1, 10),
-								),
+								Subtotal: subtotal,
 								Tallas: tallas,
 								Tamanos: tamanos,
 							};
+							
+							console.log(`Producto: ${nombreProducto}`);
+							console.log(`  - Cantidad: ${cantidad}`);
+							console.log(`  - Precio Unitario: ${precioUnitario}`);
+							console.log(`  - Subtotal: ${subtotal}`);
+							console.log(`  - Subtotal de BD: ${det.Subtotal}`);
 							
 							console.log("Producto final a mostrar:", productoFinal);
 							console.log("Tallas del producto:", productoFinal.Tallas);
@@ -228,11 +239,17 @@ const Ventas = () => {
 								);
 							}
 
+							const subtotalServicio = parseFloat(det.Subtotal || precioServicio);
 							servicios.push({
 								Nombre: nombreServicio,
 								Precio: precioServicio,
-								Subtotal: parseFloat(det.Subtotal || precioServicio),
+								Subtotal: subtotalServicio,
 							});
+							
+							console.log(`Servicio: ${nombreServicio}`);
+							console.log(`  - Precio: ${precioServicio}`);
+							console.log(`  - Subtotal: ${subtotalServicio}`);
+							console.log(`  - Subtotal de BD: ${det.Subtotal}`);
 						}
 					} catch (error) {
 						console.error("Error procesando detalle:", error);
@@ -240,12 +257,19 @@ const Ventas = () => {
 				}
 			}
 
-			const totalVenta = parseFloat(
-				detalleCompleto.data?.Total ||
-					venta.Total ||
-					productos.reduce((sum, p) => sum + p.Subtotal, 0) +
-						servicios.reduce((sum, s) => sum + s.Subtotal, 0),
-			);
+			// Calcular el total correctamente sumando todos los subtotales
+			const totalProductos = productos.reduce((sum, p) => sum + p.Subtotal, 0);
+			const totalServicios = servicios.reduce((sum, s) => sum + s.Subtotal, 0);
+			const totalCalculado = totalProductos + totalServicios;
+			
+			// Usar el total calculado en lugar del total de la base de datos
+			const totalVenta = totalCalculado;
+			
+			console.log("Total productos:", totalProductos);
+			console.log("Total servicios:", totalServicios);
+			console.log("Total calculado:", totalCalculado);
+			console.log("Total de la base de datos:", detalleCompleto.data?.Total);
+			console.log("Total de la venta en lista:", venta.Total);
 
 			const safeHtmlValue = (value) => value ?? "N/A";
 
@@ -419,19 +443,14 @@ const Ventas = () => {
 
 			await showAlert(html, {
 				type: "info",
-				showConfirmButton: true,
-				showDenyButton: true,
+				showConfirmButton: false,
+				showDenyButton: false,
 				width: "60rem",
 				swalOptions: {
-					confirmButtonText: "📄 Descargar Factura",
-					denyButtonText: "Cerrar",
 					padding: "1rem",
+					showCloseButton: true,
+					closeButtonHtml: '<button style="position: absolute; top: 10px; right: 10px; background: #dc2626; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>',
 				},
-			}).then((result) => {
-				if (result.isConfirmed) {
-					// Generar factura PDF directamente
-					generarFacturaPDF(venta);
-				}
 			});
 		} catch (error) {
 			console.error("Error:", error);
@@ -457,23 +476,70 @@ const Ventas = () => {
 
 			const datosVenta = ventasService.procesarDatosVenta(ventaCompleta.data);
 
-			// Crear contenido HTML para la factura
+			// Crear el contenido HTML para la factura
 			const contenidoHTML = generarHTMLFactura(datosVenta);
 
-			// Abrir en nueva ventana para imprimir
-			const newWindow = window.open('', '_blank');
-			newWindow.document.write(contenidoHTML);
-			newWindow.document.close();
-			
-			await showAlert("Factura generada exitosamente. Se abrirá en una nueva ventana para imprimir.", {
-				type: "success",
-				title: "Éxito",
-				timer: 3000,
-			});
+			// Crear un elemento temporal para renderizar el HTML
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = contenidoHTML;
+			tempDiv.style.position = 'absolute';
+			tempDiv.style.left = '-9999px';
+			tempDiv.style.top = '0';
+			tempDiv.style.width = '800px';
+			tempDiv.style.backgroundColor = 'white';
+			tempDiv.style.padding = '20px';
+			document.body.appendChild(tempDiv);
+
+			try {
+				// Convertir HTML a canvas
+				const canvas = await html2canvas(tempDiv, {
+					scale: 2,
+					useCORS: true,
+					allowTaint: true,
+					backgroundColor: '#ffffff',
+					width: 800,
+					height: tempDiv.scrollHeight
+				});
+
+				// Crear PDF
+				const pdf = new jsPDF('p', 'mm', 'a4');
+				const imgWidth = 210; // A4 width in mm
+				const pageHeight = 295; // A4 height in mm
+				const imgHeight = (canvas.height * imgWidth) / canvas.width;
+				let heightLeft = imgHeight;
+
+				let position = 0;
+
+				// Agregar primera página
+				pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+				heightLeft -= pageHeight;
+
+				// Agregar páginas adicionales si es necesario
+				while (heightLeft >= 0) {
+					position = heightLeft - imgHeight;
+					pdf.addPage();
+					pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+					heightLeft -= pageHeight;
+				}
+
+				// Descargar el PDF
+				const fileName = `Factura_${datosVenta.Id_Ventas}_${new Date().toISOString().split('T')[0]}.pdf`;
+				pdf.save(fileName);
+
+				await showAlert("Factura PDF generada y descargada exitosamente", {
+					type: "success",
+					title: "Éxito",
+					timer: 3000,
+				});
+
+			} finally {
+				// Limpiar el elemento temporal
+				document.body.removeChild(tempDiv);
+			}
 
 		} catch (error) {
-			console.error("Error generando factura:", error);
-			await showAlert("Error al generar la factura", {
+			console.error("Error generando factura PDF:", error);
+			await showAlert("Error al generar la factura PDF", {
 				type: "error",
 				title: "Error",
 			});
@@ -482,7 +548,7 @@ const Ventas = () => {
 
 	const generarHTMLFactura = (datosVenta) => {
 		const productos = datosVenta.Detalle_Venta?.filter(item => item.Id_Productos) || [];
-		const servicios = datosVenta.Detalle_Venta?.filter(item => item.Id_Servicio) || [];
+		const servicios = datosVenta.Detalle_Venta?.filter(item => item.Id_Servicios) || [];
 
 		const formatCOP = (value) => {
 			if (!value && value !== 0) return "$0";
@@ -500,139 +566,110 @@ const Ventas = () => {
 		};
 
 		return `
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<meta charset="utf-8">
-				<title>Factura ${datosVenta.Id_Ventas}</title>
-				<style>
-					@media print {
-						body { margin: 0; padding: 20px; }
-						.no-print { display: none; }
-					}
-					body { font-family: Arial, sans-serif; margin: 20px; }
-					.header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-					.company-name { font-size: 24px; font-weight: bold; color: #333; }
-					.factura-info { display: flex; justify-content: space-between; margin-bottom: 30px; }
-					.info-section { flex: 1; }
-					.info-section h3 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-					table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-					th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-					th { background-color: #f5f5f5; font-weight: bold; }
-					.total-section { text-align: right; margin-top: 30px; }
-					.total { font-size: 18px; font-weight: bold; }
-					.footer { margin-top: 50px; text-align: center; color: #666; font-size: 12px; }
-					.talla-tamano { font-size: 11px; color: #666; }
-					.print-button { 
-						position: fixed; 
-						top: 20px; 
-						right: 20px; 
-						padding: 10px 20px; 
-						background: #007bff; 
-						color: white; 
-						border: none; 
-						border-radius: 5px; 
-						cursor: pointer; 
-					}
-				</style>
-			</head>
-			<body>
-				<button class="print-button no-print" onclick="window.print()">🖨️ Imprimir Factura</button>
-				
-				<div class="header">
-					<div class="company-name">TBH - Tienda de Belleza y Hogar</div>
-					<div>FACTURA</div>
+			<div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; background: white; padding: 20px;">
+				<!-- Header -->
+				<div style="text-align: center; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+					<div style="font-size: 28px; font-weight: bold; color: #333; margin-bottom: 10px;">TBH - Tienda de Belleza y Hogar</div>
+					<div style="font-size: 24px; font-weight: bold; color: #666;">FACTURA</div>
 				</div>
 
-				<div class="factura-info">
-					<div class="info-section">
-						<h3>Información de la Venta</h3>
-						<p><strong>Factura #:</strong> ${datosVenta.Id_Ventas}</p>
-						<p><strong>Fecha:</strong> ${formatFecha(datosVenta.Fecha)}</p>
-						<p><strong>Estado:</strong> ${ventasService.obtenerDescripcionEstado(datosVenta.Estado)}</p>
-						<p><strong>Método de Pago:</strong> ${ventasService.obtenerDescripcionMetodoPago(datosVenta.M_Pago)}</p>
-						${datosVenta.Referencia ? `<p><strong>Referencia:</strong> ${datosVenta.Referencia}</p>` : ''}
+				<!-- Información de la venta -->
+				<div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+					<div style="flex: 1; margin-right: 20px;">
+						<h3 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 15px;">Información de la Venta</h3>
+						<p style="margin: 8px 0;"><strong>Factura #:</strong> ${datosVenta.Id_Ventas}</p>
+						<p style="margin: 8px 0;"><strong>Fecha:</strong> ${formatFecha(datosVenta.Fecha)}</p>
+						<p style="margin: 8px 0;"><strong>Estado:</strong> ${ventasService.obtenerDescripcionEstado(datosVenta.Estado)}</p>
+						<p style="margin: 8px 0;"><strong>Método de Pago:</strong> ${ventasService.obtenerDescripcionMetodoPago(datosVenta.M_Pago)}</p>
+						${datosVenta.Referencia ? `<p style="margin: 8px 0;"><strong>Referencia:</strong> ${datosVenta.Referencia}</p>` : ''}
 					</div>
-					<div class="info-section">
-						<h3>Empleado</h3>
-						<p><strong>Nombre:</strong> ${datosVenta.Nombre_Empleado || 'No especificado'}</p>
-						<p><strong>ID:</strong> ${datosVenta.Id_Empleados}</p>
+					<div style="flex: 1;">
+						<h3 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 15px;">Empleado</h3>
+						<p style="margin: 8px 0;"><strong>Nombre:</strong> ${datosVenta.Nombre_Empleado || 'No especificado'}</p>
+						<p style="margin: 8px 0;"><strong>ID:</strong> ${datosVenta.Id_Empleados}</p>
 					</div>
 				</div>
 
+				<!-- Productos -->
 				${productos.length > 0 ? `
-				<h3>Productos</h3>
-				<table>
-					<thead>
-						<tr>
-							<th>Producto</th>
-							<th>Cantidad</th>
-							<th>Precio Unitario</th>
-							<th>Subtotal</th>
-						</tr>
-					</thead>
-					<tbody>
-						${productos.map(item => `
-							<tr>
-								<td>
-									${item.Id_Productos_Producto?.Nombre || 'Producto'}
-									${item.Tallas && Array.isArray(item.Tallas) && item.Tallas.length > 0 ? `
-										<div class="talla-tamano">
-											Tallas: ${item.Tallas.map(t => `${t.talla || t.nombre || 'Talla'}(${t.cantidad || t.Cantidad || 1})`).join(', ')}
-										</div>
-									` : ''}
-									${item.Tamanos && Array.isArray(item.Tamanos) && item.Tamanos.length > 0 ? `
-										<div class="talla-tamano">
-											Tamaños: ${item.Tamanos.map(t => `${t.nombre || 'Tamaño'}(${t.Cantidad || t.cantidad || 1})`).join(', ')}
-										</div>
-									` : ''}
-								</td>
-								<td>${item.Cantidad}</td>
-								<td>${formatCOP(item.Precio)}</td>
-								<td>${formatCOP(item.Subtotal)}</td>
+				<div style="margin-bottom: 30px;">
+					<h3 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 15px;">Productos</h3>
+					<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+						<thead>
+							<tr style="background-color: #f8f9fa;">
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: left; font-weight: bold;">Producto</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: center; font-weight: bold;">Cantidad</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">Precio Unitario</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">Subtotal</th>
 							</tr>
-						`).join('')}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							${productos.map(item => `
+								<tr>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: left;">
+										<div style="font-weight: bold;">${item.Id_Productos_Producto?.Nombre || 'Producto'}</div>
+										${item.Tallas && Array.isArray(item.Tallas) && item.Tallas.length > 0 ? `
+											<div style="font-size: 11px; color: #666; margin-top: 5px;">
+												Tallas: ${item.Tallas.map(t => `${t.talla || t.nombre || 'Talla'}(${t.cantidad || t.Cantidad || 1})`).join(', ')}
+											</div>
+										` : ''}
+										${item.Tamanos && Array.isArray(item.Tamanos) && item.Tamanos.length > 0 ? `
+											<div style="font-size: 11px; color: #666; margin-top: 5px;">
+												Tamaños: ${item.Tamanos.map(t => `${t.nombre || 'Tamaño'}(${t.Cantidad || t.cantidad || 1})`).join(', ')}
+											</div>
+										` : ''}
+									</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: center;">${item.Cantidad}</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: right;">${formatCOP(item.Precio)}</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">${formatCOP(item.Subtotal)}</td>
+								</tr>
+							`).join('')}
+						</tbody>
+					</table>
+				</div>
 				` : ''}
 
+				<!-- Servicios -->
 				${servicios.length > 0 ? `
-				<h3>Servicios</h3>
-				<table>
-					<thead>
-						<tr>
-							<th>Servicio</th>
-							<th>Cantidad</th>
-							<th>Precio Unitario</th>
-							<th>Subtotal</th>
-						</tr>
-					</thead>
-					<tbody>
-						${servicios.map(item => `
-							<tr>
-								<td>${item.Id_Servicios_Servicio?.Nombre || 'Servicio'}</td>
-								<td>${item.Cantidad}</td>
-								<td>${formatCOP(item.Precio)}</td>
-								<td>${formatCOP(item.Subtotal)}</td>
+				<div style="margin-bottom: 30px;">
+					<h3 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 15px;">Servicios</h3>
+					<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+						<thead>
+							<tr style="background-color: #f8f9fa;">
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: left; font-weight: bold;">Servicio</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: center; font-weight: bold;">Cantidad</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">Precio Unitario</th>
+								<th style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">Subtotal</th>
 							</tr>
-						`).join('')}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							${servicios.map(item => `
+								<tr>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: left; font-weight: bold;">${item.Id_Servicios_Servicio?.Nombre || 'Servicio'}</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: center;">${item.Cantidad}</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: right;">${formatCOP(item.Precio)}</td>
+									<td style="border: 1px solid #ddd; padding: 12px; text-align: right; font-weight: bold;">${formatCOP(item.Subtotal)}</td>
+								</tr>
+							`).join('')}
+						</tbody>
+					</table>
+				</div>
 				` : ''}
 
-				<div class="total-section">
-					<div class="total">
+				<!-- Total -->
+				<div style="text-align: right; margin-top: 30px; padding-top: 20px; border-top: 2px solid #333;">
+					<div style="font-size: 20px; font-weight: bold; color: #333;">
 						<strong>TOTAL: ${formatCOP(datosVenta.Total)}</strong>
 					</div>
 				</div>
 
-				<div class="footer">
-					<p>Gracias por su compra</p>
-					<p>TBH - Tienda de Belleza y Hogar</p>
-					<p>Factura generada el ${formatFecha(new Date())}</p>
+				<!-- Footer -->
+				<div style="margin-top: 50px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
+					<p style="margin: 5px 0; font-size: 14px; font-weight: bold;">Gracias por su compra</p>
+					<p style="margin: 5px 0;">TBH - Tienda de Belleza y Hogar</p>
+					<p style="margin: 5px 0;">Factura generada el ${formatFecha(new Date())}</p>
 				</div>
-			</body>
-			</html>
+			</div>
 		`;
 	};
 
