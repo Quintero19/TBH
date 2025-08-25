@@ -53,7 +53,7 @@ import EditarNovedad from "../pages/Admin/Servicios/Horarios/EditarNovedad";
 import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
 import Home from "../pages/Landing/Home";
-import UsuarioIndex from "../pages/Usuario/Index";
+import UsuarioIndex from "../pages/Landing/Home";
 
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
@@ -67,14 +67,18 @@ function App() {
 			<Route path="/rcp" element={<RecoverPassword />} />
 
 			{/* Rutas privadas de usuario normal */}
-			<Route
-				path="/usuario/index"
+			
+			<Route 
+				path="/usuario"
 				element={
 					<ProtectedRoute requiredRole={2}>
 						<UsuarioIndex />
 					</ProtectedRoute>
 				}
-			/>
+			>
+				<Route path="index" element={<UsuarioIndex />} />	
+			</Route>
+			
 
 			{/* Rutas administrativas con Sidebar */}
 			<Route

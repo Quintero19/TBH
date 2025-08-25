@@ -2,12 +2,37 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-scroll";
 import Logo from "/img/logos/tbh1.png";
 import "../../styles/css/NewNavigation.css";
+import { useNavigate } from "react-router-dom";
+import api from "@/utils/api";
+import { getUser } from "@/utils/auth";
 
 export const NewNavigation = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
+	const [user, setUser] = useState(null);
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+
+
+	const navigate = useNavigate();
+	
+	const handleLogout = async () => {
+			try {
+				await api.post('/logout/'),
+					{
+						method: "POST",
+						credentials: "include",
+					};
+				navigate("/login");
+			} catch (error) {
+				console.error("Error al cerrar sesión:", error);
+			}
+		};
+
 
 	useEffect(() => {
+
+		 getUser().then((u) => setUser(u));
+
 		const handleScroll = () => {
 			setIsScrolled(window.scrollY > 50);
 		};
@@ -60,8 +85,6 @@ export const NewNavigation = () => {
 							{ to: "about", label: "About" },
 							{ to: "services", label: "Services" },
 							{ to: "portfolio", label: "Gallery" },
-							{ to: "testimonials", label: "Testimonials" },
-							{ to: "team", label: "Team" },
 							{ to: "contact", label: "Contact" },
 						].map((item) => (
 							<li key={item.to} className="nav-item">
@@ -82,11 +105,51 @@ export const NewNavigation = () => {
 								</Link>
 							</li>
 						))}
-						<li className="nav-item">
-							<a href="/login" className="nav-button">
-								Ingresar
-							</a>
-						</li>
+						<li className="nav-item relative">
+								{user ? (
+									<div className="relative">
+									<button
+										type="button"
+										onClick={() => setDropdownOpen((prev) => !prev)}
+										className="nav-button flex items-center gap-2"
+									>
+										Bienvenido {user.nombre ?? ""}
+										<svg
+										className={`w-4 h-4 transition-transform ${
+											dropdownOpen ? "rotate-180" : ""
+										}`}
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										viewBox="0 0 24 24"
+										>
+										<path d="M19 9l-7 7-7-7" />
+										</svg>
+									</button>
+
+									{dropdownOpen && (
+										<div className="absolute right-0 mt-2 w-40 bg-white text-gray-700 rounded-lg shadow-lg z-50">
+										<a
+											href="/usuario/perfil"
+											className="block px-4 py-2 text-sm hover:bg-gray-100"
+										>
+											Mi Perfil
+										</a>
+										<button
+											onClick={handleLogout}
+											className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+										>
+											Cerrar Sesión
+										</button>
+										</div>
+									)}
+									</div>
+								) : (
+									<a href="/login" className="nav-button">
+									Ingresar
+									</a>
+								)}
+								</li>
 					</ul>
 				</div>
 			</div>

@@ -80,7 +80,7 @@ const AuthForm = () => {
 					const { user } = meResponse.data;
 
 					if (user.rol_id === 2) {
-						window.location.href = "/usuario/index";
+						window.location.href = "/";
 					} else if (user.rol_id) {
 						window.location.href = "/admin/dashboard";
 					}
