@@ -17,11 +17,23 @@ const ValidacionStock = ({ producto, tallas, tamanos, onValidacionCompleta }) =>
 
 		setValidando(true);
 		try {
+			// Validar y filtrar tallas que tengan la estructura correcta
+			const tallasValidas = Array.isArray(tallas) 
+				? tallas.filter(talla => talla && talla.nombre && talla.Id_Producto_Tallas)
+				: [];
+
+			// Validar y filtrar tamaños que tengan la estructura correcta
+			const tamanosValidos = Array.isArray(tamanos)
+				? tamanos.filter(tamano => tamano && tamano.nombre)
+				: [];
+
 			const datosValidacion = {
 				Id_Productos: producto.Id_Productos,
-				Tallas: tallas || [],
-				Tamanos: tamanos || [],
+				Tallas: tallasValidas,
+				Tamanos: tamanosValidos,
 			};
+
+			console.log("Datos de validación enviados:", datosValidacion);
 
 			const response = await ventasService.validarStock(datosValidacion);
 			setResultado(response.data);

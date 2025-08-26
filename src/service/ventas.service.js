@@ -10,9 +10,16 @@ export const ventasService = {
 
 	// Crear nueva venta con validaciones completas
 	crearVenta: async (data) => {
-		console.log("Enviando datos al backend:", JSON.stringify(data, null, 2));
-		const res = await api.post(USER_URL, data);
-		console.log("Respuesta del backend:", res.data);
+		// Limpiar y validar datos de tallas y tamaños antes de enviar
+		const dataLimpia = ventasService.limpiarDatosTallasTamanos(data);
+		
+		// Validar stock en el frontend
+		const validacionStock = ventasService.validarStockFrontend(dataLimpia);
+		if (!validacionStock.valido) {
+			throw new Error(`Error de stock: ${validacionStock.errores.join(', ')}`);
+		}
+		
+		const res = await api.post(USER_URL, dataLimpia);
 		return res.data;
 	},
 
@@ -140,9 +147,8 @@ export const ventasService = {
 			Fecha: formData.Fecha_Registro,
 			M_Pago: formData.Metodo_Pago,
 			Referencia: formData.Metodo_Pago === "Transferencia" ? formData.DatosTransferencia : null,
-			Estado: 3, // Pendiente por defecto
+			Estado: 3,
 			Detalle_Venta: formData.Items.map((item) => {
-				// Asegurar que los precios sean números válidos
 				const precio = Number(item.precio) || 0;
 				const cantidad = Number(item.cantidad) || 0;
 				const subtotal = precio * cantidad;
@@ -153,36 +159,23 @@ export const ventasService = {
 					Cantidad: cantidad,
 					Precio: precio,
 					Subtotal: subtotal,
-					// Guardar arrays completos de tallas y tamaños como JSON strings
 					Tallas_Data: item.tallas && item.tallas.length > 0 ? JSON.stringify(item.tallas) : null,
 					Tamanos_Data: item.tamanos && item.tamanos.length > 0 ? JSON.stringify(item.tamanos) : null,
-					// Mantener compatibilidad con campos legacy
+					Tallas: item.tallas && item.tallas.length > 0 ? item.tallas : null,
+					Tamanos: item.tamanos && item.tamanos.length > 0 ? item.tamanos : null,
 					Id_Producto_Tallas: item.tallas && item.tallas.length > 0 ? item.tallas[0].Id_Producto_Tallas : null,
 					Id_Producto_Tamano_Insumos: item.tamanos && item.tamanos.length > 0 ? item.tamanos[0].index : null,
 				};
-				
-				// Debug: Log para verificar los datos
-				console.log("Detalle preparado:", detalle);
-				console.log("Precio calculado en frontend:", precio);
-				console.log("Subtotal calculado en frontend:", subtotal);
-				console.log("Tallas originales:", item.tallas);
-				console.log("Tallas_Data:", detalle.Tallas_Data);
-				console.log("Tamaños originales:", item.tamanos);
-				console.log("Tamanos_Data:", detalle.Tamanos_Data);
 				
 				return detalle;
 			}),
 		};
 
-		// Calcular total de la venta
 		const totalVenta = ventaData.Detalle_Venta.reduce((total, detalle) => {
 			return total + (Number(detalle.Subtotal) || 0);
 		}, 0);
 		
 		ventaData.Total = totalVenta;
-		
-		console.log("Total de la venta calculado:", totalVenta);
-		console.log("Venta completa a enviar:", ventaData);
 
 		return ventaData;
 	},
@@ -252,5 +245,126 @@ export const ventasService = {
 			"PSE": "PSE"
 		};
 		return metodos[metodo] || metodo;
+	},
+
+	// =====================================================
+	// FUNCIONES AUXILIARES PARA LIMPIEZA DE DATOS
+	// =====================================================
+
+	limpiarDatosTallasTamanos: (data) => {
+		if (!data) return null;
+
+		const dataLimpia = { ...data };
+
+		if (dataLimpia.Detalle_Venta && Array.isArray(dataLimpia.Detalle_Venta)) {
+			dataLimpia.Detalle_Venta = dataLimpia.Detalle_Venta.map(detalle => {
+				const detalleLimpio = { ...detalle };
+
+				// Limpiar datos de tallas
+				if (detalle.Tallas_Data) {
+					try {
+						const tallas = JSON.parse(detalle.Tallas_Data);
+						if (Array.isArray(tallas) && tallas.length > 0) {
+							const tallasValidas = tallas.filter(talla => 
+								talla && 
+								talla.nombre && 
+								talla.Id_Producto_Tallas && 
+								talla.Cantidad > 0
+							);
+							detalleLimpio.Tallas_Data = tallasValidas.length > 0 ? JSON.stringify(tallasValidas) : null;
+							detalleLimpio.Id_Producto_Tallas = tallasValidas.length > 0 ? tallasValidas[0].Id_Producto_Tallas : null;
+						} else {
+							detalleLimpio.Tallas_Data = null;
+							detalleLimpio.Id_Producto_Tallas = null;
+						}
+					} catch (error) {
+						console.warn('Error parseando Tallas_Data:', error);
+						detalleLimpio.Tallas_Data = null;
+						detalleLimpio.Id_Producto_Tallas = null;
+					}
+				}
+
+				// Limpiar datos de tamaños
+				if (detalle.Tamanos_Data) {
+					try {
+						const tamanos = JSON.parse(detalle.Tamanos_Data);
+						if (Array.isArray(tamanos) && tamanos.length > 0) {
+							const tamanosValidos = tamanos.filter(tamano => 
+								tamano && 
+								tamano.nombre && 
+								tamano.Cantidad > 0
+							);
+							detalleLimpio.Tamanos_Data = tamanosValidos.length > 0 ? JSON.stringify(tamanosValidos) : null;
+							detalleLimpio.Id_Producto_Tamano_Insumos = tamanosValidos.length > 0 ? tamanosValidos[0].index : null;
+						} else {
+							detalleLimpio.Tamanos_Data = null;
+							detalleLimpio.Id_Producto_Tamano_Insumos = null;
+						}
+					} catch (error) {
+						console.warn('Error parseando Tamanos_Data:', error);
+						detalleLimpio.Tamanos_Data = null;
+						detalleLimpio.Id_Producto_Tamano_Insumos = null;
+					}
+				}
+
+				return detalleLimpio;
+			});
+		}
+
+		return dataLimpia;
+	},
+
+	// Validar stock en el frontend
+	validarStockFrontend: (data) => {
+		if (!data || !data.Detalle_Venta) return { valido: true, errores: [] };
+
+		const errores = [];
+
+		data.Detalle_Venta.forEach((detalle) => {
+			if (detalle.Tallas_Data) {
+				try {
+					const tallas = JSON.parse(detalle.Tallas_Data);
+					if (Array.isArray(tallas)) {
+						tallas.forEach(talla => {
+							if (talla && talla.stock !== undefined && talla.Cantidad > talla.stock) {
+								errores.push(`Talla ${talla.nombre}: Stock insuficiente. Disponible: ${talla.stock}, Solicitado: ${talla.Cantidad}`);
+							}
+						});
+					}
+				} catch (error) {
+					console.warn('Error validando stock de tallas:', error);
+				}
+			}
+		});
+
+		return {
+			valido: errores.length === 0,
+			errores
+		};
 	}
 };
+
+/**
+ *        _____                    _____                    _____          
+         /\    \                  /\    \                  /\    \         
+        /::\    \                /::\    \                /::\    \        
+       /::::\    \              /::::\    \              /::::\    \       
+      /::::::\    \            /::::::\    \            /::::::\    \      
+     /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \     
+    /:::/__\:::\    \        /:::/__\:::\    \        /:::/  \:::\    \    
+    \:::\   \:::\    \      /::::\   \:::\    \      /:::/    \:::\    \   
+  ___\:::\   \:::\    \    /::::::\   \:::\    \    /:::/    / \:::\    \  
+ /\   \:::\   \:::\    \  /:::/\:::\   \:::\____\  /:::/    /   \:::\ ___\ 
+/::\   \:::\   \:::\____\/:::/  \:::\   \:::|    |/:::/____/     \:::|    |
+\:::\   \:::\   \::/    /\::/   |::::\  /:::|____|\:::\    \     /:::|____|
+ \:::\   \:::\   \/____/  \/____|:::::\/:::/    /  \:::\    \   /:::/    / 
+  \:::\   \:::\    \            |:::::::::/    /    \:::\    \ /:::/    /  
+   \:::\   \:::\____\           |::|\::::/    /      \:::\    /:::/    /   
+    \:::\  /:::/    /           |::| \::/____/        \:::\  /:::/    /    
+     \:::\/:::/    /            |::|  ~|               \:::\/:::/    /     
+      \::::::/    /             |::|   |                \::::::/    /      
+       \::::/    /              \::|   |                 \::::/    /       
+        \::/    /                \:|   |                  \::/____/        
+         \/____/                  \|___|                   ~~              
+                                                                           
+ */
