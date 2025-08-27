@@ -217,8 +217,9 @@ const GeneralTable = ({
 														icon="fa-image"
 													/>
 												)}
+												
 
-												{title === "Roles" && row[stateAccessor] && (
+												{title === "Roles" && row[stateAccessor] && row.Nombre !== "Cliente" && (
 													<Button
 														className="green"
 														onClick={() => onAssignPermissions(row)}
@@ -238,6 +239,7 @@ const GeneralTable = ({
 
 												{title !== "Compras" &&
 													title !== "Ventas" &&
+														title !== "Usuarios" &&
 													(canDelete ? canDelete(row) : true) && (
 														<Button
 															className="red"

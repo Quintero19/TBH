@@ -6,8 +6,6 @@ import { Gallery } from "../../components/Landing/Gallery";
 import { Header } from "../../components/Landing/Header";
 import { NewNavigation } from "../../components/Landing/NewNavigation";
 import { Services } from "../../components/Landing/Services";
-import { Team } from "../../components/Landing/Team";
-import { Testimonials } from "../../components/Landing/testimonials";
 import JsonData from "../../data/data.json";
 import "../../styles/css/App.css";
 import AOS from "aos";
@@ -51,16 +49,6 @@ const Home = () => {
 				data={landingPageData.Gallery}
 				data-aos="zoom-in"
 				data-aos-delay="500"
-			/>
-			<Testimonials
-				data={landingPageData.Testimonials}
-				data-aos="zoom-in"
-				data-aos-delay="600"
-			/>
-			<Team
-				data={landingPageData.Team}
-				data-aos="zoom-in"
-				data-aos-delay="700"
 			/>
 			<Contact
 				data={landingPageData.Contact}
