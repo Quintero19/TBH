@@ -80,7 +80,9 @@ const AgregarVenta = () => {
 				});
 
 				const resClientes = await clienteService.listarClientes();
-				setClientes(resClientes.data || []);
+				// Filtrar solo clientes activos
+				const clientesActivos = resClientes.data?.filter(cliente => cliente.Estado !== false) || [];
+				setClientes(clientesActivos);
 
 				const resProductos = await productoService.obtenerProductoss();
 				

@@ -159,9 +159,6 @@ const Ventas = () => {
 					try {
 						if (det?.Id_Productos) {
 							let nombreProducto = `Producto ID: ${det.Id_Productos}`;
-							let precioUnitario = parseFloat(
-								det.Precio_Unitario || det.Precio || 0,
-							);
 							let tallas = [];
 							let tamanos = [];
 
@@ -187,10 +184,16 @@ const Ventas = () => {
 							}
 
 							const cantidad = parseInt(det.Cantidad || 1, 10);
-							const subtotal = parseFloat(
-								det.Subtotal ||
-									precioUnitario * cantidad,
-							);
+							const subtotal = parseFloat(det.Subtotal || 0);
+							
+							// Calcular precio unitario correctamente
+							let precioUnitario = 0;
+							if (cantidad > 0) {
+								precioUnitario = subtotal / cantidad;
+							} else {
+								// Fallback al precio original si no hay cantidad
+								precioUnitario = parseFloat(det.Precio_Unitario || det.Precio || 0);
+							}
 							
 							const productoFinal = {
 								Nombre: nombreProducto,
@@ -204,9 +207,6 @@ const Ventas = () => {
 							productos.push(productoFinal);
 						} else if (det?.Id_Servicios) {
 							let nombreServicio = `Servicio ID: ${det.Id_Servicios}`;
-							let precioServicio = parseFloat(
-								det.Precio_Unitario || det.Precio || 0,
-							);
 
 							try {
 								const servicioData = await servicioService.obtenerServicioPorId(
@@ -220,7 +220,18 @@ const Ventas = () => {
 								);
 							}
 
-							const subtotalServicio = parseFloat(det.Subtotal || precioServicio);
+							const cantidadServicio = parseInt(det.Cantidad || 1, 10);
+							const subtotalServicio = parseFloat(det.Subtotal || 0);
+							
+							// Calcular precio unitario correctamente para servicios
+							let precioServicio = 0;
+							if (cantidadServicio > 0) {
+								precioServicio = subtotalServicio / cantidadServicio;
+							} else {
+								// Fallback al precio original si no hay cantidad
+								precioServicio = parseFloat(det.Precio_Unitario || det.Precio || 0);
+							}
+							
 							servicios.push({
 								Nombre: nombreServicio,
 								Precio: precioServicio,
