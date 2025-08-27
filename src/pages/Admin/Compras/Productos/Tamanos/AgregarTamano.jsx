@@ -116,6 +116,7 @@ function AgregarTamano() {
 			]);
 			setInsumos(resInsumos.data);
 			setFrascos(resFrascos.data);
+			
 		} catch (error) {
 			console.error("Error al obtener insumos o frascos:", error);
 		}
@@ -184,6 +185,15 @@ function AgregarTamano() {
 
 	const addInsumo = () => {
 
+		if (!frascos.Id_Insumos) {
+			return showAlert("Frasco requerido",{
+					type: "warning",
+					title: "Advertencia",
+					duration: 2000,
+				}
+			);
+		}
+
 		if (!frasco.Id_Insumos) {
 			return mostrarAlerta(
 				"Frasco requerido",
@@ -229,6 +239,15 @@ function AgregarTamano() {
 				duration: 2000,
 			});
 		}
+
+		if (!frasco.Id_Insumos) {
+			return showAlert("Debes seleccionar un frasco antes de guardar.", {
+				title: "Frasco requerido",
+				type: "warning",
+				duration: 2000,
+			});
+		}
+
 		try {
 			showLoadingAlert("Guardando Tamaño...");
 			const resTamaño = await tamanosService.crearTamano(formData);
