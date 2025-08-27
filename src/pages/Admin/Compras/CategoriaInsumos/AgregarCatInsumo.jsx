@@ -21,37 +21,39 @@ const AgregarCatInsumo = () => {
 		const nombre = formData.Nombre.trim();
 		const descripcion = formData.Descripcion.trim();
 
+		// Validación del nombre según análisis: min 3 caracteres, solo letras y números sin espacios
 		if (!nombre) {
 			newErrors.Nombre = "El nombre es obligatorio";
 		} else if (nombre.length < 3) {
-			newErrors.Nombre = "Mínimo 3 letras";
-		} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(nombre)) {
-			newErrors.Nombre = "Solo caracteres alfabéticos permitidos";
+			newErrors.Nombre = "Mínimo 3 caracteres";
+		} else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
+			newErrors.Nombre = "Solo letras y números, sin espacios";
 		}
 
+		// Validación de la descripción según análisis: min 5 caracteres, máx 100 caracteres
 		if (!descripcion) {
 			newErrors.Descripcion = "La descripción es obligatoria";
 		} else if (descripcion.length < 5) {
 			newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
 		} else if (descripcion.length > 100) {
 			newErrors.Descripcion = "Máximo 100 caracteres permitidos";
-		} else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
-			newErrors.Nombre = "Solo letras y números, sin espacios";
 		}
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
 
+	/* ---------- Validación en tiempo real por campo ---------- */
 	const validateField = (name, value) => {
 		const newErrors = { ...errors };
 
 		if (name === "Nombre") {
-			if (!value.trim()) {
+			const nombre = value.trim();
+			if (!nombre) {
 				newErrors.Nombre = "El nombre es obligatorio";
-			} else if (value.length < 3) {
+			} else if (nombre.length < 3) {
 				newErrors.Nombre = "Mínimo 3 caracteres";
-			} else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+			} else if (!/^[a-zA-Z0-9]+$/.test(nombre)) {
 				newErrors.Nombre = "Solo letras y números, sin espacios";
 			} else {
 				delete newErrors.Nombre;
@@ -59,11 +61,12 @@ const AgregarCatInsumo = () => {
 		}
 
 		if (name === "Descripcion") {
-			if (!value.trim()) {
+			const descripcion = value.trim();
+			if (!descripcion) {
 				newErrors.Descripcion = "La descripción es obligatoria";
-			} else if (value.length < 5) {
+			} else if (descripcion.length < 5) {
 				newErrors.Descripcion = "Mínimo 5 caracteres para la descripción";
-			} else if (value.length > 100) {
+			} else if (descripcion.length > 100) {
 				newErrors.Descripcion = "Máximo 100 caracteres permitidos";
 			} else {
 				delete newErrors.Descripcion;
@@ -73,10 +76,18 @@ const AgregarCatInsumo = () => {
 		setErrors(newErrors);
 	};
 
-	/* ---------- Manejo de cambios ---------- */
+	/* ---------- Manejo de cambios (onChange) ---------- */
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
+		// Validación en tiempo real al escribir
+		validateField(name, value);
+	};
+
+	/* ---------- Validación al perder foco (onBlur) ---------- */
+	const handleBlur = (e) => {
+		const { name, value } = e.target;
+		// Validación adicional al perder foco
 		validateField(name, value);
 	};
 
@@ -162,8 +173,12 @@ const AgregarCatInsumo = () => {
 						name="Nombre"
 						value={formData.Nombre}
 						onChange={handleChange}
+						onBlur={handleBlur}
 						required
-						className="w-full border border-gray-300 p-2 rounded"
+						className={`w-full border p-2 rounded ${
+							errors.Nombre ? "border-red-500" : "border-gray-300"
+						}`}
+						placeholder="Ingrese el nombre de la categoría"
 					/>
 					{errors.Nombre && (
 						<p className="text-red-500 text-sm mt-1">{errors.Nombre}</p>
@@ -178,18 +193,30 @@ const AgregarCatInsumo = () => {
 						name="Descripcion"
 						value={formData.Descripcion}
 						onChange={handleChange}
+						onBlur={handleBlur}
 						required
 						maxLength={100}
-						className="w-full border border-gray-300 p-2 rounded"
+						className={`w-full border p-2 rounded ${
+							errors.Descripcion ? "border-red-500" : "border-gray-300"
+						}`}
 						style={{ resize: "vertical" }}
+						placeholder="Ingrese la descripción de la categoría"
 					/>
 					{errors.Descripcion && (
 						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
 					)}
+					<p className="text-gray-500 text-xs mt-1">
+						{formData.Descripcion.length}/100 caracteres
+					</p>
 				</div>
 
 				<div className="md:col-span-2 flex gap-4">
-					<Button icon="fa-floppy-o" className="green" type="submit">
+					<Button 
+						icon="fa-floppy-o" 
+						className="green" 
+						type="submit"
+						disabled={Object.keys(errors).length > 0}
+					>
 						Guardar
 					</Button>
 					<Button icon="fa-times" className="red" onClick={handleCancel}>

@@ -267,6 +267,16 @@ const GeneralTable = ({
 														</>
 													)}
 													
+												{/* Botón de factura PDF para todas las ventas */}
+												{title === "Ventas" && (
+													<Button
+														className="purple"
+														onClick={() => rest.onGenerarFactura(row)}
+														icon="fa-file-pdf-o"
+														title="Descargar Factura PDF"
+													/>
+												)}
+													
 												{/* Ventas completadas (estado 1) - sin botones, solo ver */}
 												{/* No se pueden anular ventas completadas según el backend */}
 													

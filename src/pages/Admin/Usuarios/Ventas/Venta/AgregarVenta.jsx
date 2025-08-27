@@ -29,8 +29,8 @@ const AgregarVenta = () => {
 	const [errorCliente, setErrorCliente] = useState(false);
 	const [errorMetodoPago, setErrorMetodoPago] = useState(false);
 	const [errorReferencia, setErrorReferencia] = useState(false);
+	const [errorStock, setErrorStock] = useState("");
 
-	// Estado para el formulario de agregar items
 	const [tipoItem, setTipoItem] = useState("producto");
 	const [itemSeleccionado, setItemSeleccionado] = useState({
 		id: "",
@@ -39,9 +39,12 @@ const AgregarVenta = () => {
 	});
 	const [cantidad, setCantidad] = useState(1);
 	
-	// Estado para manejar tallas de productos de ropa
 	const [tallasDisponibles, setTallasDisponibles] = useState([]);
 	const [cantidadesPorTalla, setCantidadesPorTalla] = useState({});
+	
+	const [tamanosDisponibles, setTamanosDisponibles] = useState([]);
+	const [cantidadesPorTamano, setCantidadesPorTamano] = useState({});
+	
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -52,7 +55,6 @@ const AgregarVenta = () => {
 				const today = new Date().toISOString().split("T")[0];
 				let nombreUsuario = "Desconocido";
 
-				// Buscar el nombre del usuario
 				if (user?.rol_id === 89 && user?.documento) {
 					try {
 						const empleado = await empleadoService.listarEmpleadoPorDocumento(
@@ -72,25 +74,31 @@ const AgregarVenta = () => {
 					}
 				}
 
-				// Establecer usuario
 				setUsuario({
 					id: user?.id || "",
 					nombre: nombreUsuario,
 				});
 
-				// Obtener clientes
 				const resClientes = await clienteService.listarClientes();
-				setClientes(resClientes.data || []);
+				// Filtrar solo clientes activos
+				const clientesActivos = resClientes.data?.filter(cliente => cliente.Estado !== false) || [];
+				setClientes(clientesActivos);
 
-				// Productos
 				const resProductos = await productoService.obtenerProductoss();
+				
 				if (Array.isArray(resProductos?.data)) {
-					setProductosDisponibles(resProductos.data);
+					const productosActivos = resProductos.data.filter(producto => producto.Estado !== false);
+					setProductosDisponibles(productosActivos);
 				} else {
-					setProductosDisponibles([]);
+					const resProductosAlt = await productoService.obtenerProductoss();
+					
+					if (Array.isArray(resProductosAlt?.data)) {
+						setProductosDisponibles(resProductosAlt.data);
+					} else {
+						setProductosDisponibles([]);
+					}
 				}
 
-				// Servicios
 				const resServicios = await servicioService.obtenerServicios();
 				if (Array.isArray(resServicios?.data)) {
 					setServiciosDisponibles(resServicios.data);
@@ -119,7 +127,6 @@ const AgregarVenta = () => {
 				tipoItem === "producto" ? productosDisponibles : serviciosDisponibles;
 
 			if (!Array.isArray(items) || items.length === 0) {
-				// console.warn(`No hay ${tipoItem === "producto" ? "productos" : "servicios"} disponibles`);
 				return [];
 			}
 
@@ -131,14 +138,68 @@ const AgregarVenta = () => {
 
 				const nombre = item.Nombre || item.nombre || "Sin nombre";
 				
-				// Buscar precio en diferentes posibles campos
+				let esRopa = item.Es_Ropa || false;
+				let esPerfume = item.Es_Perfume || false;
+				
+				if (!esRopa && !esPerfume && tipoItem === "producto") {
+					let categoria = null;
+					let nombreCategoria = '';
+					let idCategoria = null;
+					
+					if (item.Categoria) {
+						categoria = item.Categoria;
+					} else if (item.Id_Categoria_Producto_Categoria_Producto) {
+						categoria = item.Id_Categoria_Producto_Categoria_Producto;
+					} else if (item.Id_Categoria_Producto) {
+						categoria = item.Id_Categoria_Producto;
+					}
+					
+					if (categoria) {
+						if (typeof categoria === 'string') {
+							nombreCategoria = categoria;
+						} else if (typeof categoria === 'object') {
+							nombreCategoria = categoria.Nombre || categoria.nombre || '';
+							idCategoria = categoria.Id_Categoria_Producto || categoria.id || null;
+						} else if (typeof categoria === 'number') {
+							idCategoria = categoria;
+						}
+					}
+					
+					if (nombreCategoria.toLowerCase().includes('ropa') || 
+						nombreCategoria.toLowerCase().includes('vestimenta') ||
+						nombreCategoria.toLowerCase().includes('camisa') ||
+						nombreCategoria.toLowerCase().includes('pantalón') ||
+						nombreCategoria.toLowerCase().includes('vestimenta') ||
+						idCategoria === 1) {
+						esRopa = true;
+					} else if (nombreCategoria.toLowerCase().includes('perfume') || 
+							   nombreCategoria.toLowerCase().includes('loción') ||
+							   nombreCategoria.toLowerCase().includes('cosmético') ||
+							   nombreCategoria.toLowerCase().includes('fragrancia') ||
+							   idCategoria === 3) {
+						esPerfume = true;
+					}
+				}
+				
+				if ((esPerfume || item.Detalles?.tamanos?.length > 0) && item.Detalles?.tamanos?.length > 0) {
+					return {
+						value: id,
+						label: `${nombre} (Selecciona tamaño)`,
+						precio: 0,
+						esRopa: esRopa,
+						esPerfume: true,
+						detalles: item.Detalles || {},
+					};
+				}
+				
 				const precio = item.Precio || item.precio || item.Precio_Venta || item.precio_venta || item.Valor || item.valor || 0;
 
 				return {
 					value: id,
 					label: `${nombre} - $${precio.toLocaleString("es-CO")}`,
 					precio: precio,
-					esRopa: item.Es_Ropa || false,
+					esRopa: esRopa || (item.Detalles?.tallas?.length > 0),
+					esPerfume: esPerfume || (item.Detalles?.tamanos?.length > 0),
 					detalles: item.Detalles || {},
 				};
 			});
@@ -147,8 +208,7 @@ const AgregarVenta = () => {
 		}
 	};
 
-	// Función para cargar tallas cuando se selecciona un producto de ropa
-	const cargarTallasProducto = (productoId) => {
+	const cargarTallasProducto = async (productoId) => {
 		if (tipoItem !== "producto") {
 			setTallasDisponibles([]);
 			setCantidadesPorTalla({});
@@ -156,9 +216,65 @@ const AgregarVenta = () => {
 		}
 
 		const producto = productosDisponibles.find(p => p.Id_Productos === productoId);
-		if (producto?.Es_Ropa && producto?.Detalles?.tallas) {
+		
+		let esRopa = producto?.Es_Ropa || false;
+		if (!esRopa) {
+			let categoria = null;
+			let nombreCategoria = '';
+			let idCategoria = null;
+			
+			if (producto?.Categoria) {
+				categoria = producto.Categoria;
+			} else if (producto?.Id_Categoria_Producto_Categoria_Producto) {
+				categoria = producto.Id_Categoria_Producto_Categoria_Producto;
+			} else if (producto?.Id_Categoria_Producto) {
+				categoria = producto.Id_Categoria_Producto;
+			}
+			
+			if (categoria) {
+				if (typeof categoria === 'string') {
+					nombreCategoria = categoria;
+				} else if (typeof categoria === 'object') {
+					nombreCategoria = categoria.Nombre || categoria.nombre || '';
+					idCategoria = categoria.Id_Categoria_Producto || categoria.id || null;
+				} else if (typeof categoria === 'number') {
+					idCategoria = categoria;
+				}
+			}
+			
+			if (nombreCategoria.toLowerCase().includes('ropa') || 
+				nombreCategoria.toLowerCase().includes('vestimenta') ||
+				nombreCategoria.toLowerCase().includes('camisa') ||
+				nombreCategoria.toLowerCase().includes('pantalón') ||
+				idCategoria === 1) {
+				esRopa = true;
+			}
+		}
+		
+		if (!esRopa && producto?.Detalles?.tallas?.length > 0) {
+			esRopa = true;
+		}
+		
+		if (!esRopa) {
+			try {
+				const productoDetallado = await productoService.obtenerProductoPorId(productoId);
+				
+				if (productoDetallado?.data?.Es_Ropa && productoDetallado?.data?.Detalles?.tallas) {
+					setTallasDisponibles(productoDetallado.data.Detalles.tallas);
+					const cantidadesIniciales = {};
+					productoDetallado.data.Detalles.tallas.forEach((talla, index) => {
+						cantidadesIniciales[index] = 0;
+					});
+					setCantidadesPorTalla(cantidadesIniciales);
+					return;
+				}
+			} catch (error) {
+				console.error("Error obteniendo producto detallado:", error);
+			}
+		}
+		
+		if (esRopa && producto?.Detalles?.tallas) {
 			setTallasDisponibles(producto.Detalles.tallas);
-			// Inicializar cantidades en 0 para cada talla
 			const cantidadesIniciales = {};
 			producto.Detalles.tallas.forEach((talla, index) => {
 				cantidadesIniciales[index] = 0;
@@ -170,10 +286,111 @@ const AgregarVenta = () => {
 		}
 	};
 
+	const cargarTamanosProducto = async (productoId) => {
+		if (tipoItem !== "producto") {
+			setTamanosDisponibles([]);
+			setCantidadesPorTamano({});
+			return;
+		}
+
+		const producto = productosDisponibles.find(p => p.Id_Productos === productoId);
+		
+		let esPerfume = producto?.Es_Perfume || false;
+		if (!esPerfume) {
+			let categoria = null;
+			let nombreCategoria = '';
+			let idCategoria = null;
+			
+			if (producto?.Categoria) {
+				categoria = producto.Categoria;
+			} else if (producto?.Id_Categoria_Producto_Categoria_Producto) {
+				categoria = producto.Id_Categoria_Producto_Categoria_Producto;
+			} else if (producto?.Id_Categoria_Producto) {
+				categoria = producto.Id_Categoria_Producto;
+			}
+			
+			if (categoria) {
+				if (typeof categoria === 'string') {
+					nombreCategoria = categoria;
+				} else if (typeof categoria === 'object') {
+					nombreCategoria = categoria.Nombre || categoria.nombre || '';
+					idCategoria = categoria.Id_Categoria_Producto || categoria.id || null;
+				} else if (typeof categoria === 'number') {
+					idCategoria = categoria;
+				}
+			}
+			
+			if (nombreCategoria.toLowerCase().includes('perfume') || 
+				nombreCategoria.toLowerCase().includes('loción') ||
+				nombreCategoria.toLowerCase().includes('cosmético') ||
+				nombreCategoria.toLowerCase().includes('fragrancia') ||
+				idCategoria === 3) {
+				esPerfume = true;
+			}
+		}
+		
+		if (!esPerfume && producto?.Detalles?.tamanos?.length > 0) {
+			esPerfume = true;
+		}
+		
+		if (!esPerfume) {
+			try {
+				const productoDetallado = await productoService.obtenerProductoPorId(productoId);
+				
+				if (productoDetallado?.data?.Es_Perfume && productoDetallado?.data?.Detalles?.tamanos) {
+					const tamanosConInsumos = productoDetallado.data.Detalles.tamanos.map((tamano) => {
+						const tamanoId = tamano.Id_Tamano || tamano.id || tamano.Id || `temp_${Date.now()}_${Math.random()}`;
+						
+						return {
+							...tamano,
+							Id_Tamano: tamanoId,
+							insumos: tamano.insumos || []
+						};
+					});
+					
+					setTamanosDisponibles(tamanosConInsumos);
+					const cantidadesIniciales = {};
+					tamanosConInsumos.forEach((tamano, index) => {
+						cantidadesIniciales[index] = 0;
+					});
+					setCantidadesPorTamano(cantidadesIniciales);
+					return;
+				}
+			} catch (error) {
+				console.error("Error obteniendo producto detallado para tamaños:", error);
+			}
+		}
+		
+		if (esPerfume && producto?.Detalles?.tamanos) {
+			// Los tamaños ya vienen con insumos incluidos
+			const tamanosConInsumos = producto.Detalles.tamanos.map((tamano) => {
+				// Generar un ID único para el tamaño si no tiene uno
+				const tamanoId = tamano.Id_Tamano || tamano.id || tamano.Id || `temp_${Date.now()}_${Math.random()}`;
+				
+				return {
+					...tamano,
+					Id_Tamano: tamanoId,
+					insumos: tamano.insumos || []
+				};
+			});
+			
+			setTamanosDisponibles(tamanosConInsumos);
+			const cantidadesIniciales = {};
+			tamanosConInsumos.forEach((tamano, index) => {
+				cantidadesIniciales[index] = 0;
+			});
+			setCantidadesPorTamano(cantidadesIniciales);
+		} else {
+			setTamanosDisponibles([]);
+			setCantidadesPorTamano({});
+		}
+	};
+
 	const agregarItem = () => {
 		if (!itemSeleccionado.id || cantidad <= 0) return;
 
-		// Si es un producto de ropa, verificar que se hayan seleccionado tallas
+		setErrorStock("");
+
 		if (tipoItem === "producto" && tallasDisponibles.length > 0) {
 			const totalTallas = Object.values(cantidadesPorTalla).reduce((sum, cant) => sum + cant, 0);
 			if (totalTallas === 0) {
@@ -192,18 +409,83 @@ const AgregarVenta = () => {
 			}
 		}
 
+		if (tipoItem === "producto" && tamanosDisponibles.length > 0) {
+			const totalTamanos = Object.values(cantidadesPorTamano).reduce((sum, cant) => sum + cant, 0);
+			if (totalTamanos === 0) {
+				showAlert("Debes seleccionar al menos un tamaño para productos tipo loción/perfume", {
+					type: "warning",
+					title: "Falta información",
+				});
+				return;
+			}
+			if (totalTamanos !== cantidad) {
+				showAlert("La suma de cantidades por tamaño debe coincidir con la cantidad total", {
+					type: "warning",
+					title: "Cantidades inconsistentes",
+				});
+				return;
+			}
+		}
+
+		if (tipoItem === "producto" && tallasDisponibles.length === 0 && tamanosDisponibles.length === 0) {
+			const producto = productosDisponibles.find(p => p.Id_Productos === itemSeleccionado.id);
+			if (producto && (producto.Stock || 0) < cantidad) {
+				setErrorStock(`Stock insuficiente. Disponible: ${producto.Stock || 0}, Solicitado: ${cantidad}`);
+				return;
+			}
+		}
+
+		let precioUnitario = itemSeleccionado.precio;
+		
+		if (tamanosDisponibles.length > 0 && tallasDisponibles.length === 0) {
+			const tamanosSeleccionados = Object.entries(cantidadesPorTamano)
+				.filter(([, cant]) => cant > 0);
+			
+			if (tamanosSeleccionados.length > 0) {
+				let precioTotalTamanos = 0;
+				for (const [index, cant] of tamanosSeleccionados) {
+					const tamano = tamanosDisponibles[parseInt(index)];
+					const precioTamano = Number(tamano.precio) * cant;
+					precioTotalTamanos += precioTamano;
+				}
+				
+				precioUnitario = precioTotalTamanos / cantidad;
+			}
+		}
+
+
+
 		const nuevoItem = {
 			tipo: tipoItem,
 			id: itemSeleccionado.id,
 			nombre: itemSeleccionado.nombre,
-			precio: itemSeleccionado.precio,
+			precio: precioUnitario,
 			cantidad: cantidad,
 			tallas: tallasDisponibles.length > 0 ? Object.entries(cantidadesPorTalla)
 				.filter(([, cant]) => cant > 0)
-				.map(([index, cant]) => ({
-					Id_Producto_Tallas: tallasDisponibles[parseInt(index)].Id_Producto_Tallas,
-					Cantidad: cant,
-				})) : [],
+				.map(([index, cant]) => {
+					const talla = tallasDisponibles[parseInt(index)];
+					return {
+						Id_Producto_Tallas: talla.Id_Producto_Tallas,
+						nombre: talla.nombre,
+						Cantidad: cant,
+						stock: talla.stock,
+					};
+				}) : [],
+			tamanos: tamanosDisponibles.length > 0 ? Object.entries(cantidadesPorTamano)
+				.filter(([, cant]) => cant > 0)
+				.map(([index, cant]) => {
+					const tamano = tamanosDisponibles[parseInt(index)];
+					return {
+						index: parseInt(index),
+						nombre: tamano.nombre,
+						Cantidad: cant,
+						PrecioTamano: Number(tamano.precio),
+						PrecioTotal: Number(tamano.precio) * cant,
+						Id_Tamano: tamano.Id_Tamano || tamano.id || tamano.Id,
+						insumos: tamano.insumos || [],
+					};
+				}) : [],
 		};
 
 		setFormData((prev) => ({
@@ -215,6 +497,8 @@ const AgregarVenta = () => {
 		setCantidad(1);
 		setTallasDisponibles([]);
 		setCantidadesPorTalla({});
+		setTamanosDisponibles([]);
+		setCantidadesPorTamano({});
 	};
 
 	const eliminarItem = (index) => {
@@ -244,13 +528,34 @@ const AgregarVenta = () => {
 		});
 	};
 
-	// Función para actualizar cantidad por talla
 	const actualizarCantidadTalla = (index, cantidad) => {
 		const cantidadNumerica = cantidad === "" ? 0 : Number(cantidad);
-		setCantidadesPorTalla(prev => ({
-			...prev,
-			[index]: cantidadNumerica
-		}));
+		setCantidadesPorTalla(prev => {
+			const newCantidades = {
+				...prev,
+				[index]: cantidadNumerica
+			};
+			
+			const totalCantidad = Object.values(newCantidades).reduce((sum, cant) => sum + cant, 0);
+			setCantidad(totalCantidad);
+			
+			return newCantidades;
+		});
+	};
+
+	const actualizarCantidadTamano = (index, cantidad) => {
+		const cantidadNumerica = cantidad === "" ? 0 : Number(cantidad);
+		setCantidadesPorTamano(prev => {
+			const newCantidades = {
+				...prev,
+				[index]: cantidadNumerica
+			};
+			
+			const totalCantidad = Object.values(newCantidades).reduce((sum, cant) => sum + cant, 0);
+			setCantidad(totalCantidad);
+			
+			return newCantidades;
+		});
 	};
 
 	const calcularTotal = () => {
@@ -335,28 +640,16 @@ const AgregarVenta = () => {
 		}
 
 		try {
-			const ventaData = {
-				Id_Cliente: formData.Id_Cliente,
-				Id_Empleados: formData.Id_Usuario,
-				Fecha: formData.Fecha_Registro,
-				M_Pago: formData.Metodo_Pago,
-				Referencia:
-					formData.Metodo_Pago === "Transferencia"
-						? formData.DatosTransferencia
-						: null,
-				Detalle_Venta: formData.Items.map((item) => ({
-					Id_Productos: item.tipo === "producto" ? item.id : null,
-					Id_Servicio: item.tipo === "servicio" ? item.id : null,
-					Cantidad: item.cantidad,
-					Precio: item.precio,
-					Subtotal: item.precio * item.cantidad,
-					Id_Producto_Tallas: item.tallas && item.tallas.length > 0 ? item.tallas[0].Id_Producto_Tallas : null,
-					Id_Producto_Tamano_Insumos: null,
-					Tallas: item.tallas || [],
-				})),
-			};
-
-			// console.log("VENTA A ENVIAR ===>", JSON.stringify(ventaData, null, 2));
+			const ventaData = ventasService.prepararDatosCrearVenta(formData);
+			
+			const validacion = ventasService.validarDatosVenta(ventaData);
+			if (!validacion.valido) {
+				await showAlert(`Errores de validación:\n${validacion.errores.join('\n')}`, {
+					type: "error",
+					title: "Datos inválidos",
+				});
+				return;
+			}
 
 			await ventasService.crearVenta(ventaData);
 
@@ -560,20 +853,24 @@ const AgregarVenta = () => {
 										: null
 								}
 								onChange={(opcion) => {
+									setErrorStock("");
 									if (opcion) {
 										setItemSeleccionado({
 											id: opcion.value,
 											nombre: opcion.label.split(" - ")[0],
 											precio: opcion.precio,
 										});
-										// Cargar tallas si es un producto de ropa
+										
 										if (tipoItem === "producto") {
 											cargarTallasProducto(opcion.value);
+											cargarTamanosProducto(opcion.value);
 										}
 									} else {
 										setItemSeleccionado({ id: "", nombre: "", precio: 0 });
 										setTallasDisponibles([]);
 										setCantidadesPorTalla({});
+										setTamanosDisponibles([]);
+										setCantidadesPorTamano({});
 									}
 								}}
 							/>
@@ -589,35 +886,79 @@ const AgregarVenta = () => {
 								min="1"
 								value={cantidad === 0 ? "" : cantidad}
 								onChange={(e) => setCantidad(Number(e.target.value))}
-								className="w-full border p-2 rounded h-[38px]"
+								className={`w-full border p-2 rounded h-[38px] ${
+									(tamanosDisponibles.length > 0 || tallasDisponibles.length > 0) ? "bg-gray-100 cursor-not-allowed" : ""
+								}`}
+								disabled={tamanosDisponibles.length > 0 || tallasDisponibles.length > 0}
 								onKeyDown={(e) => {
 									if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
 								}}
 							/>
+							{(tamanosDisponibles.length > 0 || tallasDisponibles.length > 0) && (
+								<p className="text-xs text-gray-500 mt-1">
+									La cantidad se calcula automáticamente según los {tallasDisponibles.length > 0 ? 'tallas' : 'tamaños'} seleccionados
+								</p>
+							)}
+							{errorStock && (
+								<p className="text-red-500 text-sm mt-1">
+									{errorStock}
+								</p>
+							)}
 						</div>
 
-						{/* Botón Agregar */}
-						<div className="md:col-span-4 flex justify-end">
-							<Button
-								type="button"
-								onClick={agregarItem}
-								className="green"
-								icon="fa-plus"
-								disabled={!itemSeleccionado.id || cantidad <= 0}
-							>
-								<div className="flex items-center gap-2">Agregar</div>
-							</Button>
-						</div>
+
+					</div>
+
+					{/* Botón Agregar */}
+					<div className="flex justify-end">
+						<Button
+							type="button"
+							onClick={agregarItem}
+							className="green"
+							icon="fa-plus"
+							disabled={!itemSeleccionado.id || cantidad <= 0}
+						>
+							<div className="flex items-center gap-2">Agregar</div>
+						</Button>
 					</div>
 
 					{/* Sección de tallas para productos de ropa */}
+					{
+						/**
+ *        _____                    _____                    _____          
+         /\    \                  /\    \                  /\    \         
+        /::\    \                /::\    \                /::\    \        
+       /::::\    \              /::::\    \              /::::\    \       
+      /::::::\    \            /::::::\    \            /::::::\    \      
+     /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \     
+    /:::/__\:::\    \        /:::/__\:::\    \        /:::/  \:::\    \    
+    \:::\   \:::\    \      /::::\   \:::\    \      /:::/    \:::\    \   
+  ___\:::\   \:::\    \    /::::::\   \:::\    \    /:::/    / \:::\    \  
+ /\   \:::\   \:::\    \  /:::/\:::\   \:::\____\  /:::/    /   \:::\ ___\ 
+/::\   \:::\   \:::\____\/:::/  \:::\   \:::|    |/:::/____/     \:::|    |
+\:::\   \:::\   \::/    /\::/   |::::\  /:::|____|\:::\    \     /:::|____|
+ \:::\   \:::\   \/____/  \/____|:::::\/:::/    /  \:::\    \   /:::/    / 
+  \:::\   \:::\    \            |:::::::::/    /    \:::\    \ /:::/    /  
+   \:::\   \:::\____\           |::|\::::/    /      \:::\    /:::/    /   
+    \:::\  /:::/    /           |::| \::/____/        \:::\  /:::/    /    
+     \:::\/:::/    /            |::|  ~|               \:::\/:::/    /     
+      \::::::/    /             |::|   |                \::::::/    /      
+       \::::/    /              \::|   |                 \::::/    /       
+        \::/    /                \:|   |                  \::/____/        
+         \/____/                  \|___|                   ~~              
+                                                                           
+ */
+					}
 					{tipoItem === "producto" && tallasDisponibles.length > 0 && (
 						<div className="mt-4 p-4 bg-gray-50 rounded-lg border">
 							<h3 className="text-lg font-bold mb-3 text-black">Tallas Disponibles</h3>
-														<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+							<p className="text-sm text-gray-600 mb-3">
+								Selecciona la cantidad de cada talla que deseas agregar a la venta
+							</p>
+							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
 								{tallasDisponibles.map((talla, index) => (
 									<div key={`${talla.nombre}-${index}`} className="flex flex-col">
-																					<label className="text-sm font-medium text-gray-700 mb-1">
+										<label className="text-sm font-medium text-gray-700 mb-1">
 											Talla {talla.nombre}: {talla.stock || 0} unidades disponibles
 										</label>
 										<input
@@ -627,13 +968,59 @@ const AgregarVenta = () => {
 											value={cantidadesPorTalla[index] === 0 ? "" : cantidadesPorTalla[index]}
 											onChange={(e) => actualizarCantidadTalla(index, e.target.value)}
 											placeholder="0"
-											className="w-full border p-2 rounded text-sm"
+											className="w-full border p-2 rounded text-sm h-[38px]"
 											onKeyDown={(e) => {
 												if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
 											}}
 										/>
 									</div>
 								))}
+							</div>
+							<div className="mt-3 text-sm text-gray-600 bg-white p-2 rounded border">
+								<strong>Total seleccionado:</strong> {Object.values(cantidadesPorTalla).reduce((sum, cant) => sum + cant, 0)} unidades
+							</div>
+						</div>
+					)}
+
+					{/* Sección de tamaños para productos tipo loción/perfume */}
+					{tipoItem === "producto" && tamanosDisponibles.length > 0 && (
+						<div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+							<h3 className="text-lg font-bold mb-3 text-black">Tamaños Disponibles</h3>
+							<p className="text-sm text-gray-600 mb-3">
+								Selecciona la cantidad de cada tamaño que deseas agregar a la venta
+							</p>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+								{tamanosDisponibles.map((tamano, index) => (
+									<div key={`${tamano.nombre}-${index}`} className="bg-white p-3 rounded-lg border border-gray-200">
+										<div className="flex flex-col h-full">
+											<div className="flex-1">
+												<label className="text-sm font-medium text-gray-700 mb-3 block">
+													{tamano.nombre}
+												</label>
+												<br />
+												<div className="text-xs text-green-600 mb-3 px-2 py-1 bg-green-50 rounded">
+													Precio: ${Number(tamano.precio || 0).toLocaleString("es-CO")}
+												</div>
+											</div>
+											<div className="mt-auto">
+												<input
+													type="number"
+													min="0"
+													value={cantidadesPorTamano[index] === 0 ? "" : cantidadesPorTamano[index]}
+													onChange={(e) => actualizarCantidadTamano(index, e.target.value)}
+													placeholder="0"
+													className="w-full border p-2 rounded text-sm h-[38px]"
+													onKeyDown={(e) => {
+														if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+													}}
+												/>
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+							<div className="mt-3 text-sm text-gray-600 bg-white p-2 rounded border">
+								<strong>Total seleccionado:</strong> {Object.values(cantidadesPorTamano).reduce((sum, cant) => sum + cant, 0)} unidades
 							</div>
 						</div>
 					)}
@@ -651,9 +1038,10 @@ const AgregarVenta = () => {
 										<th className="p-2 text-left">Nombre</th>
 										<th className="p-2 text-right">Precio Unitario</th>
 										<th className="p-2 text-right">Cantidad</th>
-										{formData.Items.some(item => item.tallas && item.tallas.length > 0) && (
-											<th className="p-2 text-center">Tallas</th>
-										)}
+																					{(formData.Items.some(item => item.tallas && item.tallas.length > 0) || 
+											  formData.Items.some(item => item.tamanos && item.tamanos.length > 0)) && (
+												<th className="p-2 text-center">Detalles (Tallas/Tamaños)</th>
+											)}
 										<th className="p-2 text-right">Subtotal</th>
 										<th className="p-2 text-center">Acciones</th>
 									</tr>
@@ -703,20 +1091,29 @@ const AgregarVenta = () => {
 													}}
 												/>
 											</td>
-											{formData.Items.some(item => item.tallas && item.tallas.length > 0) && (
+											{(formData.Items.some(item => item.tallas && item.tallas.length > 0) || 
+											  formData.Items.some(item => item.tamanos && item.tamanos.length > 0)) && (
 												<td className="p-2 text-center">
 													{item.tallas && item.tallas.length > 0 ? (
 														<div className="text-xs">
-															{item.tallas.map((talla, i) => {
-																// Buscar el nombre de la talla
-																const producto = productosDisponibles.find(p => p.Id_Productos === item.id);
-																const tallaInfo = producto?.Detalles?.tallas?.find(t => t.Id_Producto_Tallas === talla.Id_Producto_Tallas);
-																return (
-																	<div key={i}>
-																		{tallaInfo?.nombre || `Talla ${talla.Id_Producto_Tallas}`}: {talla.Cantidad}
-																	</div>
-																);
-															})}
+															{item.tallas.map((talla, i) => (
+																<div key={i} className="mb-1">
+																	<span className="font-medium">{talla.nombre}</span>
+																	<span className="text-gray-600">: {talla.Cantidad} uds</span>
+																</div>
+															))}
+														</div>
+													) : item.tamanos && item.tamanos.length > 0 ? (
+														<div className="text-xs">
+															{item.tamanos.map((tamano, i) => (
+																<div key={i} className="mb-1">
+																	<span className="font-medium">{tamano.nombre}</span>
+																	<span className="text-gray-600">: {tamano.Cantidad} uds</span>
+																	<span className="text-green-600 ml-1">
+																		(${Number(tamano.PrecioTamano || 0).toLocaleString("es-CO")})
+																	</span>
+																</div>
+															))}
 														</div>
 													) : (
 														"-"
@@ -748,7 +1145,8 @@ const AgregarVenta = () => {
 								</tbody>
 								<tfoot>
 									<tr className="font-bold">
-										<td colSpan={formData.Items.some(item => item.tallas && item.tallas.length > 0) ? "5" : "4"} className="p-2 text-right">
+										<td colSpan={(formData.Items.some(item => item.tallas && item.tallas.length > 0) || 
+													 formData.Items.some(item => item.tamanos && item.tamanos.length > 0)) ? "5" : "4"} className="p-2 text-right">
 											Total:
 										</td>
 										<td className="p-2 text-right">

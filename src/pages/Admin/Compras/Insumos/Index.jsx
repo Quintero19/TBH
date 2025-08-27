@@ -25,6 +25,7 @@ const InsumoAdmin = () => {
 		const response = await insumoService.obtenerInsumos();
 		const datosProcesados = response.data.map((i) => ({
 			...i,
+			idVisual: i.Id_Insumos ? `IN_${i.Id_Insumos.toString().padStart(2, '0')}` : "N/A",
 			CategoriaNombre: i.Id_Categoria_Insumos_Categoria_Insumo?.Nombre || "Sin categoría",
 			StockFormateado: i.Stock?.toLocaleString("es-CO") ?? "0", // Ej: 12.000
 		}))
