@@ -19,6 +19,9 @@ export const ventasService = {
 			throw new Error(`Error de stock: ${validacionStock.errores.join(', ')}`);
 		}
 		
+		// Debug: Log de los datos que se van a enviar
+		console.log('Datos a enviar al backend:', JSON.stringify(dataLimpia, null, 2));
+		
 		const res = await api.post(USER_URL, dataLimpia);
 		return res.data;
 	},
@@ -153,6 +156,29 @@ export const ventasService = {
 				const cantidad = Number(item.cantidad) || 0;
 				const subtotal = precio * cantidad;
 				
+				// Procesar insumos de tamaños para perfumes
+				let insumosTamanos = [];
+				if (item.tamanos && item.tamanos.length > 0) {
+					item.tamanos.forEach(tamano => {
+						if (tamano.insumos && Array.isArray(tamano.insumos)) {
+							tamano.insumos.forEach(insumo => {
+								// Verificar que el insumo tenga los datos necesarios
+								if (insumo && (insumo.Id_Insumos || insumo.id)) {
+									// Multiplicar la cantidad del insumo por la cantidad del tamaño vendido
+									const cantidadInsumo = Number(insumo.Cantidad || insumo.cantidad || 0) * Number(tamano.Cantidad || 0);
+									insumosTamanos.push({
+										Id_Insumos: insumo.Id_Insumos || insumo.id,
+										Nombre: insumo.Nombre || insumo.nombre || insumo.Insumo?.Nombre || 'Insumo',
+										Cantidad: cantidadInsumo,
+										Id_Tamano: tamano.Id_Tamano,
+										Cantidad_Tamano: tamano.Cantidad
+									});
+								}
+							});
+						}
+					});
+				}
+				
 				const detalle = {
 					Id_Productos: item.tipo === "producto" ? item.id : null,
 					Id_Servicio: item.tipo === "servicio" ? item.id : null,
@@ -165,6 +191,7 @@ export const ventasService = {
 					Tamanos: item.tamanos && item.tamanos.length > 0 ? item.tamanos : null,
 					Id_Producto_Tallas: item.tallas && item.tallas.length > 0 ? item.tallas[0].Id_Producto_Tallas : null,
 					Id_Producto_Tamano_Insumos: item.tamanos && item.tamanos.length > 0 ? item.tamanos[0].index : null,
+					Insumos_Tamanos: insumosTamanos.length > 0 ? JSON.stringify(insumosTamanos) : null, // Nuevo campo para insumos
 				};
 				
 				return detalle;
@@ -176,6 +203,9 @@ export const ventasService = {
 		}, 0);
 		
 		ventaData.Total = totalVenta;
+
+		// Debug: Log de los datos preparados
+		console.log('Datos preparados para venta:', JSON.stringify(ventaData, null, 2));
 
 		return ventaData;
 	},
@@ -307,6 +337,26 @@ export const ventasService = {
 					}
 				}
 
+				// Limpiar datos de insumos de tamaños
+				if (detalle.Insumos_Tamanos) {
+					try {
+						const insumos = JSON.parse(detalle.Insumos_Tamanos);
+						if (Array.isArray(insumos) && insumos.length > 0) {
+							const insumosValidos = insumos.filter(insumo => 
+								insumo && 
+								insumo.Id_Insumos && 
+								insumo.Cantidad > 0
+							);
+							detalleLimpio.Insumos_Tamanos = insumosValidos.length > 0 ? JSON.stringify(insumosValidos) : null;
+						} else {
+							detalleLimpio.Insumos_Tamanos = null;
+						}
+					} catch (error) {
+						console.warn('Error parseando Insumos_Tamanos:', error);
+						detalleLimpio.Insumos_Tamanos = null;
+					}
+				}
+
 				return detalleLimpio;
 			});
 		}
@@ -333,6 +383,20 @@ export const ventasService = {
 					}
 				} catch (error) {
 					console.warn('Error validando stock de tallas:', error);
+				}
+			}
+
+			// Validar insumos de tamaños (esto se validará en el backend)
+			if (detalle.Insumos_Tamanos) {
+				try {
+					const insumos = JSON.parse(detalle.Insumos_Tamanos);
+					if (Array.isArray(insumos)) {
+						// La validación de stock de insumos se hará en el backend
+						// ya que necesitamos consultar la base de datos
+						console.log('Insumos a validar en backend:', insumos);
+					}
+				} catch (error) {
+					console.warn('Error validando insumos de tamaños:', error);
 				}
 			}
 		});

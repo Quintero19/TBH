@@ -336,9 +336,19 @@ const AgregarVenta = () => {
 				const productoDetallado = await productoService.obtenerProductoPorId(productoId);
 				
 				if (productoDetallado?.data?.Es_Perfume && productoDetallado?.data?.Detalles?.tamanos) {
-					setTamanosDisponibles(productoDetallado.data.Detalles.tamanos);
+					const tamanosConInsumos = productoDetallado.data.Detalles.tamanos.map((tamano) => {
+						const tamanoId = tamano.Id_Tamano || tamano.id || tamano.Id || `temp_${Date.now()}_${Math.random()}`;
+						
+						return {
+							...tamano,
+							Id_Tamano: tamanoId,
+							insumos: tamano.insumos || []
+						};
+					});
+					
+					setTamanosDisponibles(tamanosConInsumos);
 					const cantidadesIniciales = {};
-					productoDetallado.data.Detalles.tamanos.forEach((tamano, index) => {
+					tamanosConInsumos.forEach((tamano, index) => {
 						cantidadesIniciales[index] = 0;
 					});
 					setCantidadesPorTamano(cantidadesIniciales);
@@ -350,9 +360,21 @@ const AgregarVenta = () => {
 		}
 		
 		if (esPerfume && producto?.Detalles?.tamanos) {
-			setTamanosDisponibles(producto.Detalles.tamanos);
+			// Los tamaños ya vienen con insumos incluidos
+			const tamanosConInsumos = producto.Detalles.tamanos.map((tamano) => {
+				// Generar un ID único para el tamaño si no tiene uno
+				const tamanoId = tamano.Id_Tamano || tamano.id || tamano.Id || `temp_${Date.now()}_${Math.random()}`;
+				
+				return {
+					...tamano,
+					Id_Tamano: tamanoId,
+					insumos: tamano.insumos || []
+				};
+			});
+			
+			setTamanosDisponibles(tamanosConInsumos);
 			const cantidadesIniciales = {};
-			producto.Detalles.tamanos.forEach((tamano, index) => {
+			tamanosConInsumos.forEach((tamano, index) => {
 				cantidadesIniciales[index] = 0;
 			});
 			setCantidadesPorTamano(cantidadesIniciales);
@@ -429,6 +451,8 @@ const AgregarVenta = () => {
 			}
 		}
 
+
+
 		const nuevoItem = {
 			tipo: tipoItem,
 			id: itemSeleccionado.id,
@@ -448,13 +472,18 @@ const AgregarVenta = () => {
 				}) : [],
 			tamanos: tamanosDisponibles.length > 0 ? Object.entries(cantidadesPorTamano)
 				.filter(([, cant]) => cant > 0)
-				.map(([index, cant]) => ({
-					index: parseInt(index),
-					nombre: tamanosDisponibles[parseInt(index)].nombre,
-					Cantidad: cant,
-					PrecioTamano: Number(tamanosDisponibles[parseInt(index)].precio),
-					PrecioTotal: Number(tamanosDisponibles[parseInt(index)].precio) * cant,
-				})) : [],
+				.map(([index, cant]) => {
+					const tamano = tamanosDisponibles[parseInt(index)];
+					return {
+						index: parseInt(index),
+						nombre: tamano.nombre,
+						Cantidad: cant,
+						PrecioTamano: Number(tamano.precio),
+						PrecioTotal: Number(tamano.precio) * cant,
+						Id_Tamano: tamano.Id_Tamano || tamano.id || tamano.Id,
+						insumos: tamano.insumos || [],
+					};
+				}) : [],
 		};
 
 		setFormData((prev) => ({
