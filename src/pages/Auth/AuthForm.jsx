@@ -47,11 +47,28 @@ const AuthForm = () => {
 			},setLoading(false))
 		}
 
+		if (!correo.trim()) {
+					return showAlert("Debe completar el campo correo.", {
+						type: "error",
+						title: "Datos inválidos",
+					},setLoading(false));
+				}
+
+		
+		const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!correoRegex.test(correo)) {
+					return showAlert("El correo ingresado no es válido.", {
+						type: "error",
+						title: "Datos inválidos",
+					},setLoading(false));
+				}
+		
+
 		if (password.length < 6 ||
 			!/[0-9]/.test(password) 
 		) {
 			return showAlert(
-				"La contraseña debe tener al menos 6 caracteres, un número y un carácter especial.",
+				"La contraseña debe tener al menos 6 caracteres.",
 				{
 					type: "error",
 					title: "Datos inválidos",
@@ -144,7 +161,6 @@ const AuthForm = () => {
 						<input
 							type="email"
 							placeholder="Correo electrónico"
-							required
 							value={correo}
 							onChange={(e) => setCorreo(e.target.value)}
 						/>
@@ -157,7 +173,6 @@ const AuthForm = () => {
 						<input
 							type={showPassword ? "text" : "password"}
 							placeholder="Contraseña"
-							required
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
@@ -184,7 +199,6 @@ const AuthForm = () => {
 							<input
 								type={showPassword ? "text" : "password"}
 								placeholder="Confirmar contraseña"
-								required
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
 							/>
