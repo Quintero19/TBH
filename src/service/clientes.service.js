@@ -17,11 +17,21 @@ export const clienteService = {
 		const res = await api.get(`${CLIENTE_URL}/id/${id}`);
 		return res.data;
 	},
+	
 
 	listarClientePorDocumento: async (documento) => {
-		const res = await api.get(`${CLIENTE_URL}/documento/${documento}`);
-		return res.data;
-	},
+		try {
+			const res = await api.get(`${CLIENTE_URL}/documento/${documento}`);
+			return res.data; 
+		} catch (error) {
+			if (error.response && error.response.status === 404) {
+			console.log(`Cliente con documento ${documento} no encontrado.`);
+			return null;
+			}
+			throw error; 
+		}
+		},
+
 
 	eliminarCliente: async (id) => {
 		const res = await api.delete(`${CLIENTE_URL}/${id}`);

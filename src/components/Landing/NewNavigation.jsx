@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-scroll";
 import Logo from "/img/logos/tbh1.png";
-import "../../styles/css/NewNavigation.css";
+import "@/styles/css/NewNavigation.css";
 import { useNavigate } from "react-router-dom";
 import api from "@/utils/api";
-import { getUser } from "@/utils/auth";
+import { getCurrentUser } from "@/service/authService";
 
 export const NewNavigation = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -31,16 +31,16 @@ export const NewNavigation = () => {
 
 	useEffect(() => {
 
-		 getUser().then((u) => setUser(u));
-
+		getCurrentUser().then((u) => setUser(u));
+		
 		const handleScroll = () => {
 			setIsScrolled(window.scrollY > 50);
 		};
-
+		
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, []);
-
+	
 	const toggleMenu = () => {
 		setIsOpen(!isOpen);
 		if (!isOpen) {
@@ -49,6 +49,7 @@ export const NewNavigation = () => {
 			document.body.style.overflow = "unset";
 		}
 	};
+
 
 	return (
 		<nav className={`new-nav ${isScrolled ? "scrolled" : ""}`}>
@@ -128,21 +129,15 @@ export const NewNavigation = () => {
 									</button>
 
 									{dropdownOpen && (
-										<div className="absolute right-0 mt-2 w-40 bg-white text-gray-700 rounded-lg shadow-lg z-50">
-										<a
-											href="/usuario/perfil"
-											className="block px-4 py-2 text-sm hover:bg-gray-100"
-										>
+										<div className="menu">
+											<a href="/usuario/perfil" className="menu-item">
 											Mi Perfil
-										</a>
-										<button
-											onClick={handleLogout}
-											className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-										>
+											</a>
+											<button onClick={handleLogout} className="menu-item">
 											Cerrar Sesión
-										</button>
+											</button>
 										</div>
-									)}
+										)}
 									</div>
 								) : (
 									<a href="/login" className="nav-button">

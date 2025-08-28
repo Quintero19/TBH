@@ -8,5 +8,5 @@ export async function getUser() {
 	} catch (err) {
 		console.error("Error al verificar usuario:", err);
 		return null;
-	}
+	}	
 }
