@@ -53,8 +53,8 @@ const EditarProducto = () => {
 			case "Descripcion":
 				if (!value.trim()) {
 					newErrors[name] = "La descripción es obligatoria";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{7,100}$/.test(value)) {
-					newErrors[name] = "Solo letras y espacios. Entre 7 y 100 caracteres";
+				} else if (!/^.{7,100}$/.test(value)) {
+					newErrors[name] = "Debe tener entre 7 y 100 caracteres";
 				} else {
 					delete newErrors[name];
 				}
@@ -86,6 +86,14 @@ const EditarProducto = () => {
 				}
 				break;
 
+			case "tallas":
+				if (categoriaSeleccionada?.Es_Ropa && tallasSeleccionadas.length === 0) {
+					newErrors[name] = "Debes seleccionar al menos una talla";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
 			case "imagenes":
 				if (images.length === 0) {
 					newErrors[name] = "Debes subir al menos una imagen";
@@ -106,7 +114,7 @@ const EditarProducto = () => {
 
 		let updatedValue = type === "checkbox" ? checked : value;
 
-		if (name === "Nombre" || name === "Descripcion") {
+		if (name === "Nombre") {
 			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
 			if (!regex.test(updatedValue)) return;
 		}
@@ -168,8 +176,29 @@ const EditarProducto = () => {
 	};
 
 	useEffect(() => {
-		const total = imagenesExistentes.length + imagenesNuevas.length;
+		// Validar tallas
+		if (categorias.length > 0) {
+			const categoriaSeleccionada = categorias.find(
+				(cat) =>
+					cat.Id_Categoria_Producto === parseInt(formData.Id_Categoria_Producto),
+			);
 
+			if (categoriaSeleccionada?.Es_Ropa && tallasSeleccionadas.length === 0) {
+				setErrors((prev) => ({
+					...prev,
+					tallas: "Debes seleccionar al menos una talla",
+				}));
+			} else {
+				setErrors((prev) => {
+					const updated = { ...prev };
+					delete updated.tallas;
+					return updated;
+				});
+			}
+		}
+
+		// Validar imágenes
+		const total = imagenesExistentes.length + imagenesNuevas.length;
 		setErrors((prev) => {
 			const updated = { ...prev };
 			if (total === 0) {
@@ -179,7 +208,7 @@ const EditarProducto = () => {
 			}
 			return updated;
 		});
-	}, [imagenesExistentes, imagenesNuevas]);
+	}, [tallasSeleccionadas, formData.Id_Categoria_Producto, categorias, imagenesExistentes, imagenesNuevas]);
 
 	/* ─────────────────────────────────── */
 
@@ -209,7 +238,7 @@ const EditarProducto = () => {
 					delete err.imagenes;
 					return err;
 				});
-			}, 5000);
+			}, 6000);
 
 			return;
 		}
@@ -458,7 +487,7 @@ const EditarProducto = () => {
 					{formData.Id_Categoria_Producto == 3 && (
 						<>
 							<h3 className="text-2xl text-black font-bold mb-2 block">
-								Fragancia
+								Fragancia <span className="text-red-500">*</span>
 							</h3>
 							<select
 								name="Id_Insumos"
@@ -559,6 +588,9 @@ const EditarProducto = () => {
 								</label>
 							))}
 						</div>
+							{errors.tallas && (
+								<p className="text-red-500 text-sm mt-2">{errors.tallas}</p>
+							)}
 					</div>
 				)}
 

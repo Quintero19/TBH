@@ -52,9 +52,10 @@ const AgregarProducto = () => {
 			case "Descripcion":
 				if (!value.trim()) {
 					newErrors[name] = "La descripción es obligatoria";
-				} else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{7,100}$/.test(value)) {
-					newErrors[name] = "Solo letras y espacios. Entre 7 y 100 caracteres";
-				} else {
+				} else if (!/^.{7,100}$/.test(value)) {
+					newErrors[name] = "Debe tener entre 7 y 100 caracteres";
+				}
+				else {
 					delete newErrors[name];
 				}
 				break;
@@ -85,6 +86,14 @@ const AgregarProducto = () => {
 				}
 				break;
 
+			case "tallas":
+				if (categoriaSeleccionada?.Es_Ropa && tallasSeleccionadas.length === 0) {
+					newErrors[name] = "Debes seleccionar al menos una talla";
+				} else {
+					delete newErrors[name];
+				}
+				break;
+
 			case "imagenes":
 				if (imagenes.length === 0) {
 					newErrors[name] = "Debes subir al menos una imagen";
@@ -105,7 +114,7 @@ const AgregarProducto = () => {
 
 		let updatedValue = type === "checkbox" ? checked : value;
 
-		if (name === "Nombre" || name === "Descripcion") {
+		if (name === "Nombre") {
 			const regex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]*$/;
 			if (!regex.test(updatedValue)) return;
 		}
@@ -144,14 +153,18 @@ const AgregarProducto = () => {
 	};
 
 	const toggleTalla = (idTalla) => {
-		setTallasSeleccionadas((prev) =>
-			prev.includes(idTalla)
-				? prev.filter((id) => id !== idTalla)
-				: [...prev, idTalla],
-		);
+		const updated = tallasSeleccionadas.includes(idTalla)
+			? tallasSeleccionadas.filter((id) => id !== idTalla)
+			: [...tallasSeleccionadas, idTalla];
+
+		setTallasSeleccionadas(updated);
 	};
 
 	useEffect(() => {
+		// Validar tallas
+		validateField("tallas", tallasSeleccionadas);
+
+		// Validar imágenes
 		setErrors((prev) => {
 			const updated = { ...prev };
 			if (imagenes.length === 0) {
@@ -161,7 +174,8 @@ const AgregarProducto = () => {
 			}
 			return updated;
 		});
-	}, [imagenes]);
+	}, [tallasSeleccionadas, categoriaSeleccionada, imagenes]);
+
 
 	/* ─────────────────────────────────── */
 
@@ -182,6 +196,15 @@ const AgregarProducto = () => {
 				...prev,
 				imagenes: "Solo se permiten imágenes JPG, PNG o WEBP.",
 			}));
+
+			setTimeout(() => {
+				setErrors((prev) => {
+					const updated = { ...prev };
+					delete updated.imagenes;
+					return updated;
+				});
+			}, 6000);
+
 			return;
 		}
 
@@ -242,6 +265,7 @@ const AgregarProducto = () => {
 		e.preventDefault();
 
 		validateField("imagenes", imagenes);
+		validateField("tallas", tallasSeleccionadas);
 		if (Object.keys(errors).length > 0) {
 			showAlert("Por favor Corregir los errores en el formulario", {
 				type: "error",
@@ -366,7 +390,7 @@ const AgregarProducto = () => {
 					<>
 						<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
 							<h3 className="text-2xl text-black font-bold mb-2 block">
-								Fragancia
+								Fragancia <span className="text-red-500">*</span>
 							</h3>
 							<select
 								type="text"
@@ -479,6 +503,9 @@ const AgregarProducto = () => {
 										</label>
 									))}
 								</div>
+									{errors.tallas && (
+										<p className="text-red-500 text-sm mt-2">{errors.tallas}</p>
+									)}
 							</div>
 						)}
 
