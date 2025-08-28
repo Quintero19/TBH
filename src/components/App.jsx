@@ -58,7 +58,7 @@ import UsuarioIndex from "../pages/Landing/Home";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AgregarDevolucion from "../pages/Admin/Usuarios/Ventas/Devoluciones/AgregarDevolucion"
-
+import AgregarAgendamiento from "../pages/Admin/Servicios/Agendamiento/AgregarAgendamiento";
 function App() {
 	return (
 		<Routes>
@@ -106,6 +106,7 @@ function App() {
 				<Route path="servicios/agregar" element={<AgregarServicio />} />
 				<Route path="servicios/editar/:id" element={<EditarServicios />} />
 				<Route path="agendamiento" element={<AgendamientoAdmin />} />
+				<Route path="servicios/agendamiento/AgregarAgendamiento" element={<AgregarAgendamiento />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
 				<Route path="horarios-novedades/agregar" element={<AgregarNovedad />} />
 				<Route
