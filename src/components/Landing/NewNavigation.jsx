@@ -32,7 +32,7 @@ export const NewNavigation = () => {
 	useEffect(() => {
 
 		getCurrentUser().then((u) => setUser(u));
-		
+
 		const handleScroll = () => {
 			setIsScrolled(window.scrollY > 50);
 		};

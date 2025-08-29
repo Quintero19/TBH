@@ -25,10 +25,8 @@ export const clienteService = {
 			return res.data; 
 		} catch (error) {
 			if (error.response && error.response.status === 404) {
-			console.log(`Cliente con documento ${documento} no encontrado.`);
 			return null;
 			}
-			throw error; 
 		}
 		},
 
