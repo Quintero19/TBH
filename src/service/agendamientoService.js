@@ -1,12 +1,12 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/config";
+import api from "../utils/api";
 
 const agendamientoService = {
 	// Crear un nuevo agendamiento
 	crearAgendamiento: async (agendamientoData) => {
 		try {
 			const response = await axios.post(
-				`${API_BASE_URL}/agendamientos`,
+				`${api}/agendamientos`,
 				agendamientoData,
 				{
 					headers: {
@@ -24,7 +24,7 @@ const agendamientoService = {
 	// Obtener todos los agendamientos
 	obtenerAgendamientos: async () => {
 		try {
-			const response = await axios.get(`${API_BASE_URL}/agendamientos`);
+			const response = await axios.get(`${api}/agendamientos`);
 			return response.data;
 		} catch (error) {
 			console.error("Error al obtener agendamientos:", error);
@@ -35,7 +35,7 @@ const agendamientoService = {
 	// Obtener un agendamiento por ID
 	obtenerAgendamientoPorId: async (id) => {
 		try {
-			const response = await axios.get(`${API_BASE_URL}/agendamientos/${id}`);
+			const response = await axios.get(`${api}/agendamientos/${id}`);
 			return response.data;
 		} catch (error) {
 			console.error(`Error al obtener agendamiento con ID ${id}:`, error);
@@ -47,7 +47,7 @@ const agendamientoService = {
 	actualizarAgendamiento: async (id, agendamientoData) => {
 		try {
 			const response = await axios.put(
-				`${API_BASE_URL}/agendamientos/${id}`,
+				`${api}/agendamientos/${id}`,
 				agendamientoData,
 				{
 					headers: {
@@ -66,7 +66,7 @@ const agendamientoService = {
 	eliminarAgendamiento: async (id) => {
 		try {
 			const response = await axios.delete(
-				`${API_BASE_URL}/agendamientos/${id}`,
+				`${api}/agendamientos/${id}`,
 			);
 			return response.data;
 		} catch (error) {
@@ -79,7 +79,7 @@ const agendamientoService = {
 	obtenerAgendamientosPorCliente: async (idCliente) => {
 		try {
 			const response = await axios.get(
-				`${API_BASE_URL}/agendamientos/cliente/${idCliente}`,
+				`${api}/agendamientos/cliente/${idCliente}`,
 			);
 			return response.data;
 		} catch (error) {
@@ -95,7 +95,7 @@ const agendamientoService = {
 	obtenerAgendamientosPorEmpleado: async (idEmpleado) => {
 		try {
 			const response = await axios.get(
-				`${API_BASE_URL}/agendamientos/empleado/${idEmpleado}`,
+				`${api}/agendamientos/empleado/${idEmpleado}`,
 			);
 			return response.data;
 		} catch (error) {
@@ -111,7 +111,7 @@ const agendamientoService = {
 	cambiarEstadoAgendamiento: async (id, nuevoEstado) => {
 		try {
 			const response = await axios.patch(
-				`${API_BASE_URL}/agendamientos/${id}/estado`,
+				`${api}/agendamientos/${id}/estado`,
 				{ estado: nuevoEstado },
 			);
 			return response.data;
