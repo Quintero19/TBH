@@ -3,7 +3,7 @@ import GeneralTable from "@/components/GeneralTable";
 import { ventasService } from "@/service/ventas.service";
 import { clienteService } from "@/service/clientes.service";
 import { productoService } from "@/service/productos.service";
-import { servicioService } from "@/service/serviciosservice";
+import { servicioService } from "@/service/serviciosService";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
