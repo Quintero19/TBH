@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../../components/Buttons/Button";
 import { empleadoService } from "@/service/empleado.service";
-import { clienteService } from "@/service/Clientes.service";
+import { clienteService } from "@/service/clientes.service";
 import { servicioService } from "@/service/serviciosService";
 import agendamientoService from "@/service/agendamientoService"; // Asegúrate de importar el servicio de agendamientos
 
