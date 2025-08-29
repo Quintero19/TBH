@@ -1,5 +1,3 @@
-// src/services/servicioService.ts
-
 import api from "../utils/api";
 
 const SERVICIO_URL = "/servicios";
