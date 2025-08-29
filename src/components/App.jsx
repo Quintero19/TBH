@@ -54,6 +54,8 @@ import AuthForm from "../pages/Auth/AuthForm";
 import RecoverPassword from "../pages/Auth/RCP";
 import Home from "../pages/Landing/Home";
 import UsuarioIndex from "../pages/Landing/Home";
+import Perfil from "../pages/Landing/Perfil";
+
 
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
@@ -73,11 +75,11 @@ function App() {
 				path="/usuario"
 				element={
 					<ProtectedRoute requiredRole={2}>
-						<UsuarioIndex />
+						<Perfil />
 					</ProtectedRoute>
 				}
 			>
-				<Route path="index" element={<UsuarioIndex />} />	
+				<Route path="perfil" element={<Perfil />} />	
 			</Route>
 			
 

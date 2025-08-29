@@ -10,9 +10,46 @@ import JsonData from "../../data/data.json";
 import "../../styles/css/App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { getCurrentUser } from "@/service/authService";
+import { clienteService } from "@/service/clientes.service";
+import ClienteForm from "../../components/ClienteForm";
+import { showAlert } from "@/components/AlertProvider";
 
 const Home = () => {
+	const [user, setUser] = useState(null);
+	const [showForm, setShowForm] = useState(false);
 	const [landingPageData, setLandingPageData] = useState({});
+
+	useEffect(() =>{
+		getCurrentUser().then((u) => setUser(u));
+	},[])
+
+	useEffect(() => {
+		if (!user?.documento) return; 	
+
+		const fetchCliente = async () => {
+			try {
+			const cliente = await clienteService.listarClientePorDocumento(user.documento);
+			if (!cliente || !cliente.data) {
+				setShowForm(true);
+			}
+			} catch (error) {
+			if (error.response && error.response.status === 404) {
+				setShowForm(true);
+			} else {
+				showAlert("Error al obtener cliente", error.message || error, {
+				type: "error",
+				title: "Datos inválidos",
+				});
+			}
+			}
+		};
+
+		fetchCliente();
+		}, [user]);
+
+
+
 	useEffect(() => {
 		setLandingPageData(JsonData);
 		AOS.init({
@@ -21,6 +58,7 @@ const Home = () => {
 			mirror: true,
 		});
 	}, []);
+
 
 	return (
 		<div>
@@ -55,6 +93,14 @@ const Home = () => {
 				data-aos="zoom-in"
 				data-aos-delay="800"
 			/>
+
+			{showForm && (
+				<ClienteForm 
+					documento={user?.documento} 
+					correo={user?.correo} 
+					onComplete={() => setShowForm(false)} 
+				/>
+				)}
 		</div>
 	);
 };

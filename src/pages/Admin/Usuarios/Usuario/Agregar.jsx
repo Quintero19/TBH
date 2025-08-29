@@ -38,7 +38,10 @@ export default function AgregarUsuario() {
 				const rolesActivos = response.data.filter((rol) => rol.Estado === true);
 				setRoles(rolesActivos);
 			} catch (error) {
-				console.error("Error al obtener roles:", error);
+				showAlert("Error al obtener roles:", error ,{
+				type: "error",
+				title: "Datos inválidos",
+			});
 			}
 		};
 		fetchRoles();
