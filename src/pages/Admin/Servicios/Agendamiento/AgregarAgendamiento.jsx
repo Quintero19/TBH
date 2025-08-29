@@ -5,7 +5,7 @@ import Button from "../../../../components/Buttons/Button";
 import { empleadoService } from "@/service/empleado.service";
 import { clienteService } from "@/service/Clientes.service";
 import { servicioService } from "@/service/serviciosService";
-import agendamientoService from "@/service/agendamientoService"; // Asegúrate de importar el servicio de agendamientos
+import agendamientoService from "@/service/agendamientoService";
 
 const AgregarAgendamiento = () => {
 	const navigate = useNavigate();
