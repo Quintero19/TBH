@@ -160,25 +160,26 @@
 		"youtube": "youtube.com"
 	},
 	"Features": [
-		{
-			"icon": "fa fa-comments-o",
-			"title": "Lorem ipsum",
-			"text": "Lorem ipsum dolor sit amet placerat facilisis felis mi in tempus eleifend pellentesque natoque etiam."
-		},
-		{
-			"icon": "fa fa-bullhorn",
-			"title": "Lorem ipsum",
-			"text": "Lorem ipsum dolor sit amet placerat facilisis felis mi in tempus eleifend pellentesque natoque etiam."
-		},
-		{
-			"icon": "fa fa-group",
-			"title": "Lorem ipsum",
-			"text": "Lorem ipsum dolor sit amet placerat facilisis felis mi in tempus eleifend pellentesque natoque etiam."
-		},
-		{
-			"icon": "fa fa-magic",
-			"title": "Lorem ipsum",
-			"text": "Lorem ipsum dolor sit amet placerat facilisis felis mi in tempus eleifend pellentesque natoque etiam."
-		}
-	]
+  {
+    "icon": "fa fa-home",
+    "title": "Nuestra Barbería",
+    "text": "The Barber’s House está ubicada en Medellín, barrio Granizal. Dirigida por Jonathan Chavarria, con más de 25 años de experiencia, ofrece cortes, decoloración, planchado, lavado, mascarillas faciales y venta de productos de cuidado personal."
+  },
+  {
+    "icon": "fa fa-calendar",
+    "title": "Problemas en Citas",
+    "text": "El agendamiento se realiza por WhatsApp o presencial y se registra manualmente en un cuaderno. Esto genera errores, tachones y conflictos de horarios entre clientes."
+  },
+  {
+    "icon": "fa fa-cubes",
+    "title": "Gestión de Insumos",
+    "text": "No existe un control sistemático de inventarios. Los barberos toman productos según necesidad y solo avisan cuando se agotan, lo que dificulta el reabastecimiento y genera pérdidas."
+  },
+  {
+    "icon": "fa fa-exclamation-triangle",
+    "title": "Riesgos Actuales",
+    "text": "El registro manual de servicios y ventas en Excel provoca errores contables. Esto afecta la satisfacción del cliente, genera estrés en el personal y ocasiona pérdidas económicas."
+  }
+]
+
 }

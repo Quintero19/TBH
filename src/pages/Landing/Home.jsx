@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { About } from "../../components/Landing/About";
-import { Contact } from "../../components/Landing/Contact";
+import Contact from "../../components/Landing/Contact";
 import { Features } from "../../components/Landing/Features";
 import { Gallery } from "../../components/Landing/Gallery";
 import { Header } from "../../components/Landing/Header";
 import { NewNavigation } from "../../components/Landing/NewNavigation";
-import { Services } from "../../components/Landing/Services";
+import Services from "../../components/Landing/Services";
 import JsonData from "../../data/data.json";
 import "../../styles/css/App.css";
 import AOS from "aos";
