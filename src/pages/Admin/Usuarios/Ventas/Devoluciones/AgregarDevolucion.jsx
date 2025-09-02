@@ -74,6 +74,7 @@ const AgregarDevolucion = () => {
       }
       
       setComprasRopa(comprasData);
+      console.log("Compras de ropa obtenidas:", comprasData);
       
       if (comprasData.length === 0) {
         setErrorCompras(response.message || 'El cliente no tiene compras de ropa disponibles');
