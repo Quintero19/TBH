@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import Imagen from "../../assets/img/Hola1.jpg"
 
 export const About = (props) => {
 	return (
@@ -11,7 +12,7 @@ export const About = (props) => {
 						data-aos="fade-left"
 						data-aos-delay="100"
 					>
-						<img src="img/about.jpg" className="img-responsive" alt="" />
+						<img src={Imagen} style={{width:"70%",margin:"0rem 8rem"}} alt="" />
 					</div>
 					<div
 						className="col-xs-12 col-md-6"
@@ -19,7 +20,7 @@ export const About = (props) => {
 						data-aos-delay="200"
 					>
 						<div className="about-text">
-							<h2>About Us</h2>
+							<h2>Style Perfum</h2>
 							<p>{props.data ? props.data.paragraph : "loading..."}</p>
 							<h3>Why Choose Us?</h3>
 							<div className="list-style">

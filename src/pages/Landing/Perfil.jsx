@@ -75,7 +75,8 @@ const Perfil = () => {
       <a href="/"><FontAwesomeIcon icon={faArrowLeft} style={{ color: "#000000ff",fontSize: "20px", margin:"20px" }} /></a>
     <div className="perfil-container">
         
-     <b> <h2>Mi Perfil</h2></b>
+   <center>  <b> <h2>Mi Perfil</h2></b></center>
+   <br />
      <br />
       <form onSubmit={handleSubmit} className="perfil-form">
         <label>

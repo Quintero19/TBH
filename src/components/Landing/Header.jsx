@@ -68,13 +68,13 @@ export const Header = (props) => {
 									<span className="title-underline" />
 								</h1>
 								<p className="animate-text-delay">
-									{props.data ? props.data.paragraph : "Loading"}
+									Tu barberia de confianza que te brinda calidad 
 								</p>
 								<a
 									href="#features"
 									className="btn btn-custom btn-lg page-scroll animate-button"
 								>
-									Learn More
+									Mas Informacion
 								</a>
 							</div>
 						</div>

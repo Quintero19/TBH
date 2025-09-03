@@ -96,7 +96,7 @@
 	display: block;
 	width: 100px;
 	height: 4px;
-	background: #ef4444;
+	background: #f0bc79;
 	margin: 15px auto;
 	position: relative;
 	overflow: hidden;
@@ -124,7 +124,7 @@
 }
 
 .btn-custom {
-	background-color: #ef4444;
+	background-color: #f08a06;
 	color: #fff;
 	padding: 15px 40px;
 	border-radius: 30px;
@@ -158,9 +158,9 @@
 }
 
 .btn-custom:hover {
-	background-color: #dc2626;
+	background-color: #efa544;
 	transform: translateY(-3px);
-	box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+	box-shadow: 0 5px 15px rgba(255, 190, 51, 0.4);
 }
 
 .btn-custom:hover::before {
