@@ -254,7 +254,7 @@ export default function Clientes() {
                         </div>
                     </div>
                     <!-- Estado -->
-                    <div class="relative">
+                    <div class="relative md:col-span-2">
                         <label class="absolute -top-2.5 left-3 px-1 text-xs font-semibold text-gray-400 z-10 rounded-md bg-[#111827]">
                             Estado
                         </label>
