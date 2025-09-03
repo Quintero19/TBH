@@ -184,8 +184,8 @@ input:checked + .slider:before {
 }
 
 .perfil-container {
-  max-width: 800px;
-  margin-left: 15pc;
+  max-width: 900px;
+  margin-left: 14pc;
   background: #fff;
   padding: 20px 30px;
   border-radius: 12px;
@@ -197,6 +197,8 @@ input:checked + .slider:before {
   margin-bottom: 40px;
   font-weight: bold;
   color: #333;
+  width: 400px;
+  padding-left: 40px;
 }
 
 .perfil-form input,

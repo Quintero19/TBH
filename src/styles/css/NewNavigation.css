@@ -100,6 +100,7 @@ body {
 
 .nav-item {
 	margin: 0 1rem;
+	width: max-content;
 }
 
 .nav-link {
@@ -120,7 +121,7 @@ body {
 	left: 0;
 	width: 0;
 	height: 2px;
-	background-color: #ef4444;
+	background-color: #efa544;
 	transition: width 0.3s ease;
 }
 

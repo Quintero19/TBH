@@ -227,7 +227,7 @@ a:focus,
 	display: table;
 	width: 100%;
 	padding: 0;
-	background: url(https://www.peluker.com/blog/wp-content/uploads/2024/11/Image04Inspiracion-en-mobiliario-de-barberia-vintage-para-un-look-clasico.jpg)
+	background: url('../../assets/img/PRUEBA1.jpg')
 		center center no-repeat;
 	background-color: #e5e5e5;
 	-webkit-background-size: cover;
