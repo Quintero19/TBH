@@ -1,46 +1,57 @@
-import PropTypes from "prop-types";
-import React from "react";
+// src/components/Landing/Services.jsx
+import React, { useState, useEffect } from 'react';
+import { publicCatProductoService } from '../../service/publicCatProducto.service';
+import '../../styles/css/PublicCategories.css';
 
-export const Services = (props) => {
-	return (
-		<div id="services" className="text-center">
-			<div className="container">
-				<div className="section-title">
-					<h2>Our Services</h2>
-					<p>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit duis sed
-						dapibus leonec.
-					</p>
-				</div>
-				<div className="row">
-					{props.data
-						? props.data.map((d, i) => (
-								<div
-									key={`${d.name}-${i}`}
-									className="col-md-4"
-									data-aos={i % 2 === 0 ? "flip-left" : "flip-right"}
-									data-aos-delay={i * 100}
-								>
-									<i className={d.icon} />
-									<div className="service-desc">
-										<h3>{d.name}</h3>
-										<p>{d.text}</p>
-									</div>
-								</div>
-							))
-						: "loading"}
-				</div>
-			</div>
-		</div>
-	);
+const Services = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await publicCatProductoService.obtenerCategoriasActivas();
+        setCategories(response.data);
+      } catch (err) {
+        setError('Error al cargar las categorías');
+        console.error('Error fetching categories:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return <div className="categories-loading">Cargando categorías...</div>;
+  }
+
+  if (error) {
+    return <div className="categories-error">{error}</div>;
+  }
+
+  return (
+    <section id="services" className="public-categories">
+      <h2>Nuestras Categorías de Productos</h2>
+      <div className="categories-grid">
+        {categories.map(category => (
+          <div key={category.Id_Categoria_Producto} className="category-card">
+            <h3>{category.Nombre}</h3>
+            <p>{category.Descripcion}</p>
+            <div className="category-meta">
+              <span className={`tag ${category.Es_Ropa ? 'clothing' : 'non-clothing'}`}>
+                {category.Es_Ropa ? 'Ropa' : 'Accesorio'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 };
 
-Services.propTypes = {
-	data: PropTypes.arrayOf(
-		PropTypes.shape({
-			name: PropTypes.string.isRequired,
-			icon: PropTypes.string.isRequired,
-			text: PropTypes.string.isRequired,
-		}),
-	),
-};
+// Exportación por defecto (correcta para la importación actual)
+export default Services;

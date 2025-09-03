@@ -82,11 +82,11 @@ export const NewNavigation = () => {
 				<div className={`nav-menu ${isOpen ? "show" : ""}`}>
 					<ul className="nav-list">
 						{[
-							{ to: "features", label: "Features" },
-							{ to: "about", label: "About" },
-							{ to: "services", label: "Services" },
-							{ to: "portfolio", label: "Gallery" },
-							{ to: "contact", label: "Contact" },
+							{ to: "features", label: "Nosotros" },
+							{ to: "about", label: "Style Perfum" },
+							{ to: "services", label: "Productos" },
+							{ to: "portfolio", label: "Agendamiento" },
+							{ to: "contact", label: "Contacto" },
 						].map((item) => (
 							<li key={item.to} className="nav-item">
 								<Link
