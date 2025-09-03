@@ -21,7 +21,7 @@ export default function AgregarCliente() {
     Celular: "",
     Direccion: "",
     FechaNacimiento: "",
-    Sexo: "", // <-- ¡Campo Sexo agregado!
+    Sexo: "",
     Estado: true,
   });
 
@@ -88,7 +88,7 @@ export default function AgregarCliente() {
           error = "Debe seleccionar una fecha de nacimiento.";
         }
         break;
-      case "Sexo": // <-- Nueva validación para Sexo
+      case "Sexo":
         if (!value) {
           error = "Debe seleccionar el sexo.";
         }
@@ -429,10 +429,10 @@ export default function AgregarCliente() {
 
           <div className="md:col-span-2 flex gap-2 ml-7">
             <Button icon="fa-floppy-o" className="green" type="submit">
-              <FaSave className="inline-block mr-2" /> Guardar
+              Guardar
             </Button>
             <Button icon="fa-times" className="red" onClick={handleCancel}>
-              <IoClose className="inline-block mr-2" /> Cancelar
+              Cancelar
             </Button>
           </div>
         </form>
