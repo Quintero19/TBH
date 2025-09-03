@@ -88,7 +88,6 @@ const EditarCliente = () => {
 			return "El correo ingresado no es válido.";
 		}
 
-		// Validar contraseñas (si se ingresan)
 		if (formData.Contrasena || formData.ConfirmarContrasena) {
 			if (formData.Contrasena.length < 6) {
 				return "La contraseña debe tener al menos 6 caracteres.";
@@ -152,7 +151,7 @@ const EditarCliente = () => {
 			delete dataToSend.ConfirmarContrasena;
 
 			if (!formData.Contrasena) {
-				delete dataToSend.Contrasena; // No enviar si está vacía
+				delete dataToSend.Contrasena;
 			}
 
 			await clienteService.actualizarCliente(id, dataToSend);
