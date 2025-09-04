@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { FaSave } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "@/components/AlertProvider";
 import Button from "@/components/Buttons/Button";
@@ -21,7 +19,7 @@ export default function AgregarCliente() {
     Celular: "",
     Direccion: "",
     FechaNacimiento: "",
-    Sexo: "", // <-- ¡Campo Sexo agregado!
+    Sexo: "",
     Estado: true,
   });
 
@@ -88,7 +86,7 @@ export default function AgregarCliente() {
           error = "Debe seleccionar una fecha de nacimiento.";
         }
         break;
-      case "Sexo": // <-- Nueva validación para Sexo
+      case "Sexo":
         if (!value) {
           error = "Debe seleccionar el sexo.";
         }
@@ -264,22 +262,22 @@ export default function AgregarCliente() {
             )}
           </div>
 
-		  {/* Sexo */}
+		      {/* Sexo */}
           <div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
             <h3 className="text-2xl text-black font-bold mb-2 block">
               Sexo <span className="text-red-500">*</span>
             </h3>
             <select
-  			  name="Sexo"
-  			  value={formData.Sexo}
-  			  onChange={handleChange}
-  			  onBlur={handleBlur}
-  			  className="w-full p-2 border rounded"
-			>
-  			  <option value="">Selecciona sexo</option>
-  			  <option value="M">Masculino</option>
-  			  <option value="F">Femenino</option>
-			</select>
+  			      name="Sexo"
+  			      value={formData.Sexo}
+  			      onChange={handleChange}
+  			      onBlur={handleBlur}
+  			      className="w-full p-2 border rounded"
+			    >
+  			      <option value="">Selecciona sexo</option>
+  			      <option value="M">Masculino</option>
+  			      <option value="F">Femenino</option>
+			      </select>
             {validationErrors.Sexo && (
               <p className="text-red-500 text-sm mt-1">
                 {validationErrors.Sexo}
@@ -429,10 +427,10 @@ export default function AgregarCliente() {
 
           <div className="md:col-span-2 flex gap-2 ml-7">
             <Button icon="fa-floppy-o" className="green" type="submit">
-              <FaSave className="inline-block mr-2" /> Guardar
+              Guardar
             </Button>
             <Button icon="fa-times" className="red" onClick={handleCancel}>
-              <IoClose className="inline-block mr-2" /> Cancelar
+              Cancelar
             </Button>
           </div>
         </form>

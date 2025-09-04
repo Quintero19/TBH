@@ -35,6 +35,9 @@ const EditarCliente = () => {
 					Direccion: data.Direccion,
 					FechaNacimiento: data.F_Nacimiento,
 					Estado: data.Estado,
+					Sexo: data.Sexo || "",
+					Contrasena: "",
+					ConfirmarContrasena: "",
 				});
 			} catch (error) {
 				console.error("Error al cargar datos del cliente:", error);
@@ -70,7 +73,8 @@ const EditarCliente = () => {
 			!formData.Correo ||
 			!formData.Celular ||
 			!formData.Direccion ||
-			!formData.FechaNacimiento
+			!formData.FechaNacimiento ||
+			!formData.Sexo
 		) {
 			return "Todos los campos obligatorios deben ser proporcionados.";
 		}
@@ -82,6 +86,15 @@ const EditarCliente = () => {
 		const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!correoRegex.test(formData.Correo)) {
 			return "El correo ingresado no es válido.";
+		}
+
+		if (formData.Contrasena || formData.ConfirmarContrasena) {
+			if (formData.Contrasena.length < 6) {
+				return "La contraseña debe tener al menos 6 caracteres.";
+			}
+			if (formData.Contrasena !== formData.ConfirmarContrasena) {
+				return "Las contraseñas no coinciden.";
+			}
 		}
 
 		try {
@@ -135,6 +148,11 @@ const EditarCliente = () => {
 			delete dataToSend.TipoDocumento;
 			delete dataToSend.FechaNacimiento;
 			delete dataToSend.Id_Cliente;
+			delete dataToSend.ConfirmarContrasena;
+
+			if (!formData.Contrasena) {
+				delete dataToSend.Contrasena;
+			}
 
 			await clienteService.actualizarCliente(id, dataToSend);
 
@@ -184,6 +202,7 @@ const EditarCliente = () => {
 				onSubmit={handleSubmit}
 				className="grid grid-cols-1 md:grid-cols-2 gap-6"
 			>
+				{/* Tipo Documento */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
 						Tipo de Documento
@@ -201,6 +220,7 @@ const EditarCliente = () => {
 					</select>
 				</div>
 
+				{/* Documento */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
 						Documento
@@ -216,7 +236,8 @@ const EditarCliente = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-1">
+				{/* Nombre */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
 						Nombre(s) y Apellidos
 					</h3>
@@ -230,7 +251,24 @@ const EditarCliente = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+				{/* Sexo */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2 block">Sexo</h3>
+					<select
+  						name="Sexo"
+  						value={formData.Sexo}
+  						onChange={handleChange}
+  						className="w-full p-2 border rounded"
+  						required
+					>
+  						<option value="">Selecciona sexo</option>
+  						<option value="M">Masculino</option>
+  						<option value="F">Femenino</option>
+					</select>
+				</div>
+
+				{/* Correo */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">Correo</h3>
 					<input
 						type="email"
@@ -242,7 +280,8 @@ const EditarCliente = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+				{/* Celular */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">Celular</h3>
 					<input
 						type="number"
@@ -254,10 +293,9 @@ const EditarCliente = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
-					<h3 className="text-2xl text-black font-bold mb-2 block">
-						Dirección
-					</h3>
+				{/* Dirección */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2 block">Dirección</h3>
 					<input
 						type="text"
 						name="Direccion"
@@ -268,7 +306,8 @@ const EditarCliente = () => {
 					/>
 				</div>
 
-				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-1 m-7 mt-2">
+				{/* Fecha Nacimiento */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2 block">
 						Fecha de Nacimiento
 					</h3>
@@ -279,6 +318,34 @@ const EditarCliente = () => {
 						onChange={handleChange}
 						className="w-full p-2 border rounded"
 						required
+					/>
+				</div>
+
+				{/* Contraseña */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2 block">Contraseña</h3>
+					<input
+						type="password"
+						name="Contrasena"
+						value={formData.Contrasena}
+						onChange={handleChange}
+						className="w-full p-2 border rounded"
+						placeholder="Dejar en blanco si no desea cambiarla"
+					/>
+				</div>
+
+				{/* Confirmar Contraseña */}
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2 block">
+						Confirmar Contraseña
+					</h3>
+					<input
+						type="password"
+						name="ConfirmarContrasena"
+						value={formData.ConfirmarContrasena}
+						onChange={handleChange}
+						className="w-full p-2 border rounded"
+						placeholder="Repite la contraseña"
 					/>
 				</div>
 
