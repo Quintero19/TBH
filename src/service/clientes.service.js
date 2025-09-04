@@ -7,6 +7,11 @@ export const clienteService = {
 		const res = await api.post(CLIENTE_URL, data);
 		return res.data;
 	},
+	
+	crearClienteCL: async (data) => {
+		const res = await api.post(CLIENTE_URL, data);
+		return res.data;
+	},
 
 	listarClientes: async () => {
 		const res = await api.get(CLIENTE_URL);
