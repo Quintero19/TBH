@@ -92,7 +92,7 @@ const ClienteForm = ({ documento, correo, onComplete, onCancel }) => {
         }
         
         try{
-          await clienteService.crearCliente(formData)
+          await clienteService.crearClienteCL(formData)
 
             showAlert("La Informacion ha sido guardado correctamente.", {
                   type: "success",
