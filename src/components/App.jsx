@@ -31,7 +31,7 @@ import RolesAdminEditar from "../pages/Admin/Configuracion/Roles/Editar";
 import RolesAdmin from "../pages/Admin/Configuracion/Roles/Index";
 
 import Dashboard from "../pages/Admin/Dashboard";
-import AgendamientoAdmin from "../pages/Admin/Servicios/Agendamiento/Index";
+import AgendamientosPage from "../pages/Admin/Servicios/Agendamiento/Agendamientos";
 import HorarioAdmin from "../pages/Admin/Servicios/Horarios/Index";
 import AgregarServicio from "../pages/Admin/Servicios/Servicio/AgregarServicio";
 import EditarServicios from "../pages/Admin/Servicios/Servicio/EditarServicios";
@@ -55,12 +55,12 @@ import RecoverPassword from "../pages/Auth/RCP";
 import Home from "../pages/Landing/Home";
 import UsuarioIndex from "../pages/Landing/Home";
 import Perfil from "../pages/Landing/Perfil";
+import AgregarAgendamiento from "../pages/Admin/Servicios/Agendamiento/AgregarAgendamiento";
 
 
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AgregarDevolucion from "../pages/Admin/Usuarios/Ventas/Devoluciones/AgregarDevolucion"
-import AgregarAgendamiento from "../pages/Admin/Servicios/Agendamiento/AgregarAgendamiento";
 function App() {
 	return (
 		<Routes>
@@ -107,28 +107,18 @@ function App() {
 				<Route path="servicios" element={<ServicioAdmin />} />
 				<Route path="servicios/agregar" element={<AgregarServicio />} />
 				<Route path="servicios/editar/:id" element={<EditarServicios />} />
-				<Route path="agendamiento" element={<AgendamientoAdmin />} />
-				<Route path="servicios/agendamiento/AgregarAgendamiento" element={<AgregarAgendamiento />} />
+				<Route path="agendamiento" element={<AgendamientosPage />} />
 				<Route path="horarios" element={<HorarioAdmin />} />
 				<Route path="horarios-novedades/agregar" element={<AgregarNovedad />} />
-				<Route
-					path="horarios-novedades/editar/:id"
-					element={<EditarNovedad />}
-				/>
+				<Route path="horarios-novedades/editar/:id"	element={<EditarNovedad />}	/>
 				<Route path="compras" element={<Compras />} />
 				<Route path="compras/agregar" element={<AgregarCompra />} />
 				<Route path="proveedores" element={<Proveedores />} />
 				<Route path="proveedores/agregar" element={<AgregarProveedor />} />
 				<Route path="proveedores/editar/:id" element={<EditarProveedor />} />
 				<Route path="categoriaproducto" element={<CategoriasProducto />} />
-				<Route
-					path="categoriaproducto/agregar"
-					element={<AgregarCatProducto />}
-				/>
-				<Route
-					path="categoriaproducto/editar/:id"
-					element={<EditarCatProducto />}
-				/>
+				<Route path="categoriaproducto/agregar"	element={<AgregarCatProducto />} />
+				<Route path="categoriaproducto/editar/:id" element={<EditarCatProducto />}	/>
 				<Route path="productos" element={<Productos />} />
 				<Route path="productos/agregar" element={<AgregarProducto />} />
 				<Route path="productos/editar/:id" element={<EditarProducto />} />
@@ -138,7 +128,7 @@ function App() {
 				<Route path="tamanos" element={<Tamanos />} />
 				<Route path="tamanos/agregar" element={<AgregarTamano />} />
 				<Route path="tamanos/editar/:id" element={<EditarTamano />} />
-
+				<Route path="agendamiento/agregar" element={<AgregarAgendamiento />} />
 				{/*Cat.Insumo*/}
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
 				<Route path="categoriainsumo/agregar" element={<AgregarCatInsumo />} />
