@@ -128,7 +128,7 @@ function App() {
 				<Route path="tamanos" element={<Tamanos />} />
 				<Route path="tamanos/agregar" element={<AgregarTamano />} />
 				<Route path="tamanos/editar/:id" element={<EditarTamano />} />
-				<Route path="agendamiento/agregar" element={<AgregarAgendamiento />} />
+				<Route path="agendamientos/agregar" element={<AgregarAgendamiento />} />
 				{/*Cat.Insumo*/}
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
 				<Route path="categoriainsumo/agregar" element={<AgregarCatInsumo />} />

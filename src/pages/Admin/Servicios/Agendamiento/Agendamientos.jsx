@@ -3,8 +3,10 @@ import { agendamientosService } from "@/service/agendamiento.service";
 import GeneralTable from "@/components/GeneralTable";
 import CalendarioAgendamientos from "@/components/CalendarioAgendamientos";
 import { showAlert } from "@/components/AlertProvider";
+import { useNavigate } from "react-router-dom";
 
 const AgendamientosPage = () => {
+    const navigate = useNavigate();
   const [fechaSeleccionada, setFechaSeleccionada] = useState(
     new Date().toISOString().split("T")[0] // YYYY-MM-DD
   );
@@ -37,6 +39,11 @@ const AgendamientosPage = () => {
       estado: a.Estado ?? a.estado ?? "Agendado",
       fecha: a.Fecha ?? a.fecha ?? fechaSeleccionada,
     }));
+
+    
+	const handleAdd = () => {
+		navigate("/admin/agendamientos/agregar");
+	};
 
   const cargarAgendamientos = async (fecha) => {
     try {
@@ -86,7 +93,7 @@ const AgendamientosPage = () => {
         title="Agendamientos"
         columns={columnas}
         data={agendamientos}
-        onAdd={() => showAlert("Agregar nuevo agendamiento", "info")}
+        onAdd={handleAdd}
         onView={(row) => showAlert(`Ver cita de ${row.cliente}`, "info")}
         onEdit={(row) => showAlert(`Editar cita #${row.id}`, "info")}
         onDelete={(row) => showAlert(`Eliminar cita #${row.id}`, "info")}
