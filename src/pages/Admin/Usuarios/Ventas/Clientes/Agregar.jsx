@@ -41,8 +41,8 @@ export default function AgregarCliente() {
       case "Documento":
         if (!value) {
           error = "Debe completar el campo documento.";
-        } else if (value.length < 7 || value.length > 15) {
-          error = "El documento debe tener entre 7 y 15 dígitos.";
+        } else if (value.length < 6 || value.length > 10) {
+          error = "El documento debe tener entre 6 y 10 dígitos.";
         }
         break;
       case "Nombre":
