@@ -62,4 +62,9 @@ export const empleadoService = {
 		const res = await api.delete(`${EMPLEADO_URL}/${id}`);
 		return res.data;
 	},
+
+	obtenerServiciosEmpleado: async (id) => {
+		const res = await api.get(`${EMPLEADO_URL}/${id}/servicios`);
+		return res.data;
+	},
 };

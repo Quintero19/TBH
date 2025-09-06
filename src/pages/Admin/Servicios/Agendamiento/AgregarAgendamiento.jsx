@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/Buttons/Button";
 import { showAlert } from "@/components/AlertProvider";
-import { servicioService } from "@/service/serviciosService";
 import { clienteService } from "@/service/clientes.service";
 import { empleadoService } from "@/service/empleado.service";
 import { agendamientosService } from "@/service/agendamiento.service";
@@ -11,33 +10,30 @@ const AgregarAgendamiento = () => {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
   const [barberos, setBarberos] = useState([]);
-  const [servicios, setServicios] = useState([]);
+  const [serviciosEmpleado, setServiciosEmpleado] = useState([]);
   const [errors, setErrors] = useState({});
 
+  // Estado del formulario alineado al backend
   const [formData, setFormData] = useState({
-    clienteId: "",
-    barberoId: "",
-    fecha: "",
-    horaInicio: "",
-    serviciosSeleccionados: [],
-    precioTotal: 0,
-    horaFin: "",
-    telefono: "",
-    estado: "Pendiente",
+    Id_Cliente: "",
+    Id_Empleados: "",
+    Fecha: "",
+    Hora_Inicio: "",
+    serviciosAgendados: [], // [{ Id_Servicios }]
   });
 
-  // Cargar clientes, barberos y servicios
+  // Cargar clientes y barberos
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const [c, b, s] = await Promise.all([
-          clienteService.obtenerClientes(),
-          empleadoService.obtenerEmpleados(),
-          servicioService.obtenerServicios(),
+        const [c, b] = await Promise.all([
+          clienteService.listarClientes(),
+          empleadoService.obtenerEmpleadosActivos(),
         ]);
-        setClientes(c || []);
-        setBarberos(b || []);
-        setServicios(s || []);
+        setClientes(c?.data || c || []);
+        setBarberos(b?.data || b || []);
+
+        console.log(c)
       } catch (error) {
         console.error("Error cargando datos:", error);
       }
@@ -45,88 +41,69 @@ const AgregarAgendamiento = () => {
     cargarDatos();
   }, []);
 
-  // Calcular precio total y hora fin cuando cambian servicios o la horaInicio
+  // Cargar servicios del barbero seleccionado
   useEffect(() => {
-    if (!formData.serviciosSeleccionados.length) {
-      setFormData((prev) => ({ ...prev, precioTotal: 0, horaFin: "" }));
-      return;
-    }
-
-    const serviciosElegidos = servicios.filter((s) =>
-      formData.serviciosSeleccionados.includes(s.id.toString())
-    );
-
-    const precioTotal = serviciosElegidos.reduce(
-      (acc, s) => acc + parseFloat(s.Precio || 0),
-      0
-    );
-
-    const duracionTotal = serviciosElegidos.reduce(
-      (acc, s) => acc + parseInt(s.Duracion || 0, 10),
-      0
-    );
-
-    let horaFin = "";
-    if (formData.horaInicio) {
-      const [h, m] = formData.horaInicio.split(":").map(Number);
-      const inicioDate = new Date(`${formData.fecha}T${formData.horaInicio}`);
-      inicioDate.setMinutes(inicioDate.getMinutes() + duracionTotal);
-      horaFin = inicioDate.toTimeString().slice(0, 5);
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      precioTotal,
-      horaFin,
-    }));
-  }, [formData.serviciosSeleccionados, formData.horaInicio, formData.fecha]);
+    const cargarServiciosEmpleado = async () => {
+      if (!formData.Id_Empleados) {
+        setServiciosEmpleado([]);
+        return;
+      }
+      try {
+        const res = await empleadoService.obtenerServiciosEmpleado(
+          formData.Id_Empleados
+        );
+        setServiciosEmpleado(res.servicios || []);
+      } catch (error) {
+        console.error("Error cargando servicios del empleado:", error);
+        setServiciosEmpleado([]);
+      }
+    };
+    cargarServiciosEmpleado();
+  }, [formData.Id_Empleados]);
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
-
     switch (name) {
-      case "clienteId":
+      case "Id_Cliente":
         if (!value) newErrors[name] = "Debes seleccionar un cliente";
         else delete newErrors[name];
         break;
-      case "barberoId":
+      case "Id_Empleados":
         if (!value) newErrors[name] = "Debes seleccionar un barbero";
         else delete newErrors[name];
         break;
-      case "fecha":
+      case "Fecha":
         if (!value) newErrors[name] = "Debes seleccionar una fecha";
         else delete newErrors[name];
         break;
-      case "horaInicio":
+      case "Hora_Inicio":
         if (!value) newErrors[name] = "Debes seleccionar la hora de inicio";
         else delete newErrors[name];
         break;
-      case "telefono":
-        if (!/^\d{7,10}$/.test(value)) {
-          newErrors[name] = "Número inválido (7 a 10 dígitos)";
-        } else delete newErrors[name];
-        break;
-      case "serviciosSeleccionados":
-        if (!value.length) {
+      case "serviciosAgendados":
+        if (!value.length)
           newErrors[name] = "Debes seleccionar al menos un servicio";
-        } else delete newErrors[name];
+        else delete newErrors[name];
         break;
       default:
         break;
     }
-
     setErrors(newErrors);
   };
 
   const handleChange = (e) => {
-    const { name, value, type, options } = e.target;
-
-    if (name === "serviciosSeleccionados") {
-      const selected = Array.from(options)
-        .filter((o) => o.selected)
-        .map((o) => o.value);
-      setFormData((prev) => ({ ...prev, [name]: selected }));
-      validateField(name, selected);
+    const { name, value, type, checked } = e.target;
+    if (name === "serviciosAgendados") {
+      let nuevosServicios = [...formData.serviciosAgendados];
+      if (checked) {
+        nuevosServicios.push({ Id_Servicios: Number(value) });
+      } else {
+        nuevosServicios = nuevosServicios.filter(
+          (s) => s.Id_Servicios !== Number(value)
+        );
+      }
+      setFormData((prev) => ({ ...prev, serviciosAgendados: nuevosServicios }));
+      validateField("serviciosAgendados", nuevosServicios);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
       validateField(name, value);
@@ -136,7 +113,6 @@ const AgregarAgendamiento = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar antes de enviar
     Object.entries(formData).forEach(([k, v]) => validateField(k, v));
     if (Object.keys(errors).length > 0) return;
 
@@ -147,10 +123,10 @@ const AgregarAgendamiento = () => {
         type: "success",
         title: "¡Éxito!",
         duration: 2000,
-      }).then(() => navigate("/admin/agendamientos"));
+      }).then(() => navigate("/admin/agendamiento"));
     } catch (error) {
       console.error(error);
-      showAlert("Error al crear agendamiento", {
+      showAlert(error.response?.data?.message || "Error al crear agendamiento", {
         type: "error",
         title: "Error",
         duration: 2000,
@@ -172,20 +148,20 @@ const AgregarAgendamiento = () => {
         <div className="p-6 bg-white border rounded">
           <h3 className="font-bold mb-2">Cliente *</h3>
           <select
-            name="clienteId"
-            value={formData.clienteId}
+            name="Id_Cliente"
+            value={formData.Id_Cliente}
             onChange={handleChange}
             className="w-full border p-2 rounded"
           >
             <option value="">Seleccione cliente</option>
             {clientes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
+              <option key={c.Id_Cliente} value={c.Id_Cliente}>
+                {c.Nombre}
               </option>
             ))}
           </select>
-          {errors.clienteId && (
-            <p className="text-red-500 text-sm">{errors.clienteId}</p>
+          {errors.Id_Cliente && (
+            <p className="text-red-500 text-sm">{errors.Id_Cliente}</p>
           )}
         </div>
 
@@ -193,20 +169,20 @@ const AgregarAgendamiento = () => {
         <div className="p-6 bg-white border rounded">
           <h3 className="font-bold mb-2">Barbero *</h3>
           <select
-            name="barberoId"
-            value={formData.barberoId}
+            name="Id_Empleados"
+            value={formData.Id_Empleados}
             onChange={handleChange}
             className="w-full border p-2 rounded"
           >
             <option value="">Seleccione barbero</option>
             {barberos.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.nombre}
+              <option key={b.Id_Empleados} value={b.Id_Empleados}>
+                {b.Nombre}
               </option>
             ))}
           </select>
-          {errors.barberoId && (
-            <p className="text-red-500 text-sm">{errors.barberoId}</p>
+          {errors.Id_Empleados && (
+            <p className="text-red-500 text-sm">{errors.Id_Empleados}</p>
           )}
         </div>
 
@@ -215,13 +191,13 @@ const AgregarAgendamiento = () => {
           <h3 className="font-bold mb-2">Fecha *</h3>
           <input
             type="date"
-            name="fecha"
-            value={formData.fecha}
+            name="Fecha"
+            value={formData.Fecha}
             onChange={handleChange}
             className="w-full border p-2 rounded"
           />
-          {errors.fecha && (
-            <p className="text-red-500 text-sm">{errors.fecha}</p>
+          {errors.Fecha && (
+            <p className="text-red-500 text-sm">{errors.Fecha}</p>
           )}
         </div>
 
@@ -230,87 +206,48 @@ const AgregarAgendamiento = () => {
           <h3 className="font-bold mb-2">Hora Inicio *</h3>
           <input
             type="time"
-            name="horaInicio"
-            value={formData.horaInicio}
+            name="Hora_Inicio"
+            value={formData.Hora_Inicio}
             onChange={handleChange}
             className="w-full border p-2 rounded"
           />
-          {errors.horaInicio && (
-            <p className="text-red-500 text-sm">{errors.horaInicio}</p>
+          {errors.Hora_Inicio && (
+            <p className="text-red-500 text-sm">{errors.Hora_Inicio}</p>
           )}
         </div>
 
         {/* Servicios */}
         <div className="p-6 bg-white border rounded md:col-span-2">
           <h3 className="font-bold mb-2">Servicios *</h3>
-          <select
-            multiple
-            name="serviciosSeleccionados"
-            value={formData.serviciosSeleccionados}
-            onChange={handleChange}
-            className="w-full border p-2 rounded h-40"
-          >
-            {servicios.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.Nombre} - ${s.Precio}
-              </option>
+          <div className="space-y-2">
+            {serviciosEmpleado.length === 0 && (
+              <p className="text-gray-500">
+                Seleccione un barbero para ver sus servicios
+              </p>
+            )}
+            {serviciosEmpleado.map((s) => (
+              <label
+                key={s.Id_Servicios}
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  name="serviciosAgendados"
+                  value={s.Id_Servicios}
+                  checked={formData.serviciosAgendados.some(
+                    (srv) => srv.Id_Servicios === s.Id_Servicios
+                  )}
+                  onChange={handleChange}
+                />
+                <span>
+                  {s.Nombre} - ${s.Precio} ({s.Duracion} min)
+                </span>
+              </label>
             ))}
-          </select>
-          {errors.serviciosSeleccionados && (
-            <p className="text-red-500 text-sm">{errors.serviciosSeleccionados}</p>
+          </div>
+          {errors.serviciosAgendados && (
+            <p className="text-red-500 text-sm">{errors.serviciosAgendados}</p>
           )}
-        </div>
-
-        {/* Teléfono */}
-        <div className="p-6 bg-white border rounded">
-          <h3 className="font-bold mb-2">Teléfono *</h3>
-          <input
-            type="text"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          />
-          {errors.telefono && (
-            <p className="text-red-500 text-sm">{errors.telefono}</p>
-          )}
-        </div>
-
-        {/* Estado */}
-        <div className="p-6 bg-white border rounded">
-          <h3 className="font-bold mb-2">Estado</h3>
-          <select
-            name="estado"
-            value={formData.estado}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="Pendiente">Pendiente</option>
-            <option value="Completada">Completada</option>
-            <option value="Anulada">Anulada</option>
-          </select>
-        </div>
-
-        {/* Precio Total */}
-        <div className="p-6 bg-white border rounded">
-          <h3 className="font-bold mb-2">Precio Total</h3>
-          <input
-            type="text"
-            readOnly
-            value={`$${formData.precioTotal}`}
-            className="w-full border p-2 rounded bg-gray-100"
-          />
-        </div>
-
-        {/* Hora Fin */}
-        <div className="p-6 bg-white border rounded">
-          <h3 className="font-bold mb-2">Hora Fin</h3>
-          <input
-            type="time"
-            readOnly
-            value={formData.horaFin}
-            className="w-full border p-2 rounded bg-gray-100"
-          />
         </div>
 
         {/* Botones */}

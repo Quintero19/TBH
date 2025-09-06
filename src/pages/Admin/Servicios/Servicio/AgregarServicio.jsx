@@ -1,13 +1,15 @@
 import { showAlert } from "@/components/AlertProvider";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../../components/Buttons/Button";
 import { servicioService } from "../../../../service/serviciosService";
+import { empleadoService } from "../../../../service/empleado.service";
 
 const AgregarServicio = () => {
 	const navigate = useNavigate();
 	const [errors, setErrors] = useState({});
 	const [imagenes, setImagenes] = useState([]);
+	const [empleadosActivos, setEmpleadosActivos] = useState([]);
 	const maxImagenes = 3;
 
 	const [formData, setFormData] = useState({
@@ -16,12 +18,26 @@ const AgregarServicio = () => {
 		Duracion: "",
 		Descripcion: "",
 		Estado: true,
+		empleados: [], // 👈 array de IDs de empleados seleccionados
 	});
+
+	// 🔹 Cargar empleados activos al montar
+	useEffect(() => {
+		const fetchEmpleados = async () => {
+		try {
+			const empleados = await empleadoService.obtenerEmpleadosActivos();
+			setEmpleadosActivos(empleados);
+		} catch (error) {
+			console.error("Error cargando empleados activos:", error);
+		}
+		};
+		fetchEmpleados();
+	}, []);
 
 	const isFormValid = () => {
 		const requiredFields = ["Nombre", "Precio", "Duracion", "Descripcion"];
 		const allFieldsFilled = requiredFields.every(
-			(field) => formData[field] && formData[field].toString().trim() !== "",
+		(field) => formData[field] && formData[field].toString().trim() !== ""
 		);
 		const noErrors = Object.keys(errors).length === 0;
 		return allFieldsFilled && noErrors && imagenes.length > 0;
@@ -31,70 +47,65 @@ const AgregarServicio = () => {
 		const newErrors = { ...errors };
 
 		switch (name) {
-			case "Nombre": {
-				const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
-				if (value.trim().length === 0) {
-					newErrors[name] = "El nombre es requerido";
-				} else if (!regex.test(value)) {
-					newErrors[name] = "No se permiten números ni caracteres especiales";
-				} else if (value.trim().length < 3) {
-					newErrors[name] = "Debe tener al menos 3 caracteres";
-				} else if (value.trim().length > 30) {
-					newErrors[name] = "No puede exceder los 30 caracteres";
-				} else {
-					delete newErrors[name];
-				}
-				break;
+		case "Nombre": {
+			const regex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+			if (value.trim().length === 0) {
+			newErrors[name] = "El nombre es requerido";
+			} else if (!regex.test(value)) {
+			newErrors[name] = "No se permiten números ni caracteres especiales";
+			} else if (value.trim().length < 3) {
+			newErrors[name] = "Debe tener al menos 3 caracteres";
+			} else if (value.trim().length > 30) {
+			newErrors[name] = "No puede exceder los 30 caracteres";
+			} else {
+			delete newErrors[name];
 			}
-
-			case "Precio":
-				if (value.trim().length === 0) {
-					newErrors[name] = "El precio es requerido";
-				} else if (/[eE]/.test(value)) {
-					newErrors[name] = "No se permite la notación científica (e)";
-				} else if (Number.isNaN(Number(value)) || Number(value) <= 0) {
-					newErrors[name] = "Debe ser un número mayor a 0";
-				} else {
-					delete newErrors[name];
-				}
-				break;
-
-			case "Duracion": {
-				const isValid =
-					/^[0-9]+$/.test(value) &&
-					Number.parseInt(value) > 0 &&
-					Number.parseInt(value) <= 120;
-				if (value.trim().length === 0) {
-					newErrors[name] = "La duración es requerida";
-				} else if (!isValid) {
-					newErrors[name] =
-						"Debe ser un número entero entre 1 y 120 minutos (2 horas)";
-				} else {
-					delete newErrors[name];
-				}
-				break;
+			break;
+		}
+		case "Precio":
+			if (value.trim().length === 0) {
+			newErrors[name] = "El precio es requerido";
+			} else if (/[eE]/.test(value)) {
+			newErrors[name] = "No se permite la notación científica (e)";
+			} else if (Number.isNaN(Number(value)) || Number(value) <= 0) {
+			newErrors[name] = "Debe ser un número mayor a 0";
+			} else {
+			delete newErrors[name];
 			}
-
-			case "Descripcion":
-				if (value.trim().length === 0) {
-					newErrors[name] = "La descripción es requerida";
-				} else if (value.length < 5 || value.length > 150) {
-					newErrors[name] = "Debe tener al menos 5 caracteres y máximo 150";
-				} else {
-					delete newErrors[name];
-				}
-				break;
-
-			case "imagenes":
-				if (imagenes.length === 0) {
-					newErrors[name] = "Debes subir al menos dos imagen";
-				} else {
-					delete newErrors[name];
-				}
-				break;
-
-			default:
-				break;
+			break;
+		case "Duracion": {
+			const isValid =
+			/^[0-9]+$/.test(value) &&
+			Number.parseInt(value) > 0 &&
+			Number.parseInt(value) <= 120;
+			if (value.trim().length === 0) {
+			newErrors[name] = "La duración es requerida";
+			} else if (!isValid) {
+			newErrors[name] =
+				"Debe ser un número entero entre 1 y 120 minutos (2 horas)";
+			} else {
+			delete newErrors[name];
+			}
+			break;
+		}
+		case "Descripcion":
+			if (value.trim().length === 0) {
+			newErrors[name] = "La descripción es requerida";
+			} else if (value.length < 5 || value.length > 150) {
+			newErrors[name] = "Debe tener al menos 5 caracteres y máximo 150";
+			} else {
+			delete newErrors[name];
+			}
+			break;
+		case "imagenes":
+			if (imagenes.length === 0) {
+			newErrors[name] = "Debes subir al menos una imagen";
+			} else {
+			delete newErrors[name];
+			}
+			break;
+		default:
+			break;
 		}
 
 		setErrors(newErrors);
@@ -105,18 +116,28 @@ const AgregarServicio = () => {
 		const updatedValue = type === "checkbox" ? checked : value;
 
 		if (
-			(name === "Precio" || name === "Duracion") &&
-			value !== "" &&
-			Number.isNaN(value)
+		(name === "Precio" || name === "Duracion") &&
+		value !== "" &&
+		Number.isNaN(value)
 		)
-			return;
+		return;
 
 		setFormData((prev) => ({
-			...prev,
-			[name]: updatedValue,
+		...prev,
+		[name]: updatedValue,
 		}));
 
 		validateField(name, updatedValue);
+	};
+
+	// 🔹 Manejar selección de empleados (checkboxes)
+	const handleEmpleadoChange = (id) => {
+		setFormData((prev) => {
+		const empleadosSeleccionados = prev.empleados.includes(id)
+			? prev.empleados.filter((empId) => empId !== id)
+			: [...prev.empleados, id];
+		return { ...prev, empleados: empleadosSeleccionados };
+		});
 	};
 
 	const handleImageChange = (e) => {
@@ -139,82 +160,83 @@ const AgregarServicio = () => {
 		const newErrors = {};
 
 		requiredFields.forEach((field) => {
-			const value = formData[field];
-			validateField(field, value);
-			if (!value || value.toString().trim() === "") {
-				newErrors[field] = "Este campo es obligatorio";
-			}
+		const value = formData[field];
+		validateField(field, value);
+		if (!value || value.toString().trim() === "") {
+			newErrors[field] = "Este campo es obligatorio";
+		}
 		});
 
 		if (imagenes.length === 0) {
-			newErrors.imagenes = "Debes subir al menos una imagen";
+		newErrors.imagenes = "Debes subir al menos una imagen";
 		}
 
 		setErrors(newErrors);
 
 		if (Object.keys(newErrors).length > 0) {
-			showAlert(
-				"Por favor completa todos los campos obligatorios y corrige los errores.",
-				{
-					type: "error",
-					title: "Formulario incompleto",
-					duration: 2500,
-				},
-			);
-			return;
+		showAlert(
+			"Por favor completa todos los campos obligatorios y corrige los errores.",
+			{
+			type: "error",
+			title: "Formulario incompleto",
+			duration: 2500,
+			}
+		);
+		return;
 		}
 
 		try {
-			const formDataToSend = new FormData();
+		const formDataToSend = new FormData();
 
-			// Campos de texto
-			formDataToSend.append("Nombre", formData.Nombre);
-			formDataToSend.append("Precio", formData.Precio);
-			formDataToSend.append("Duracion", formData.Duracion);
-			formDataToSend.append("Descripcion", formData.Descripcion);
-			// Agrega más campos si los tienes (como categoría, etc.)
+		// Campos de texto
+		formDataToSend.append("Nombre", formData.Nombre);
+		formDataToSend.append("Precio", formData.Precio);
+		formDataToSend.append("Duracion", formData.Duracion);
+		formDataToSend.append("Descripcion", formData.Descripcion);
 
-			// Imágenes (puedes tener múltiples)
-			imagenes.forEach((img) => {
-				formDataToSend.append("imagenes", img); // 👈 nombre debe coincidir con multer: 'imagenes'
-			});
+		// Empleados (como JSON string para que backend los reciba como array)
+		formDataToSend.append("empleados", JSON.stringify(formData.empleados));
 
-			// Enviar como multipart/form-data
-			await servicioService.crearServicio(formDataToSend, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
+		// Imágenes
+		imagenes.forEach((img) => {
+			formDataToSend.append("imagenes", img);
+		});
 
-			showAlert("El servicio ha sido guardado correctamente.", {
-				title: "¡Éxito!",
-				type: "success",
-				duration: 2000,
-			}).then(() => {
-				navigate("/admin/servicios");
-			});
+		await servicioService.crearServicio(formDataToSend, {
+			headers: {
+			"Content-Type": "multipart/form-data",
+			},
+		});
+
+		showAlert("El servicio ha sido guardado correctamente.", {
+			title: "¡Éxito!",
+			type: "success",
+			duration: 2000,
+		}).then(() => {
+			navigate("/admin/servicios");
+		});
 		} catch (error) {
-			console.error("Error al agregar servicio:", error);
-			showAlert("Error al agregar servicio", {
-				type: "error",
-				title: "Error",
-				duration: 2000,
-			});
+		console.error("Error al agregar servicio:", error);
+		showAlert("Error al agregar servicio", {
+			type: "error",
+			title: "Error",
+			duration: 2000,
+		});
 		}
 	};
 
 	const handleCancel = () => {
 		showAlert("Si cancelas, perderás los datos ingresados.", {
-			title: "¿Estás seguro?",
-			type: "warning",
-			showConfirmButton: true,
-			showCancelButton: true,
-			confirmButtonText: "Sí, cancelar",
-			cancelButtonText: "Continuar",
+		title: "¿Estás seguro?",
+		type: "warning",
+		showConfirmButton: true,
+		showCancelButton: true,
+		confirmButtonText: "Sí, cancelar",
+		cancelButtonText: "Continuar",
 		}).then((result) => {
-			if (result.isConfirmed) {
-				navigate("/admin/servicios");
-			}
+		if (result.isConfirmed) {
+			navigate("/admin/servicios");
+		}
 		});
 	};
 
@@ -338,6 +360,29 @@ const AgregarServicio = () => {
 					{errors.Descripcion && (
 						<p className="text-red-500 text-sm mt-1">{errors.Descripcion}</p>
 					)}
+				</div>
+
+				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
+					<h3 className="text-2xl text-black font-bold mb-2">
+						Empleados disponibles
+					</h3>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+						{empleadosActivos.map((empleado) => (
+						<label
+							key={empleado.Id_Empleados}
+							className="flex items-center space-x-2"
+						>
+							<input
+							type="checkbox"
+							checked={formData.empleados.includes(empleado.Id_Empleados)}
+							onChange={() => handleEmpleadoChange(empleado.Id_Empleados)}
+							/>
+							<span>
+							{empleado.Nombre} {empleado.Apellido ?? ""}
+							</span>
+						</label>
+						))}
+					</div>
 				</div>
 
 				{/* Imágenes */}
