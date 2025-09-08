@@ -330,7 +330,7 @@ header .intro-text {
 /* Services Section */
 #services {
 	padding: 100px 0;
-	background: linear-gradient(to right, #6372ff 0%, #5ca9fb 100%);
+	background: linear-gradient(to right,#D4AF37, #000000 100% );
 	color: #fff;
 }
 #services .service-desc {
@@ -342,7 +342,7 @@ header .intro-text {
 #services .section-title h2::after {
 	position: absolute;
 	content: "";
-	background: rgba(255, 255, 255, 0.3);
+	background: rgb(212, 206, 206);
 	height: 4px;
 	width: 60px;
 	bottom: 0;
@@ -479,11 +479,11 @@ header .intro-text {
 }
 /* Contact Section */
 #contact {
-	padding: 100px 0 60px;
-	background: linear-gradient(to right, #6372ff 0%, #5ca9fb 100%);
-	color: rgba(255, 255, 255, 0.75);
+	padding: 80px 0 60px;
+	background: linear-gradient(to right, #000000, #D4AF37 100%);
+	color: rgb(255, 255, 255);
 }
-#contact .section-title {
+#contact .section-title {	
 	margin-bottom: 40px;
 }
 #contact .section-title p {
@@ -500,7 +500,7 @@ header .intro-text {
 	content: "";
 	background: rgba(255, 255, 255, 0.3);
 	height: 4px;
-	width: 60px;
+	width: 30px;
 	bottom: 0;
 	left: 30px;
 }
@@ -535,7 +535,7 @@ label {
 }
 #contact .form-control {
 	display: block;
-	width: 100%;
+	width: 80%;
 	padding: 6px 12px;
 	font-size: 16px;
 	line-height: 1.42857143;

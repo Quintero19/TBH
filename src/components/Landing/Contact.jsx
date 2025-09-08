@@ -3,17 +3,41 @@ import PropTypes from "prop-types";
 import emailjs from "emailjs-com";
 import "../../styles/css/Contact.css";
 
-const Contact = ({ data }) => {
+const Contact = ({ data, adminEmail }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
+    honeypot: "" // Campo anti-spam
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [activeField, setActiveField] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [submitAttempts, setSubmitAttempts] = useState(0);
+
+  // Validación del formulario
+  const validateForm = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!formData.name.trim()) newErrors.name = "El nombre es obligatorio";
+    if (!formData.email.trim()) {
+      newErrors.email = "El email es obligatorio";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Formato de email inválido";
+    }
+    if (!formData.subject.trim()) newErrors.subject = "El asunto es obligatorio";
+    if (!formData.message.trim()) newErrors.message = "El mensaje es obligatorio";
+    if (formData.phone && !/^[0-9+\s()-]+$/.test(formData.phone)) {
+      newErrors.phone = "Formato de teléfono inválido";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,33 +54,93 @@ const Contact = ({ data }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Verificar honeypot
+    if (formData.honeypot) {
+      console.log("Spam detected");
+      return;
+    }
+    
+    // Verificar intentos máximos
+    if (submitAttempts >= 3) {
+      setSubmitStatus("max_attempts");
+      return;
+    }
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitStatus(null);
 
-    // Simulamos el envío del formulario (reemplazar con EmailJS)
-    setTimeout(() => {
-      emailjs
-        .sendForm(
-          "YOUR_SERVICE_ID",
-          "YOUR_TEMPLATE_ID",
-          e.target,
-          "YOUR_PUBLIC_KEY"
-        )
-        .then(
-          (result) => {
-            console.log(result.text);
-            setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-            setSubmitStatus("success");
-            setIsSubmitting(false);
-          },
-          (error) => {
-            console.log(error.text);
-            setSubmitStatus("error");
-            setIsSubmitting(false);
-          }
-        );
-    }, 1500);
+    // Datos para la plantilla del administrador
+    const adminTemplateParams = {
+      to_admin: adminEmail || "thebarberhouse2000@gmail.com",
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone || "No proporcionado",
+      subject: formData.subject,
+      message: formData.message,
+      date: new Date().toLocaleString('es-ES')
+    };
+
+    // Datos para la plantilla de confirmación al usuario
+    const userTemplateParams = {
+      to_email: formData.email,
+      from_name: "Equipo de Soporte",
+      user_name: formData.name,
+      subject: formData.subject,
+      date: new Date().toLocaleString('es-ES')
+    };
+
+    // Primero enviar notificación al administrador
+    emailjs.send(
+      "service_dp4dz9u",
+      "template_dmv5mqk",
+      adminTemplateParams,
+      "81YUzAZ_X-sFIiFIE"
+    )
+    .then(() => {
+      // Luego enviar confirmación al usuario
+      return emailjs.send(
+        "service_dp4dz9u",
+        "template_3f4ob34",
+        userTemplateParams,
+        "81YUzAZ_X-sFIiFIE"
+      );
+    })
+    .then(
+      (result) => {
+        console.log(result.text);
+        setFormData({ name: "", email: "", phone: "", subject: "", message: "", honeypot: "" });
+        setSubmitStatus("success");
+        setIsSubmitting(false);
+        setSubmitAttempts(0);
+        
+        // Limpiar localStorage después de envío exitoso
+        localStorage.removeItem('contactFormData');
+      },
+      (error) => {
+        console.log(error.text);
+        setSubmitStatus("error");
+        setIsSubmitting(false);
+        setSubmitAttempts(prev => prev + 1);
+      }
+    );
   };
+
+  // Persistencia de datos en localStorage
+  useEffect(() => {
+    localStorage.setItem('contactFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('contactFormData');
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+  }, []);
 
   return (
     <section id="contact" className="contact-section">
@@ -91,6 +175,21 @@ const Contact = ({ data }) => {
             </div>
             
             <form className="contact-form" onSubmit={handleSubmit}>
+              {/* Campo honeypot para protección contra spam */}
+              
+              <div style={{ opacity: 0, position: 'absolute', left: '-5000px' }}>
+                
+                <input
+                  type="text"
+                  id="honeypot"
+                  name="honeypot"
+                  tabIndex="-1"
+                  autoComplete="off"
+                  onChange={handleChange}
+                  value={formData.honeypot}
+                />
+              </div>
+              
               <div className="form-row">
                 <div className="input-group">
                   <div className="input-wrapper">
@@ -98,7 +197,7 @@ const Contact = ({ data }) => {
                       type="text"
                       id="name"
                       name="name"
-                      className={`form-input ${activeField === 'name' ? 'active' : ''}`}
+                      className={`form-input ${activeField === 'name' ? 'active' : ''} ${errors.name ? 'error' : ''}`}
                       placeholder=" "
                       required
                       onChange={handleChange}
@@ -108,9 +207,10 @@ const Contact = ({ data }) => {
                     />
                     <label htmlFor="name" className="form-label">
                       <i className="fas fa-user"></i>
-                      Nombre Completo
+                      Nombre Completo *
                     </label>
                     <div className="input-border"></div>
+                    {errors.name && <span className="error-message">{errors.name}</span>}
                   </div>
                 </div>
                 
@@ -120,7 +220,7 @@ const Contact = ({ data }) => {
                       type="email"
                       id="email"
                       name="email"
-                      className={`form-input ${activeField === 'email' ? 'active' : ''}`}
+                      className={`form-input ${activeField === 'email' ? 'active' : ''} ${errors.email ? 'error' : ''}`}
                       placeholder=" "
                       required
                       onChange={handleChange}
@@ -130,9 +230,10 @@ const Contact = ({ data }) => {
                     />
                     <label htmlFor="email" className="form-label">
                       <i className="fas fa-envelope"></i>
-                      Correo Electrónico
+                      Correo Electrónico *
                     </label>
                     <div className="input-border"></div>
+                    {errors.email && <span className="error-message">{errors.email}</span>}
                   </div>
                 </div>
               </div>
@@ -144,7 +245,7 @@ const Contact = ({ data }) => {
                       type="tel"
                       id="phone"
                       name="phone"
-                      className={`form-input ${activeField === 'phone' ? 'active' : ''}`}
+                      className={`form-input ${activeField === 'phone' ? 'active' : ''} ${errors.phone ? 'error' : ''}`}
                       placeholder=" "
                       onChange={handleChange}
                       onFocus={() => handleFocus('phone')}
@@ -156,6 +257,7 @@ const Contact = ({ data }) => {
                       Teléfono (Opcional)
                     </label>
                     <div className="input-border"></div>
+                    {errors.phone && <span className="error-message">{errors.phone}</span>}
                   </div>
                 </div>
                 
@@ -165,7 +267,7 @@ const Contact = ({ data }) => {
                       type="text"
                       id="subject"
                       name="subject"
-                      className={`form-input ${activeField === 'subject' ? 'active' : ''}`}
+                      className={`form-input ${activeField === 'subject' ? 'active' : ''} ${errors.subject ? 'error' : ''}`}
                       placeholder=" "
                       required
                       onChange={handleChange}
@@ -175,9 +277,10 @@ const Contact = ({ data }) => {
                     />
                     <label htmlFor="subject" className="form-label">
                       <i className="fas fa-tag"></i>
-                      Asunto
+                      Asunto *
                     </label>
                     <div className="input-border"></div>
+                    {errors.subject && <span className="error-message">{errors.subject}</span>}
                   </div>
                 </div>
               </div>
@@ -187,7 +290,7 @@ const Contact = ({ data }) => {
                   <textarea
                     name="message"
                     id="message"
-                    className={`form-input textarea ${activeField === 'message' ? 'active' : ''}`}
+                    className={`form-input textarea ${activeField === 'message' ? 'active' : ''} ${errors.message ? 'error' : ''}`}
                     rows="5"
                     placeholder=" "
                     required
@@ -198,9 +301,10 @@ const Contact = ({ data }) => {
                   />
                   <label htmlFor="message" className="form-label">
                     <i className="fas fa-comment-alt"></i>
-                    Tu Mensaje
+                    Tu Mensaje *
                   </label>
                   <div className="input-border"></div>
+                  {errors.message && <span className="error-message">{errors.message}</span>}
                 </div>
               </div>
               
@@ -226,7 +330,7 @@ const Contact = ({ data }) => {
               </button>
 
               {submitStatus === "success" && (
-                <div className="status-message success" data-aos="fade-up">
+                <div className="status-message success">
                   <div className="status-icon">
                     <i className="fas fa-check-circle"></i>
                   </div>
@@ -238,13 +342,25 @@ const Contact = ({ data }) => {
               )}
               
               {submitStatus === "error" && (
-                <div className="status-message error" data-aos="fade-up">
+                <div className="status-message error">
                   <div className="status-icon">
                     <i className="fas fa-exclamation-circle"></i>
                   </div>
                   <div className="status-content">
                     <h4>Error al Enviar</h4>
                     <p>Hubo un problema. Por favor, intenta nuevamente.</p>
+                  </div>
+                </div>
+              )}
+              
+              {submitStatus === "max_attempts" && (
+                <div className="status-message max_attempts">
+                  <div className="status-icon">
+                    <i className="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div className="status-content">
+                    <h4>Demasiados intentos</h4>
+                    <p>Por favor, espera unos minutos antes de intentar nuevamente.</p>
                   </div>
                 </div>
               )}
@@ -261,7 +377,7 @@ const Contact = ({ data }) => {
             </div>
             
             <div className="info-items">
-              <div className="info-item" data-aos="fade-left" data-aos-delay="100">
+              <div className="info-item">
                 <div className="info-icon">
                   <i className="fas fa-map-marker-alt"></i>
                 </div>
@@ -272,7 +388,7 @@ const Contact = ({ data }) => {
                 <div className="info-hover"></div>
               </div>
               
-              <div className="info-item" data-aos="fade-left" data-aos-delay="200">
+              <div className="info-item">
                 <div className="info-icon">
                   <i className="fas fa-phone"></i>
                 </div>
@@ -283,7 +399,7 @@ const Contact = ({ data }) => {
                 <div className="info-hover"></div>
               </div>
               
-              <div className="info-item" data-aos="fade-left" data-aos-delay="300">
+              <div className="info-item">
                 <div className="info-icon">
                   <i className="fas fa-envelope"></i>
                 </div>
@@ -294,19 +410,19 @@ const Contact = ({ data }) => {
                 <div className="info-hover"></div>
               </div>
               
-              <div className="info-item" data-aos="fade-left" data-aos-delay="400">
+              <div className="info-item">
                 <div className="info-icon">
                   <i className="fas fa-clock"></i>
                 </div>
                 <div className="info-text">
                   <h4>Horario de Atención</h4>
-                  <p>Lun - Vie: 8:00 AM - 6:00 PM</p>
+                  <p>9am a 9pm</p>
                 </div>
                 <div className="info-hover"></div>
               </div>
             </div>
             
-            <div className="social-links" data-aos="fade-up" data-aos-delay="500">
+            <div className="social-links">
               <h4>Síguenos en Redes Sociales</h4>
               <p>Mantente conectado con nosotros</p>
               <div className="social-icons">
@@ -318,12 +434,6 @@ const Contact = ({ data }) => {
                 </a>
                 <a href={data ? data.youtube : "/"} className="social-link youtube">
                   <i className="fab fa-youtube"></i>
-                </a>
-                <a href="#" className="social-link instagram">
-                  <i className="fab fa-instagram"></i>
-                </a>
-                <a href="#" className="social-link linkedin">
-                  <i className="fab fa-linkedin-in"></i>
                 </a>
               </div>
             </div>
@@ -343,17 +453,19 @@ Contact.propTypes = {
     twitter: PropTypes.string,
     youtube: PropTypes.string,
   }),
+  adminEmail: PropTypes.string
 };
 
 Contact.defaultProps = {
   data: {
-    address: "4321 California St, San Francisco, CA 12345",
-    phone: "+1 123 456 1234",
-    email: "info@company.com",
-    facebook: "/",
-    twitter: "/",
-    youtube: "/",
+    address: "carrera 36 b #102 c-11",
+    phone: "313323523",
+    email: "calle@ggasd",
+    facebook: "fb.com",
+    twitter: "twitter.com",
+    youtube: "youtube.com",
   },
+  adminEmail: "thebarberhouse2000@gmail.com"
 };
 
 export default Contact;

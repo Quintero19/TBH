@@ -7,5 +7,10 @@ export const publicCatProductoService = {
   obtenerCategoriasActivas: async () => {
     const res = await api.get(`${PUBLIC_URL}/activas`);
     return res.data;
+  },
+
+  obtenerProductosPorCategoria: async (idCategoria) => {
+    const res = await api.get(`${PUBLIC_URL}/${idCategoria}/productos`);
+    return res.data;
   }
 };
