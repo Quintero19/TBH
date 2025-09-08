@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { agendamientosService } from "@/service/agendamiento.service";
-import { empleadoService } from "@/service/empleado.service";
+import { publicEmpleadoService } from "@/service/publicEmpleado.service";
 import { showAlert } from "@/components/AlertProvider";
-import Button from "@/components/Buttons/Button";
 
 const AgendarModal = ({ cliente, onClose }) => {
   const [barberos, setBarberos] = useState([]);
@@ -16,13 +16,23 @@ const AgendarModal = ({ cliente, onClose }) => {
     serviciosAgendados: [],
   });
 
+  // Debug: Log formData changes
+  useEffect(() => {
+    console.log("🔍 Debug - formData actualizado:", formData);
+  }, [formData]);
+
   useEffect(() => {
     const cargarBarberos = async () => {
       try {
-        const b = await empleadoService.obtenerEmpleadosActivos();
+        const b = await publicEmpleadoService.obtenerEmpleadosActivos();
         setBarberos(b?.data || b || []);
       } catch (err) {
         console.error("Error cargando barberos:", err);
+        showAlert("Error al cargar la lista de barberos. Por favor, inténtalo de nuevo.", {
+          type: "error",
+          title: "Error",
+          duration: 3000,
+        });
       }
     };
     cargarBarberos();
@@ -35,12 +45,19 @@ const AgendarModal = ({ cliente, onClose }) => {
         return;
       }
       try {
-        const res = await empleadoService.obtenerServiciosEmpleado(
+        const res = await publicEmpleadoService.obtenerServiciosEmpleado(
           formData.Id_Empleados
         );
-        setServiciosEmpleado(res.servicios || []);
+        const servicios = res.servicios || [];
+        setServiciosEmpleado(servicios);
       } catch (err) {
         console.error("Error cargando servicios del empleado:", err);
+        setServiciosEmpleado([]);
+        showAlert("Error al cargar los servicios del barbero. Por favor, inténtalo de nuevo.", {
+          type: "error",
+          title: "Error",
+          duration: 3000,
+        });
       }
     };
     cargarServiciosEmpleado();
@@ -73,17 +90,24 @@ const AgendarModal = ({ cliente, onClose }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
+    console.log("🔍 Debug - handleChange:", { name, value, checked });
 
     if (name === "serviciosAgendados") {
       let nuevosServicios = [...formData.serviciosAgendados];
+      console.log("🔍 Debug - Servicios actuales:", nuevosServicios);
+      
       if (checked) {
         nuevosServicios.push({ Id_Servicios: Number(value) });
+        console.log("🔍 Debug - Agregando servicio:", { Id_Servicios: Number(value) });
       } else {
         nuevosServicios = nuevosServicios.filter(
           (s) => s.Id_Servicios !== Number(value)
         );
+        console.log("🔍 Debug - Removiendo servicio:", Number(value));
       }
+      
+      console.log("🔍 Debug - Nuevos servicios:", nuevosServicios);
       setFormData((prev) => ({ ...prev, serviciosAgendados: nuevosServicios }));
       validateField("serviciosAgendados", nuevosServicios);
     } else {
@@ -178,15 +202,24 @@ const AgendarModal = ({ cliente, onClose }) => {
           <div>
             <label className="font-semibold block mb-1">Servicios *</label>
             <div className="space-y-2 max-h-40 overflow-y-auto border p-2 rounded bg-gray-50">
-              {serviciosEmpleado.length === 0 ? (
-                <p className="text-gray-500 text-sm">
+              {!formData.Id_Empleados ? (
+                <p key="no-barbero" className="text-gray-500 text-sm">
                   Seleccione un barbero para ver sus servicios
                 </p>
+              ) : serviciosEmpleado.length === 0 ? (
+                <div key="no-servicios" className="text-center py-4">
+                  <p className="text-orange-600 text-sm font-medium">
+                    ⚠️ Este barbero no tiene servicios disponibles
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    Contacte al administrador para asignar servicios
+                  </p>
+                </div>
               ) : (
-                serviciosEmpleado.map((s) => (
+                serviciosEmpleado.map((s, index) => (
                   <label
-                    key={s.Id_Servicios}
-                    className="flex items-center space-x-2 hover:bg-yellow-50 p-1 rounded"
+                    key={s.Id_Servicios || `servicio-${index}`}
+                    className="flex items-center space-x-2 hover:bg-yellow-50 p-1 rounded cursor-pointer"
                   >
                     <input
                       type="checkbox"
@@ -196,7 +229,7 @@ const AgendarModal = ({ cliente, onClose }) => {
                         (srv) => srv.Id_Servicios === s.Id_Servicios
                       )}
                       onChange={handleChange}
-                      className="accent-yellow-500"
+                      className="accent-yellow-500 cursor-pointer"
                     />
                     <span className="text-black">
                       {s.Nombre} -{" "}
@@ -234,6 +267,13 @@ const AgendarModal = ({ cliente, onClose }) => {
       </div>
     </div>
   );
+};
+
+AgendarModal.propTypes = {
+  cliente: PropTypes.shape({
+    Id_Cliente: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default AgendarModal;
