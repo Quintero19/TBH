@@ -15,6 +15,11 @@ export const servicioService = {
 		return res.data;
 	},
 
+	obtenerServiciosActivos: async () => {
+		const res = await api.get(`${SERVICIO_URL}/activos`);
+		return res.data;
+	},
+
 	// Obtener un servicio por ID
 	obtenerServicioPorId: async (id) => {
 		const res = await api.get(`${SERVICIO_URL}/${id}`);

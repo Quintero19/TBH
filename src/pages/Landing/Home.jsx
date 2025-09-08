@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { About } from "../../components/Landing/About";
 import Contact from "../../components/Landing/Contact";
 import { Features } from "../../components/Landing/Features";
-import { Gallery } from "../../components/Landing/Gallery";
+import ServicesLanding  from "../../components/Landing/ServicesLanding";
 import { Header } from "../../components/Landing/Header";
 import { NewNavigation } from "../../components/Landing/NewNavigation";
 import Services from "../../components/Landing/Services";
@@ -83,8 +83,8 @@ const Home = () => {
 				data-aos="zoom-in"
 				data-aos-delay="400"
 			/>
-			<Gallery
-				data={landingPageData.Gallery}
+			<ServicesLanding
+				data={landingPageData.ServicesLanding}
 				data-aos="zoom-in"
 				data-aos-delay="500"
 			/>
