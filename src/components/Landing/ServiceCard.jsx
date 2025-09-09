@@ -17,6 +17,7 @@ const ServiceCard = ({ servicio }) => {
       return;
     }
 
+    console.log("🔍 Usuario obtenido en ServiceCard:", user);
     setCliente(user); // 👈 cliente autenticado
     setShowModal(true);
   };
