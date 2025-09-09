@@ -50,6 +50,7 @@ const AgendarModal = ({ cliente, onClose }) => {
         );
         const servicios = res.servicios || [];
         setServiciosEmpleado(servicios);
+        console.log(servicios)
       } catch (err) {
         console.error("Error cargando servicios del empleado:", err);
         setServiciosEmpleado([]);
@@ -91,30 +92,37 @@ const AgendarModal = ({ cliente, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
-    console.log("🔍 Debug - handleChange:", { name, value, checked });
 
     if (name === "serviciosAgendados") {
-      let nuevosServicios = [...formData.serviciosAgendados];
-      console.log("🔍 Debug - Servicios actuales:", nuevosServicios);
-      
-      if (checked) {
-        nuevosServicios.push({ Id_Servicios: Number(value) });
-        console.log("🔍 Debug - Agregando servicio:", { Id_Servicios: Number(value) });
-      } else {
-        nuevosServicios = nuevosServicios.filter(
-          (s) => s.Id_Servicios !== Number(value)
-        );
-        console.log("🔍 Debug - Removiendo servicio:", Number(value));
-      }
-      
-      console.log("🔍 Debug - Nuevos servicios:", nuevosServicios);
-      setFormData((prev) => ({ ...prev, serviciosAgendados: nuevosServicios }));
-      validateField("serviciosAgendados", nuevosServicios);
+      setFormData((prev) => {
+        let nuevosServicios;
+        if (checked) {
+          // Agregar si no está
+          nuevosServicios = [
+            ...prev.serviciosAgendados,
+            { Id_Servicio: Number(value) },
+          ];
+        } else {
+          // Remover si está
+          nuevosServicios = prev.serviciosAgendados.filter(
+            (s) => s.Id_Servicio !== Number(value)
+          );
+        }
+
+        // Validación del campo
+        validateField("serviciosAgendados", nuevosServicios);
+
+        return { ...prev, serviciosAgendados: nuevosServicios };
+      });
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      validateField(name, value);
+      setFormData((prev) => {
+        const updated = { ...prev, [name]: value };
+        validateField(name, value);
+        return updated;
+      });
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -218,15 +226,15 @@ const AgendarModal = ({ cliente, onClose }) => {
               ) : (
                 serviciosEmpleado.map((s, index) => (
                   <label
-                    key={s.Id_Servicios || `servicio-${index}`}
+                    key={s.Id_Servicio || `servicio-${index}`}
                     className="flex items-center space-x-2 hover:bg-yellow-50 p-1 rounded cursor-pointer"
                   >
                     <input
                       type="checkbox"
                       name="serviciosAgendados"
-                      value={s.Id_Servicios}
+                      value={s.Id_Servicio}
                       checked={formData.serviciosAgendados.some(
-                        (srv) => srv.Id_Servicios === s.Id_Servicios
+                        (srv) => srv.Id_Servicio === s.Id_Servicio
                       )}
                       onChange={handleChange}
                       className="accent-yellow-500 cursor-pointer"
