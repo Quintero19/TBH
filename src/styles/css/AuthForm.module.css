@@ -283,7 +283,7 @@ form {
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+	background: linear-gradient(135deg, #cfcbcb, #000000);
 	padding: 20px;
 }
 
@@ -343,7 +343,7 @@ form {
 }
 
 .input:focus {
-	border-color: #7494ec;
+	border-color: #000000;
 }
 
 .icon {
@@ -355,7 +355,7 @@ form {
 }
 
 .button {
-	background: #7494ec;
+	background: #000000;
 	color: #fff;
 	padding: 12px;
 	border: none;
@@ -367,7 +367,7 @@ form {
 }
 
 .button:hover {
-	background: #5c7ee3;
+	background: #343435;
 }
 
 .links {
@@ -376,7 +376,7 @@ form {
 
 .backLink {
 	font-size: 14px;
-	color: #7494ec;
+	color: #020202;
 	text-decoration: none;
 }
 
@@ -405,6 +405,6 @@ form {
 }
 
 .socialIcons a:hover {
-	border-color: #7494ec;
-	color: #7494ec;
+	border-color: #000000;
+	color: #000000;
 }

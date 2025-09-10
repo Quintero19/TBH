@@ -61,6 +61,8 @@ import AgregarAgendamiento from "../pages/Admin/Servicios/Agendamiento/AgregarAg
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AgregarDevolucion from "../pages/Admin/Usuarios/Ventas/Devoluciones/AgregarDevolucion"
+import ResetPassword from "../pages/Auth/ResetPassword"
+
 function App() {
 	return (
 		<Routes>
@@ -69,6 +71,9 @@ function App() {
 			<Route path="/login" element={<AuthForm />} />
 			<Route path="/rcp" element={<RecoverPassword />} />
 
+			
+			<Route path="/reset-password/:token" element={<ResetPassword />} />
+	
 			{/* Rutas privadas de usuario normal */}
 			
 			<Route 
