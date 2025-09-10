@@ -11,7 +11,7 @@ export default function ActivateAccount() {
   useEffect(() => {
     const activateAccount = async () => {
       try {
-        const res = await api.post(`/auth/activate/${token}`);
+        const res = await api.post(`api/auth/activate/${token}`);
         
 
         if (res.ok) {
