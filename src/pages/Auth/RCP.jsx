@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import styles from "../../styles/css/AuthForm.module.css";
 import { showAlert } from "@/components/AlertProvider";
+import api from "../utils/api";
 
 export default function RecoverPassword() {
 	const [correo, setCorreo] = useState("");
@@ -15,10 +16,8 @@ export default function RecoverPassword() {
 		setMensaje("");
 
 		try {
-			const res = await fetch("http://localhost:3000/api/auth/forgot-password", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ Correo: correo }),
+			const res = await api.post("api/auth/forgot-password", {
+				Correo: correo,
 			});
 
 			const data = await res.json();
@@ -35,7 +34,7 @@ export default function RecoverPassword() {
 				showAlert(`${data.message || "Error al enviar el correo"}`);
 			}
 		} catch (error) {
-			showAlert("Error en el servidor. Intenta más tarde.");
+			showAlert("Error en el servidor. Intenta más tarde.", error);
 		} finally {
 			setLoading(false);
 		}
