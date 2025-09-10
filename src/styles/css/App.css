@@ -13,13 +13,13 @@
 }
 
 .swal-confirm-button {
-	background-color: #d724dd !important;
+	background-color: #2430dd !important;
 	color: white !important;
 	border: none;
 }
 
 .swal-confirm-button:hover {
-	background-color: #af1e9c !important;
+	background-color: #4c6cec !important;
 }
 
 @media screen and (max-width: 400px) {
@@ -79,7 +79,7 @@
 }
 
 input:checked + .slider {
-	background-color: #3af321;
+	background-color: #2fca1b;
 }
 
 input:checked + .slider:before {

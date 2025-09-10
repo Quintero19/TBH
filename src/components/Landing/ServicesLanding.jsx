@@ -36,7 +36,7 @@ const ServicesLanding = () => {
   }
 
   return (
-    <section className="public-categories">
+    <section className="public-categories" id="portfolio">
       <h2>Servicios</h2>
       <div className="categories-grid">
         {servicios.length > 0 ? (
