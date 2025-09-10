@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "../../styles/css/AuthForm.module.css";
 import { showAlert } from "@/components/AlertProvider";
+import api from "../utils/api";
+
 
 export default function ResetPassword() {
 	const { token } = useParams(); // token viene de la URL
@@ -24,10 +26,8 @@ export default function ResetPassword() {
 		setLoading(true);
 
 		try {
-			const res = await fetch(`http://localhost:3000/api/auth/reset-password/${token}`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ nuevaPassword: password }),
+			const res = await api.post(`/auth/reset-password/${token}`, {
+				nuevaPassword: password,
 			});
 
 			const data = await res.json();
@@ -39,7 +39,7 @@ export default function ResetPassword() {
 				showAlert(`${data.message || "Error al restablecer la contraseña"}`);
 			}
 		} catch (error) {
-			showAlert("Error en el servidor. Intenta más tarde.");
+			showAlert("Error en el servidor. Intenta más tarde." , error);
 		} finally {
 			setLoading(false);
 		}

@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "../utils/api";
+
 
 
 export default function ActivateAccount() {
@@ -9,8 +11,8 @@ export default function ActivateAccount() {
   useEffect(() => {
     const activateAccount = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/auth/activate/${token}`);
-        const data = await res.json();
+        const res = await api.post(`/auth/activate/${token}`);
+        
 
         if (res.ok) {
           setStatus("success");
@@ -18,7 +20,7 @@ export default function ActivateAccount() {
           setStatus("error");
         }
       } catch (err) {
-        setStatus("error");
+        setStatus("error", err);
       }
     };
 
