@@ -16,7 +16,7 @@ export default function RecoverPassword() {
 		setMensaje("");
 
 		try {
-			const res = await api.post("api/auth/forgot-password", {
+			const res = await api.post("auth/forgot-password", {
 				Correo: correo,
 			});
 
