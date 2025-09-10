@@ -13,7 +13,15 @@ const EditarServicios = () => {
 	const [imagenesNuevas, setImagenesNuevas] = useState([]);
 	const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
 	const [empleadosActivos, setEmpleadosActivos] = useState([]);
-	const maxImagenes = 3;
+	const maxImagenes = 1;
+
+	// Función auxiliar para obtener la URL de la imagen
+	const getImageUrl = (imagen) => {
+		if (typeof imagen === 'string') {
+			return imagen;
+		}
+		return imagen?.URL || imagen?.url || imagen?.Url || imagen?.imagen_url || imagen?.ruta || imagen?.path || imagen?.imagen || '';
+	};
 
 	const [formData, setFormData] = useState({
 		Nombre: "",
@@ -50,10 +58,8 @@ const EditarServicios = () => {
 
 				// Cargar imágenes existentes - las imágenes vienen en servicioData.Imagenes
 				if (servicioData.Imagenes && Array.isArray(servicioData.Imagenes)) {
-					console.log("Imágenes encontradas:", servicioData.Imagenes);
 					setImagenesExistentes(servicioData.Imagenes);
 				} else {
-					console.log("No se encontraron imágenes en el servicio");
 					setImagenesExistentes([]);
 				}
 			} catch (error) {
@@ -145,9 +151,8 @@ const EditarServicios = () => {
 				break;
 
 			case "imagenes": {
-				const totalImages = imagenesExistentes.length + imagenesNuevas.length;
-				if (totalImages === 0) {
-					newErrors[name] = "Debes subir al menos una imagen";
+				if (value.length === 0) {
+					newErrors[name] = "Debes subir una imagen del servicio";
 				} else {
 					delete newErrors[name];
 				}
@@ -230,7 +235,7 @@ const EditarServicios = () => {
 		// Validate images
 		const totalImages = imagenesExistentes.length + imagenesNuevas.length;
 		if (totalImages === 0) {
-			setErrors(prev => ({ ...prev, imagenes: "Debes tener al menos una imagen" }));
+			setErrors(prev => ({ ...prev, imagenes: "Debes subir una imagen del servicio" }));
 		}
 
 		if (missingFields.length > 0 || Object.keys(errors).length > 0 || totalImages === 0) {
@@ -460,27 +465,32 @@ const EditarServicios = () => {
 				{/* Imágenes */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">
-						Imágenes{" "}
+						Imagen del Servicio{" "}
 						{errors.imagenes && <span className="text-red-500">*</span>}
 					</h3>
 					
 					{/* Imágenes existentes */}
 					{imagenesExistentes.length > 0 && (
 						<div className="mb-4">
-							<h4 className="text-lg font-semibold mb-2">Imágenes actuales:</h4>
+							<h4 className="text-lg font-semibold mb-2">Imagen actual:</h4>
 							<div className="flex flex-wrap justify-start gap-4">
 								{imagenesExistentes.map((imagen, idx) => (
 									<div
 										key={`existing-${idx}`}
-										className="relative w-[200px] h-[200px] rounded overflow-hidden border shadow-md"
+										className="relative w-[200px] h-[200px] rounded overflow-hidden border shadow-md bg-gray-100"
 									>
 										<img
-											src={imagen.url || imagen.Url || imagen.imagen_url || imagen}
+											src={getImageUrl(imagen)}
 											alt={`imagen-existente-${idx}`}
 											className="object-cover w-full h-full"
 											onError={(e) => {
 												console.error("Error cargando imagen:", imagen);
 												e.target.style.display = 'none';
+												// Mostrar mensaje de error
+												const errorDiv = document.createElement('div');
+												errorDiv.className = 'flex items-center justify-center w-full h-full text-red-500 text-sm';
+												errorDiv.textContent = 'Error cargando imagen';
+												e.target.parentNode.appendChild(errorDiv);
 											}}
 										/>
 										<div className="absolute top-1 right-1 z-20">
@@ -499,7 +509,7 @@ const EditarServicios = () => {
 					{/* Imágenes nuevas */}
 					{imagenesNuevas.length > 0 && (
 						<div className="mb-4">
-							<h4 className="text-lg font-semibold mb-2">Imágenes nuevas:</h4>
+							<h4 className="text-lg font-semibold mb-2">Nueva imagen:</h4>
 							<div className="flex flex-wrap justify-start gap-4">
 								{imagenesNuevas.map((file, idx) => (
 									<div
@@ -535,12 +545,11 @@ const EditarServicios = () => {
 							disabled={imagenesExistentes.length + imagenesNuevas.length >= maxImagenes}
 						>
 							<div className="flex items-center gap-2">
-								Seleccionar Imágenes
+								Seleccionar Imagen
 							</div>
 						</Button>
 						<input
 							type="file"
-							multiple
 							accept="image/*"
 							onChange={handleImageChange}
 							disabled={imagenesExistentes.length + imagenesNuevas.length >= maxImagenes}
@@ -548,7 +557,7 @@ const EditarServicios = () => {
 						/>
 					</div>
 					<small className="text-gray-500 text-sm block mt-2">
-						Máximo {maxImagenes} imágenes. Actualmente: {imagenesExistentes.length + imagenesNuevas.length}/{maxImagenes}
+						Máximo {maxImagenes} imagen. Actualmente: {imagenesExistentes.length + imagenesNuevas.length}/{maxImagenes}
 					</small>
 				</div>
 

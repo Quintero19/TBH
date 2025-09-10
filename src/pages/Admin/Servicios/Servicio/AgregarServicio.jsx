@@ -10,7 +10,7 @@ const AgregarServicio = () => {
 	const [errors, setErrors] = useState({});
 	const [imagenes, setImagenes] = useState([]);
 	const [empleadosActivos, setEmpleadosActivos] = useState([]);
-	const maxImagenes = 3;
+	const maxImagenes = 1;
 
 	const [formData, setFormData] = useState({
 		Nombre: "",
@@ -98,8 +98,8 @@ const AgregarServicio = () => {
 			}
 			break;
 		case "imagenes":
-			if (imagenes.length === 0) {
-			newErrors[name] = "Debes subir al menos una imagen";
+			if (value.length === 0) {
+			newErrors[name] = "Debes subir una imagen del servicio";
 			} else {
 			delete newErrors[name];
 			}
@@ -168,7 +168,7 @@ const AgregarServicio = () => {
 		});
 
 		if (imagenes.length === 0) {
-		newErrors.imagenes = "Debes subir al menos una imagen";
+		newErrors.imagenes = "Debes subir una imagen del servicio";
 		}
 
 		setErrors(newErrors);
@@ -388,7 +388,7 @@ const AgregarServicio = () => {
 				{/* Imágenes */}
 				<div className="p-7 bg-white shadow border-2 border-gray-200 rounded-lg md:col-span-2 m-7 mt-2">
 					<h3 className="text-2xl text-black font-bold mb-2">
-						Imágenes{" "}
+						Imagen del Servicio{" "}
 						{errors.imagenes && <span className="text-red-500">*</span>}
 					</h3>
 					<div className="flex flex-wrap justify-start gap-4 mb-4">
@@ -422,12 +422,11 @@ const AgregarServicio = () => {
 							disabled={imagenes.length >= maxImagenes}
 						>
 							<div className="flex items-center gap-2">
-								Seleccionar Imágenes
+								Seleccionar Imagen
 							</div>
 						</Button>
 						<input
 							type="file"
-							multiple
 							accept="image/*"
 							onChange={handleImageChange}
 							disabled={imagenes.length >= maxImagenes}

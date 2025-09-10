@@ -6,7 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { empleadoService } from "@/service/empleado.service";
 import { rolService } from "@/service/roles.service";
 import { clienteService } from "@/service/clientes.service";
-import { showAlert } from "@/components/AlertProvider";
+import { 
+	showAlert, 
+	showLoadingAlert, 
+	closeAlert 
+} from "@/components/AlertProvider";
 import { ventasService } from "@/service/ventas.service";
 import { productoService } from "@/service/productos.service";
 import { servicioService } from "@/service/serviciosService";
@@ -651,7 +655,9 @@ const AgregarVenta = () => {
 				return;
 			}
 
+			showLoadingAlert("Registrando Venta...");
 			await ventasService.crearVenta(ventaData);
+			closeAlert();
 
 			await showAlert("Venta registrada exitosamente", {
 				type: "success",
@@ -660,6 +666,7 @@ const AgregarVenta = () => {
 
 			navigate("/admin/ventas");
 		} catch (error) {
+			closeAlert();
 			const mensaje =
 				error.response?.data?.message || "Error al registrar la venta";
 			await showAlert(mensaje, {
