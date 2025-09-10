@@ -422,7 +422,7 @@ const Contact = ({ data, adminEmail }) => {
               </div>
             </div>
             
-            <div className="social-links">
+            {/* <div className="social-links">
               <h4>Síguenos en Redes Sociales</h4>
               <p>Mantente conectado con nosotros</p>
               <div className="social-icons">
@@ -436,7 +436,7 @@ const Contact = ({ data, adminEmail }) => {
                   <i className="fab fa-youtube"></i>
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

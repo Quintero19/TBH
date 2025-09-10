@@ -62,6 +62,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout";
 import AgregarDevolucion from "../pages/Admin/Usuarios/Ventas/Devoluciones/AgregarDevolucion"
 import ResetPassword from "../pages/Auth/ResetPassword"
+import ActivateAccount from "../pages/Auth/ActivateAccount";
 
 function App() {
 	return (
@@ -73,6 +74,7 @@ function App() {
 
 			
 			<Route path="/reset-password/:token" element={<ResetPassword />} />
+			<Route path="/activate/:token" element={<ActivateAccount />} />
 	
 			{/* Rutas privadas de usuario normal */}
 			

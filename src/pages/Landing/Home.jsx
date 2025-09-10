@@ -84,6 +84,7 @@ const Home = () => {
 				data-aos-delay="400"
 			/>
 			<ServicesLanding
+				id="portfolio"
 				data={landingPageData.ServicesLanding}
 				data-aos="zoom-in"
 				data-aos-delay="500"
