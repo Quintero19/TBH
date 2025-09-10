@@ -13,13 +13,13 @@
 }
 
 .swal-confirm-button {
-	background-color: #2563eb !important;
+	background-color: #d724dd !important;
 	color: white !important;
 	border: none;
 }
 
 .swal-confirm-button:hover {
-	background-color: #1e40af !important;
+	background-color: #af1e9c !important;
 }
 
 @media screen and (max-width: 400px) {
@@ -79,7 +79,7 @@
 }
 
 input:checked + .slider {
-	background-color: #2196f3;
+	background-color: #3af321;
 }
 
 input:checked + .slider:before {
@@ -129,9 +129,9 @@ input:checked + .slider:before {
 
 .form input:focus,
 .form select:focus {
-  border-color: #4a90e2;
+  border-color: #000000;
   outline: none;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.4);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
 /* Contenedor de botones */

@@ -43,13 +43,13 @@ p.intro {
 	line-height: 24px;
 }
 a {
-	color: #608dfd;
+	color: #f5042c;
 	font-weight: 400;
 }
 a:hover,
 a:focus {
 	text-decoration: none;
-	color: #608dfd;
+	color: #ec00d9;
 }
 ul,
 ol {
@@ -144,7 +144,7 @@ hr {
 	bottom: -1px !important;
 	width: 100% !important;
 	height: 2px !important;
-	background: linear-gradient(to right, #6372ff 0%, #5ca9fb 100%) !important;
+	background: linear-gradient(to right, #a1ff63 0%, #5ca9fb 100%) !important;
 	content: "" !important;
 	transition: width 0.2s !important;
 }
@@ -154,10 +154,10 @@ hr {
 .navbar-default .navbar-toggle:hover,
 .navbar-default .navbar-toggle:focus {
 	background-color: #fff;
-	border-color: #608dfd;
+	border-color: #a7fd60;
 }
 .navbar-default .navbar-toggle:hover > .icon-bar {
-	background-color: #608dfd;
+	background-color: #7ffd60;
 }
 .section-title {
 	margin-bottom: 70px;
@@ -171,7 +171,7 @@ hr {
 .section-title h2::after {
 	position: absolute;
 	content: "";
-	background: linear-gradient(to right, #5ca9fb 0%, #6372ff 100%);
+	background: linear-gradient(to right, #e7ab3c 0%, #ffd102 100%);
 	height: 4px;
 	width: 60px;
 	bottom: 0;
@@ -185,8 +185,8 @@ hr {
 	font-family: "Raleway", sans-serif;
 	text-transform: uppercase;
 	color: #fff;
-	background-color: #5ca9fb;
-	background-image: linear-gradient(to right, #5ca9fb 0%, #6372ff 100%);
+	background-color: #72fd00;
+	background-image: linear-gradient(to right, #050505 0%, #525253 100%);
 	padding: 14px 34px;
 	letter-spacing: 1px;
 	margin: 0 15px;
@@ -203,7 +203,7 @@ hr {
 .btn-custom.active {
 	color: #fff;
 	background-image: none;
-	background-color: #6372ff;
+	background-color: #87ff63;
 }
 .btn:active,
 .btn.active {
@@ -249,7 +249,7 @@ a:focus,
 }
 .intro h1 span {
 	font-weight: 800;
-	color: #5ca9fb;
+	color: #f8d50d;
 }
 .intro p {
 	color: #fff;
@@ -277,7 +277,7 @@ header .intro-text {
 	height: 100px;
 	padding: 30px 0;
 	border-radius: 50%;
-	background: linear-gradient(to right, #6372ff 0%, #5ca9fb 100%);
+	background: linear-gradient(to right, #e9d358 0%, #f87901 100%);
 	box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.05);
 }
 /* About Section */
@@ -296,7 +296,7 @@ header .intro-text {
 #about h2::after {
 	position: absolute;
 	content: "";
-	background: linear-gradient(to right, #5ca9fb 0%, #6372ff 100%);
+	background: linear-gradient(to right,#e9d358 0%, #f87901 100%);
 	height: 4px;
 	width: 60px;
 	bottom: 0;
@@ -311,7 +311,7 @@ header .intro-text {
 #about .about-text li:before {
 	content: "\f00c";
 	font-family: "FontAwesome", sans-serif;
-	color: #5ca9fb;
+	color: #ec9a02;
 	font-size: 11px;
 	font-weight: 300;
 	padding-right: 8px;
