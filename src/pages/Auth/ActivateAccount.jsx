@@ -12,7 +12,6 @@ export default function ActivateAccount() {
     const activateAccount = async () => {
       try {
         const res = await api.get(`api/auth/activate/${token}`);
-        
 
         if (res.ok) {
           setStatus("success");
