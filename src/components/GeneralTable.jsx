@@ -239,7 +239,7 @@ const GeneralTable = ({
 
 												{title !== "Compras" &&
 													title !== "Ventas" &&
-														title !== "Usuarios" &&
+														// title !== "Usuarios" &&
 													(canDelete ? canDelete(row) : true) && (
 														<Button
 															className="red"
