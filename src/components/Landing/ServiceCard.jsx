@@ -25,6 +25,7 @@ const ServiceCard = ({ servicio }) => {
   return (
     <>
       <div className="category-card gold-shine">
+        <h3>{servicio.Nombre}</h3>
         {servicio.Imagenes && servicio.Imagenes.length > 0 && (
           <img
             src={servicio.Imagenes[0].URL}
@@ -33,7 +34,7 @@ const ServiceCard = ({ servicio }) => {
           />
         )}
 
-        <h3>{servicio.Nombre}</h3>
+
         <p>{servicio.Descripcion}</p>
 
         <div className="product-details">

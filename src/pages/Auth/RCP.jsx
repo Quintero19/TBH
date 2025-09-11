@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import styles from "../../styles/css/AuthForm.module.css";
 import { showAlert } from "@/components/AlertProvider";
-import api from "../utils/api";
+import api from "@/utils/api";
 
 export default function RecoverPassword() {
 	const [correo, setCorreo] = useState("");

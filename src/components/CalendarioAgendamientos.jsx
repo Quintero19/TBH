@@ -11,7 +11,6 @@ const CalendarioAgendamientos = ({ eventos, onSelectFecha }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
 
   const handleDateClick = (info) => {
-    console.log("🔍 Fecha seleccionada:", info.dateStr);
     setFechaSeleccionada(info.dateStr);
     onSelectFecha(info.dateStr);
   };
@@ -115,7 +114,6 @@ const CalendarioAgendamientos = ({ eventos, onSelectFecha }) => {
         dayCellClassNames={(info) => {
           const dateStr = info.date.toISOString().split('T')[0];
           const isSelected = fechaSeleccionada === dateStr;
-          console.log("🔍 Comparando:", dateStr, "con seleccionada:", fechaSeleccionada, "es seleccionado:", isSelected);
           return isSelected ? 'fc-day-selected' : '';
         }}
         eventDisplay="block"

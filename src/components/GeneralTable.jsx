@@ -268,7 +268,7 @@ const GeneralTable = ({
 													)}
 													
 												{/* Botón de factura PDF para todas las ventas */}
-												{title === "Ventas" && (
+												{title === "Ventas" || title === "Compras" && (
 													<Button
 														className="purple"
 														onClick={() => rest.onGenerarFactura(row)}

@@ -13,6 +13,11 @@ export const comprasService = {
 		return res.data;
 	},
 
+	obtenerCompraPorId: async (id) => {
+		const res = await api.get(`${USER_URL}/${id}`);
+		return res.data;
+	},
+
 	cambiarEstadoCompra: async (id) => {
 		const res = await api.put(`${USER_URL}/estado/${id}`);
 		return res.data;

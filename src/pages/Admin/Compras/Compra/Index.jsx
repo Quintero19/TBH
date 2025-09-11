@@ -3,6 +3,8 @@ import GeneralTable from "@/components/GeneralTable";
 import { comprasService } from "@/service/compras.service";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const Compras = () => {
 	const [compras, setCompras] = useState([]);
@@ -256,6 +258,218 @@ const Compras = () => {
 
 	/* ──────────────────────────────────── */
 
+	/* ─────── Generar Factura PDF ──────── */
+	const generarFacturaPDF = async (compra) => {
+		try {
+			// 1. Obtener ID limpio (quitamos prefijo COM_)
+			const compraId = compra.Id_Compras.replace("COM_", "");
+			const compraCompleta = await comprasService.obtenerCompraPorId(compraId);
+
+			if (!compraCompleta?.data) {
+				throw new Error("No se pudieron obtener los datos de la compra");
+			}
+
+			const datosCompra = compraCompleta.data;
+
+			// 2. Crear el HTML de la factura
+			const contenidoHTML = generarHTMLFacturaCompra(datosCompra);
+
+			// 3. Crear un elemento temporal
+			const tempDiv = document.createElement("div");
+			tempDiv.innerHTML = contenidoHTML;
+			tempDiv.style.position = "absolute";
+			tempDiv.style.left = "-9999px";
+			tempDiv.style.top = "0";
+			tempDiv.style.width = "800px";
+			tempDiv.style.backgroundColor = "white";
+			tempDiv.style.padding = "20px";
+			document.body.appendChild(tempDiv);
+
+			try {
+				// 4. Convertir HTML a canvas
+				const canvas = await html2canvas(tempDiv, {
+					scale: 2,
+					useCORS: true,
+					allowTaint: true,
+					backgroundColor: "#ffffff",
+					width: 800,
+					height: tempDiv.scrollHeight,
+				});
+
+				// 5. Crear PDF
+				const pdf = new jsPDF("p", "mm", "a4");
+				const imgWidth = 210;
+				const pageHeight = 295;
+				const imgHeight = (canvas.height * imgWidth) / canvas.width;
+				let heightLeft = imgHeight;
+				let position = 0;
+
+				pdf.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
+				heightLeft -= pageHeight;
+
+				while (heightLeft >= 0) {
+					position = heightLeft - imgHeight;
+					pdf.addPage();
+					pdf.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
+					heightLeft -= pageHeight;
+				}
+
+				// 6. Descargar
+				const fileName = `Compra_${datosCompra.Id_Compras}_${new Date()
+					.toISOString()
+					.split("T")[0]}.pdf`;
+				pdf.save(fileName);
+
+				await showAlert("Factura PDF generada y descargada exitosamente", {
+					type: "success",
+					title: "Éxito",
+					timer: 3000,
+				});
+			} finally {
+				// 7. Limpiar
+				document.body.removeChild(tempDiv);
+			}
+		} catch (error) {
+			console.error(error);
+			await showAlert("Error al generar la factura PDF", {
+				type: "error",
+				title: "Error",
+			});
+		}
+	};
+
+	/* ──────────────────────────────────── */
+
+	/* ─────── HTML Factura Compra ──────── */
+
+	const generarHTMLFacturaCompra = (datosCompra) => {
+	const insumos = datosCompra.Insumos || [];
+	const productos = datosCompra.Productos || [];
+	const proveedor = datosCompra.Proveedor || {};
+
+	const formatCOP = (value) => {
+		if (!value && value !== 0) return "$0";
+		return `$${Number(value).toLocaleString("es-CO")}`;
+	};
+
+	const formatFecha = (fecha) => {
+		return new Date(fecha).toLocaleDateString("es-ES", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+		});
+	};
+
+	return `
+		<div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; background: white; padding: 20px;">
+		<!-- Header -->
+		<div style="text-align: center; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+			<div style="font-size: 28px; font-weight: bold; color: #333; margin-bottom: 10px;">TBH - Compras</div>
+			<div style="font-size: 24px; font-weight: bold; color: #666;">FACTURA DE COMPRA</div>
+		</div>
+
+		<!-- Información -->
+		<div style="margin-bottom: 30px;">
+			<p><strong>ID Compra:</strong> COM_${datosCompra.Id_Compras}</p>
+			<p><strong>Fecha:</strong> ${formatFecha(datosCompra.Fecha)}</p>
+			<p><strong>Proveedor:</strong> ${proveedor.Nombre_Empresa || proveedor.Nombre || "-"}</p>
+			<p><strong>Asesor:</strong> ${proveedor.Asesor || "-"}</p>
+			<p><strong>Email:</strong> ${proveedor.Email || "-"}</p>
+			<p><strong>Teléfono Empresa:</strong> ${proveedor.Celular_Empresa || "-"}</p>
+			<p><strong>Teléfono Asesor:</strong> ${proveedor.Celular_Asesor || "-"}</p>
+			<p><strong>Dirección:</strong> ${proveedor.Direccion || "-"}</p>
+			<p><strong>Estado:</strong> ${datosCompra.Estado ? "Activo" : "Inactivo"}</p>
+		</div>
+
+		<!-- Insumos -->
+		${
+			insumos.length > 0
+			? `
+			<h3>Insumos</h3>
+			<br>
+			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+			<thead>
+				<tr style="background-color: #f8f9fa;">
+				<th style="border: 1px solid #ddd; padding: 8px;">ID</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Nombre</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Cantidad</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Precio/ml</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Subtotal</th>
+				</tr>
+			</thead>
+			<tbody>
+				${insumos
+				.map(
+					(i) => `
+				<tr>
+					<td style="border: 1px solid #ddd; padding: 8px;">${i.Id_Insumos}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">${i.Nombre}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">${i.Cantidad}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">${formatCOP(i.Precio_ml)}</td>
+					<td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">${formatCOP(i.Subtotal)}</td>
+				</tr>`
+				)
+				.join("")}
+			</tbody>
+			</table>
+			`
+			: ""
+		}
+
+		<!-- Productos -->
+		${
+			productos.length > 0
+			? `
+			<h3>Productos</h3>
+			<br>
+			<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+			<thead>
+				<tr style="background-color: #f8f9fa;">
+				<th style="border: 1px solid #ddd; padding: 8px;">Nombre</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Cantidad</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Precio Unitario</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Subtotal</th>
+				<th style="border: 1px solid #ddd; padding: 8px;">Tallas</th>
+				</tr>
+			</thead>
+			<tbody>
+				${productos
+				.map(
+					(p) => `
+				<tr>
+					<td style="border: 1px solid #ddd; padding: 8px;">${p.Nombre}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">${p.Cantidad}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">${formatCOP(p.Precio_Unitario)}</td>
+					<td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">${formatCOP(p.Subtotal)}</td>
+					<td style="border: 1px solid #ddd; padding: 8px;">
+					${
+						p.Tallas && p.Tallas.length > 0
+						? p.Tallas.map((t) => `${t.Talla}: ${t.Cantidad}`).join(", ")
+						: "-"
+					}
+					</td>
+				</tr>`
+				)
+				.join("")}
+			</tbody>
+			</table>
+			`
+			: ""
+		}
+
+		<!-- Total -->
+		<div style="text-align: right; margin-top: 30px; font-size: 20px; font-weight: bold; color: #333;">
+			TOTAL: ${formatCOP(datosCompra.Total)}
+		</div>
+
+		<!-- Footer -->
+		<div style="margin-top: 50px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
+			<p>Factura de Compra generada el ${formatFecha(new Date())}</p>
+		</div>
+		</div>
+	`;
+	};
+
 	return (
 		<GeneralTable
 			title="Compras"
@@ -264,6 +478,7 @@ const Compras = () => {
 			onAdd={handleAdd}
 			onView={handleVerDetalles}
 			onCancel={handleToggleEstado}
+			onGenerarFactura={generarFacturaPDF}
 			idAccessor="Id_Compras"
 			stateAccessor="Estado"
 		/>
