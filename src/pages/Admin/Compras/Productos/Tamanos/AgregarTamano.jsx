@@ -184,23 +184,13 @@ function AgregarTamano() {
 	/* ─────────── +/- Insumos ─────────── */
 
 	const addInsumo = () => {
-
-		if (!frascos.Id_Insumos) {
-			return showAlert("Frasco requerido",{
-					type: "warning",
-					title: "Advertencia",
-					duration: 2000,
-				}
-			);
-		}
-
 		if (!frasco.Id_Insumos) {
 			return mostrarAlerta(
 				"Frasco requerido",
 				"Debes seleccionar un frasco antes de agregar insumos."
 			);
 		}
-		
+
 		const total = insumosSeleccionados.reduce(
 			(sum, i) => sum + Number(i.Cantidad),
 			0,
@@ -220,6 +210,7 @@ function AgregarTamano() {
 			{ Id_Insumos: "", Nombre: "", Cantidad: "" },
 		]);
 	};
+
 
 	const eliminarInsumo = (insumoIndex) => {
 		const nuevos = [...insumosSeleccionados];
