@@ -56,6 +56,7 @@ import Home from "../pages/Landing/Home";
 import UsuarioIndex from "../pages/Landing/Home";
 import Perfil from "../pages/Landing/Perfil";
 import AgregarAgendamiento from "../pages/Admin/Servicios/Agendamiento/AgregarAgendamiento";
+import EditarAgendamiento from "../pages/Admin/Servicios/Agendamiento/EditarAgendamiento";
 
 
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -136,6 +137,7 @@ function App() {
 				<Route path="tamanos/agregar" element={<AgregarTamano />} />
 				<Route path="tamanos/editar/:id" element={<EditarTamano />} />
 				<Route path="agendamientos/agregar" element={<AgregarAgendamiento />} />
+				<Route path="agendamientos/editar/:id" element={<EditarAgendamiento />} />
 				{/*Cat.Insumo*/}
 				<Route path="categoriainsumo" element={<CategoriaInsumoAdmin />} />
 				<Route path="categoriainsumo/agregar" element={<AgregarCatInsumo />} />
