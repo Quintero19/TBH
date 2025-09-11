@@ -11,16 +11,17 @@ export default function ActivateAccount() {
   useEffect(() => {
     const activateAccount = async () => {
       try {
-        const res = await api.get(`auth/activate/${token}`);
+          const res = await api.get(`auth/activate/${token}`);
 
-        if (res.ok) {
-          setStatus("success");
-        } else {
-          setStatus("error");
+          if (res.status === 200) {
+            setStatus("success");
+          } else {
+            setStatus("error");
+          }
+        } catch (err) {
+          setStatus("error",err);
         }
-      } catch (err) {
-        setStatus("error", err);
-      }
+
     };
 
     activateAccount();
