@@ -7,34 +7,35 @@ import api from "@/utils/api";
 
 export default function RecoverPassword() {
 	const [correo, setCorreo] = useState("");
-	const [mensaje, setMensaje] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setLoading(true);
-		setMensaje("");
 
 		try {
 			const res = await api.post("auth/forgot-password", {
 				Correo: correo,
 			});
 
-			const data = await res.json();
-
-			if (res.ok) {
-				showAlert("Revisa tu correo. Te enviamos un enlace para recuperar tu contraseña.",{
+			// axios ya devuelve JSON en res.data
+			if (res.status === 200) {
+				showAlert(
+					"Revisa tu correo. Te enviamos un enlace para recuperar tu contraseña.",
+					{
 						duration: 4500,
 						icon: "success",
 						title: "Enviado Correctamente",
 					}
 				);
-				
 			} else {
-				showAlert(`${data.message || "Error al enviar el correo"}`);
+				showAlert(`${res.data?.message || "Error al enviar el correo"}`);
 			}
 		} catch (error) {
-			showAlert("Error en el servidor. Intenta más tarde.", error);
+			showAlert("Error en el servidor. Intenta más tarde.", {
+				icon: "error",
+				title: "Error",
+			},error);
 		} finally {
 			setLoading(false);
 		}
@@ -68,8 +69,6 @@ export default function RecoverPassword() {
 						{loading ? "Enviando..." : "Enviar enlace"}
 					</button>
 				</form>
-
-				{mensaje && <p className={styles.message}>{mensaje}</p>}
 
 				<div className={styles.links}>
 					<a href="/login" className={styles.backLink}>

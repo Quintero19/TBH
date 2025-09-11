@@ -4,22 +4,22 @@ import styles from "../../styles/css/AuthForm.module.css";
 import { showAlert } from "@/components/AlertProvider";
 import api from "@/utils/api";
 
-
 export default function ResetPassword() {
-	const { token } = useParams(); 
+	const { token } = useParams();
 	const navigate = useNavigate();
 
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [mensaje, setMensaje] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setMensaje("");
 
 		if (password !== confirmPassword) {
-			showAlert("Las contraseñas no coinciden");
+			showAlert("Las contraseñas no coinciden", {
+				icon: "warning",
+				title: "Atención",
+			});
 			return;
 		}
 
@@ -30,16 +30,24 @@ export default function ResetPassword() {
 				nuevaPassword: password,
 			});
 
-			const data = await res.json();
-
-			if (res.ok) {
-				showAlert("Contraseña restablecida con éxito. Serás redirigido al login...");
+			if (res.status === 200) {
+				showAlert("Contraseña restablecida con éxito. Serás redirigido al login...", {
+					icon: "success",
+					title: "Éxito",
+					duration: 3000,
+				});
 				setTimeout(() => navigate("/login"), 2500);
 			} else {
-				showAlert(`${data.message || "Error al restablecer la contraseña"}`);
+				showAlert(`${res.data?.message || "Error al restablecer la contraseña"}`, {
+					icon: "error",
+					title: "Error",
+				});
 			}
 		} catch (error) {
-			showAlert("Error en el servidor. Intenta más tarde." , error);
+			showAlert("Error en el servidor. Intenta más tarde.", {
+				icon: "error",
+				title: "Error",
+			},error);
 		} finally {
 			setLoading(false);
 		}
@@ -80,8 +88,6 @@ export default function ResetPassword() {
 						{loading ? "Actualizando..." : "Actualizar contraseña"}
 					</button>
 				</form>
-
-				{mensaje && <p className={styles.message}>{mensaje}</p>}
 			</div>
 		</div>
 	);
