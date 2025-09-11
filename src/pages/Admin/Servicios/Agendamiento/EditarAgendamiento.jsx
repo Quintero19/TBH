@@ -1,6 +1,8 @@
 // EditarAgendamiento.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import Button from "@/components/Buttons/Button";
 import { showAlert } from "@/components/AlertProvider";
 import { clienteService } from "@/service/clientes.service";
@@ -17,7 +19,6 @@ const EditarAgendamiento = () => {
   const [agendamientosDelDia, setAgendamientosDelDia] = useState([]);
   const [errors, setErrors] = useState({});
 
-  // Estado del formulario
   const [formData, setFormData] = useState({
     Id_Cliente: "",
     Id_Empleados: "",
@@ -26,7 +27,6 @@ const EditarAgendamiento = () => {
     serviciosAgendados: [],
   });
 
-  // Helper: obtener duración de un servicio por id (soporta campos Id_Servicio o Id_Servicios)
   const getServiceDuration = (serviceId) => {
     const s = serviciosEmpleado.find(
       (se) =>
@@ -36,7 +36,6 @@ const EditarAgendamiento = () => {
     return Number(s?.Duracion || 0);
   };
 
-  // Calcular hora fin (devuelve Date o null)
   const calcularHoraFin = () => {
     if (!formData.Hora_Inicio || formData.serviciosAgendados.length === 0) {
       return null;
@@ -55,7 +54,6 @@ const EditarAgendamiento = () => {
     return fin;
   };
 
-  // Cargar datos iniciales
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -73,7 +71,6 @@ const EditarAgendamiento = () => {
         setBarberos(barberosData);
 
         if (agendamientoData) {
-          // Normalizar serviciosAgendados a [{ Id_Servicios }]
           const serviciosNorm = (agendamientoData.serviciosAgendados || []).map((s) => ({
             Id_Servicios: s.Id_Servicios || s.Id_Servicio || s.Id || s
           }));
@@ -99,7 +96,6 @@ const EditarAgendamiento = () => {
     cargarDatos();
   }, [id, navigate]);
 
-  // Cargar servicios según barbero seleccionado
   useEffect(() => {
     const cargarServiciosEmpleado = async () => {
       if (!formData.Id_Empleados) {
@@ -108,7 +104,6 @@ const EditarAgendamiento = () => {
       }
       try {
         const res = await empleadoService.obtenerServiciosEmpleado(formData.Id_Empleados);
-        // normalizar: servicios pueden venir en res.data.servicios o res.data
         const servicios = res.data?.servicios || res.data || [];
         setServiciosEmpleado(servicios);
       } catch (error) {
@@ -119,14 +114,12 @@ const EditarAgendamiento = () => {
     cargarServiciosEmpleado();
   }, [formData.Id_Empleados]);
 
-  // Cargar agendamientos del día para validar traslapes
   useEffect(() => {
     const cargarAgendamientos = async () => {
       if (!formData.Fecha || !formData.Id_Empleados) return;
       try {
         const res = await agendamientosService.obtenerAgendamientoPorFecha(formData.Fecha);
         const lista = res?.data || res || [];
-        // Excluir el actual (backend usa Id_Agendamientos)
         const filtrada = lista.filter(
           (a) => Number(a.Id_Empleados) === Number(formData.Id_Empleados) && Number(a.Id_Agendamientos) !== Number(id)
         );
@@ -175,7 +168,6 @@ const EditarAgendamiento = () => {
     setErrors(newErrors);
   };
 
-  // Validar traslapes
   const validarTraslape = () => {
     if (!formData.Hora_Inicio || !formData.Fecha) return true;
     const inicio = new Date(`${formData.Fecha}T${formData.Hora_Inicio}`);
@@ -184,14 +176,12 @@ const EditarAgendamiento = () => {
 
     for (let a of agendamientosDelDia) {
       const aInicio = new Date(`${a.Fecha}T${a.Hora_Inicio}`);
-      // manejar Hora_Fin con formato HH:MM:SS o HH:MM
       const partes = (a.Hora_Fin || "").split(":").map(Number);
       let aFin;
       if (partes.length >= 2) {
         aFin = new Date(aInicio);
         aFin.setHours(partes[0], partes[1], partes[2] || 0, 0);
       } else {
-        // si no hay Hora_Fin válida, saltar (no considerar)
         continue;
       }
 
@@ -207,7 +197,6 @@ const EditarAgendamiento = () => {
       let nuevosServicios = [...formData.serviciosAgendados];
       const valNum = Number(value);
       if (checked) {
-        // no duplicados
         if (!nuevosServicios.some((s) => Number(s.Id_Servicios || s.Id_Servicio || s) === valNum)) {
           nuevosServicios.push({ Id_Servicios: valNum });
         }
@@ -223,11 +212,9 @@ const EditarAgendamiento = () => {
     }
   };
 
-  // Enviar formulario: normalizar payload al formato backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar campos actuales antes de enviar
     Object.entries(formData).forEach(([k, v]) => validateField(k, v));
     if (Object.keys(errors).length > 0) return;
 
@@ -241,7 +228,6 @@ const EditarAgendamiento = () => {
     }
 
     try {
-      // Asegurar forma esperada: [{ Id_Servicios }]
       const payload = {
         ...formData,
         serviciosAgendados: (formData.serviciosAgendados || []).map((s) => ({
@@ -264,10 +250,17 @@ const EditarAgendamiento = () => {
   };
 
   const handleCancel = () => {
-    showAlert("¿Seguro que quieres cancelar la edición?", {
-      type: "warning",
-      title: "Cancelar edición",
-      confirm: true,
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Si cancelas, perderás los cambios realizados.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "No, continuar",
+      background: "#000",
+      color: "#fff",
     }).then((res) => {
       if (res.isConfirmed) navigate("/admin/agendamiento");
     });
@@ -352,8 +345,10 @@ const EditarAgendamiento = () => {
 
         {/* Botones */}
         <div className="md:col-span-2 flex gap-2">
-          <Button type="submit" className="green" icon="fa-floppy-o">Guardar </Button>
-          <Button type="button" className="red" onClick={handleCancel} icon="fa-times">Cancelar</Button>
+          <Button type="submit" className="green" icon="fa-floppy-o">Guardar</Button>
+          <Button type="button" className="red" onClick={handleCancel} icon="fa-times">
+            <div className="flex items-center gap-2">Cancelar</div>
+          </Button>
         </div>
       </form>
     </>
