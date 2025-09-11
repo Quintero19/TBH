@@ -237,9 +237,9 @@ const GeneralTable = ({
 														/>
 													)}
 
-												{title !== "Compras" &&
+											{title !== "Compras" &&
 													title !== "Ventas" &&
-														// title !== "Usuarios" &&
+													row.Nombre !== "Administrador" && // 👈 aquí filtras Administrador
 													(canDelete ? canDelete(row) : true) && (
 														<Button
 															className="red"
@@ -247,6 +247,7 @@ const GeneralTable = ({
 															icon="fa-trash"
 														/>
 													)}
+
 
 												{/* Botones para ventas pendientes (estado 3) */}
 												{title === "Ventas" &&
