@@ -6,7 +6,7 @@ import api from "@/utils/api";
 
 
 export default function ResetPassword() {
-	const { token } = useParams(); // token viene de la URL
+	const { token } = useParams(); 
 	const navigate = useNavigate();
 
 	const [password, setPassword] = useState("");
