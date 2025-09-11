@@ -52,7 +52,8 @@ const AgregarAgendamiento = () => {
         const res = await empleadoService.obtenerServiciosEmpleado(
           formData.Id_Empleados
         );
-        setServiciosEmpleado(res.servicios || []);
+        setServiciosEmpleado(res.data?.servicios || []);
+        console.log(res)
       } catch (error) {
         console.error("Error cargando servicios del empleado:", error);
         setServiciosEmpleado([]);
@@ -219,34 +220,37 @@ const AgregarAgendamiento = () => {
         {/* Servicios */}
         <div className="p-6 bg-white border rounded md:col-span-2">
           <h3 className="font-bold mb-2">Servicios *</h3>
-          <div className="space-y-2">
-            {serviciosEmpleado.length === 0 && (
-              <p className="text-gray-500">
-                Seleccione un barbero para ver sus servicios
-              </p>
-            )}
+          {serviciosEmpleado.length === 0 && (
+            <p className="text-gray-500">
+              Seleccione un barbero para ver sus servicios
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {serviciosEmpleado.map((s) => (
               <label
-                key={s.Id_Servicios}
-                className="flex items-center space-x-2"
+                key={s.Id_Servicio}
+                className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-100 transition"
               >
                 <input
                   type="checkbox"
                   name="serviciosAgendados"
-                  value={s.Id_Servicios}
+                  value={s.Id_Servicio}
                   checked={formData.serviciosAgendados.some(
-                    (srv) => srv.Id_Servicios === s.Id_Servicios
+                    (srv) => srv.Id_Servicios === s.Id_Servicio
                   )}
                   onChange={handleChange}
+                  className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
                 />
-                <span>
-                  {s.Nombre} - ${s.Precio} ({s.Duracion} min)
-                </span>
+              <span className="text-lg font-medium text-gray-800">
+                {s.Nombre} - ${s.Precio} <span className="text-sm text-gray-500">({s.Duracion} min)</span>
+              </span>
               </label>
             ))}
           </div>
+
           {errors.serviciosAgendados && (
-            <p className="text-red-500 text-sm">{errors.serviciosAgendados}</p>
+            <p className="text-red-500 text-sm mt-2">{errors.serviciosAgendados}</p>
           )}
         </div>
 
@@ -258,7 +262,7 @@ const AgregarAgendamiento = () => {
           <Button
             type="button"
             className="red"
-            onClick={() => navigate("/admin/agendamientos")}
+            onClick={() => navigate("/admin/agendamiento")}
             icon="fa-times"
           >
             Cancelar
