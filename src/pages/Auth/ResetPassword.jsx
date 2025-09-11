@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "../../styles/css/AuthForm.module.css";
 import { showAlert } from "@/components/AlertProvider";
-import api from "../utils/api";
+import api from "@/utils/api";
 
 
 export default function ResetPassword() {
-	const { token } = useParams(); // token viene de la URL
+	const { token } = useParams(); 
 	const navigate = useNavigate();
 
 	const [password, setPassword] = useState("");
